@@ -3,145 +3,205 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Sidompul Intelligence</title>
+  <title>Sidompul Checker</title>
   
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#000000">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          fontFamily: {
+            display: ['Orbitron', 'sans-serif'],
+            mono: ['Share Tech Mono', 'monospace'],
+          },
           colors: {
-            // Palette Slate (Profesional Dark Mode)
-            bg: { main: '#0f172a', card: '#1e293b', hover: '#334155' },
-            accent: { blue: '#3b82f6', green: '#10b981' }
+            cyber: {
+              black: '#030303',
+              dark: '#0a0a0c',
+              cyan: '#00f3ff',
+              purple: '#bc13fe',
+              dim: 'rgba(0, 243, 255, 0.1)'
+            }
+          },
+          animation: {
+            'pulse-glow': 'pulseGlow 2s infinite',
+            'scan-line': 'scanLine 3s linear infinite',
+          },
+          keyframes: {
+            pulseGlow: {
+              '0%, 100%': { boxShadow: '0 0 10px rgba(0, 243, 255, 0.2)' },
+              '50%': { boxShadow: '0 0 25px rgba(0, 243, 255, 0.5)' },
+            },
+            scanLine: {
+              '0%': { transform: 'translateY(-100%)' },
+              '100%': { transform: 'translateY(500%)' },
+            }
           }
         }
       }
     }
   </script>
   <style>
-    body { background-color: #0f172a; color: #e2e8f0; }
+    body { background-color: #030303; color: #fff; overflow-x: hidden; }
     
-    /* Subtle Card Style */
-    .card {
-      background-color: #1e293b;
-      border: 1px solid #334155;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    /* Cyber Panel */
+    .cyber-panel {
+      background: rgba(10, 10, 12, 0.8);
+      border: 1px solid rgba(0, 243, 255, 0.15);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
     }
-    
-    /* Input Clean */
-    .input-clean:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    .cyber-panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, #00f3ff, transparent);
     }
 
-    /* WhatsApp Float Simple */
+    /* Glowing Text */
+    .text-glow { text-shadow: 0 0 10px rgba(0, 243, 255, 0.7); }
+    .text-glow-purple { text-shadow: 0 0 10px rgba(188, 19, 254, 0.7); }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #030303; }
+    ::-webkit-scrollbar-thumb { background: #00f3ff; }
+
+    /* Floating Button */
     .wa-float {
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s ease;
+      animation: float 4s ease-in-out infinite;
+      box-shadow: 0 0 20px rgba(37, 211, 102, 0.4);
     }
-    .wa-float:active { transform: scale(0.95); }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col pb-24 antialiased">
+<body class="min-h-screen flex flex-col pb-24">
 
-  <header class="fixed top-0 w-full z-40 bg-[#0f172a]/90 backdrop-blur-sm border-b border-gray-800">
-    <div class="max-w-md mx-auto px-5 h-16 flex items-center justify-between">
+  <div class="fixed inset-0 pointer-events-none opacity-20" 
+       style="background-image: linear-gradient(#00f3ff 1px, transparent 1px), linear-gradient(90deg, #00f3ff 1px, transparent 1px); background-size: 50px 50px; mask-image: radial-gradient(circle, black 40%, transparent 80%);">
+  </div>
+
+  <header class="fixed top-0 w-full z-40 bg-[#030303]/90 backdrop-blur-md border-b border-cyber-cyan/20">
+    <div class="max-w-xl mx-auto px-6 h-20 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-lg">
-          <i class="fa-solid fa-bolt text-sm"></i>
+        <div class="w-10 h-10 border border-cyber-cyan bg-cyber-dim flex items-center justify-center relative overflow-hidden group">
+          <div class="absolute inset-0 bg-cyber-cyan/20 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+          <i class="fa-solid fa-bolt text-cyber-cyan text-xl relative z-10"></i>
         </div>
-        <span class="font-bold text-lg tracking-tight text-white">Sidompul</span>
+        <div>
+          <h1 class="font-display font-bold text-xl tracking-widest text-white">SIDOMPUL</h1>
+          <div class="h-[2px] w-full bg-gradient-to-r from-cyber-cyan to-transparent"></div>
+        </div>
       </div>
-      <div class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded font-medium">v5.0 Stable</div>
+      <div class="w-2 h-2 rounded-full bg-cyber-cyan shadow-[0_0_10px_#00f3ff] animate-pulse"></div>
     </div>
   </header>
 
-  <main class="flex-1 w-full max-w-md mx-auto pt-24 px-5">
+  <main class="flex-1 w-full max-w-xl mx-auto pt-28 px-5 relative z-10">
     
-    <div class="text-center mb-8">
-      <h2 class="text-xl font-semibold text-white mb-1">Cek Kuota & Paket</h2>
-      <p class="text-sm text-gray-400">Monitoring data real-time by <span class="text-blue-400 font-medium">Itsbad Store</span></p>
+    <div class="text-center mb-10">
+      <h2 class="text-2xl font-display font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-cyber-cyan to-white animate-pulse">
+        【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 𝕤𝕥𝕠𝕣𝕖 】
+      </h2>
+      <p class="text-[10px] text-cyber-cyan/60 font-mono tracking-[0.5em] mt-2">SYSTEM READY</p>
     </div>
 
-    <div class="card rounded-2xl p-5 mb-6">
-      <label class="block text-xs font-medium text-gray-400 mb-2 ml-1">NOMOR TARGET</label>
-      <div class="relative flex items-center mb-4">
-        <span class="absolute left-4 text-gray-500"><i class="fa-solid fa-phone"></i></span>
-        <input type="tel" id="nomor" placeholder="0878xxxx" 
-          class="input-clean w-full bg-[#0f172a] border border-gray-700 text-white rounded-xl py-3.5 pl-11 pr-4 outline-none transition-all placeholder-gray-600 font-mono">
+    <div class="cyber-panel rounded-xl p-6 mb-8">
+      <label class="font-mono text-xs text-cyber-cyan mb-2 block tracking-widest">> ENTER_MSISDN</label>
+      <div class="relative group">
+        <input type="tel" id="nomor" placeholder="08xxx..." 
+          class="w-full bg-black border border-white/10 text-white font-mono text-lg py-4 pl-4 pr-12 focus:outline-none focus:border-cyber-cyan focus:shadow-[0_0_15px_rgba(0,243,255,0.3)] transition-all placeholder-gray-700">
+        <i class="fa-solid fa-microchip absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-cyber-cyan transition-colors"></i>
       </div>
       
-      <button id="cekBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3.5 rounded-xl transition-colors flex justify-center items-center gap-2">
-        <span>Cek Sekarang</span>
-        <i class="fa-solid fa-arrow-right text-sm"></i>
+      <button id="cekBtn" class="mt-4 w-full bg-white text-black font-display font-bold text-lg py-3 hover:bg-cyber-cyan hover:tracking-widest transition-all duration-300 clip-path-polygon shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+        INITIATE SCAN
       </button>
     </div>
 
-    <div id="loading" class="hidden py-12 flex flex-col items-center justify-center text-gray-400">
-      <i class="fa-solid fa-circle-notch fa-spin text-3xl text-blue-500 mb-4"></i>
-      <p class="text-xs font-medium animate-pulse">Sedang mengambil data...</p>
+    <div id="loading" class="hidden py-10 text-center">
+      <div class="inline-block relative">
+        <div class="w-20 h-20 border-2 border-cyber-dim rounded-full animate-spin"></div>
+        <div class="w-20 h-20 border-t-2 border-cyber-cyan rounded-full animate-spin absolute top-0 left-0 shadow-[0_0_15px_#00f3ff]"></div>
+        <i class="fa-solid fa-eye text-cyber-cyan absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse"></i>
+      </div>
+      <p class="font-mono text-xs text-cyber-cyan mt-4 animate-pulse">DECRYPTING DATA...</p>
     </div>
 
-    <div id="error" class="hidden bg-red-900/20 border border-red-500/20 p-4 rounded-xl text-red-400 text-sm mb-6 flex items-start gap-3">
-      <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
+    <div id="error" class="hidden border border-red-500/50 bg-red-900/10 p-4 mb-6 flex items-center gap-4">
+      <i class="fa-solid fa-bug text-red-500 text-xl"></i>
       <div>
-        <p class="font-semibold text-red-300">Gagal Memproses</p>
-        <p id="errorMsg" class="text-xs opacity-80 mt-1">Koneksi terputus.</p>
+        <h4 class="text-red-500 font-bold font-display">SYSTEM_FAILURE</h4>
+        <p id="errorMsg" class="text-red-400/70 text-xs font-mono">Connection refused.</p>
       </div>
     </div>
 
-    <div id="result" class="hidden space-y-5">
+    <div id="result" class="hidden space-y-6">
       
-      <div class="card rounded-2xl p-5">
-        <div class="flex justify-between items-start border-b border-gray-700 pb-4 mb-4">
+      <div class="cyber-panel p-6 rounded-lg relative">
+        <div class="absolute right-0 top-0 w-24 h-24 bg-cyber-cyan/10 rounded-full blur-2xl"></div>
+        
+        <div class="flex justify-between items-end border-b border-white/10 pb-4 mb-4 relative z-10">
           <div>
-            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">MSISDN</p>
-            <p class="text-xl font-mono font-bold text-white tracking-wide" id="resNomor">-</p>
+            <span class="text-[10px] text-gray-500 font-mono tracking-widest block mb-1">TARGET ID</span>
+            <span class="text-2xl text-white font-mono font-bold tracking-wider text-glow" id="resNomor">-</span>
           </div>
           <div class="text-right">
-            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Masa Aktif</p>
-            <p class="text-sm font-medium text-green-400" id="resExp">-</p>
+             <span class="text-[10px] text-gray-500 font-mono tracking-widest block mb-1">EXPIRES</span>
+             <span class="text-cyber-cyan font-bold font-mono" id="resExp">-</span>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 text-xs text-gray-300">
+        <div class="grid grid-cols-2 gap-4 text-xs font-mono relative z-10">
           <div>
-            <span class="text-gray-500 block mb-0.5">Umur Kartu</span>
-            <span class="font-medium text-white" id="resUmur">-</span>
+            <span class="text-gray-500 block">AGE</span>
+            <span class="text-white font-bold" id="resUmur">-</span>
           </div>
-          <div>
-            <span class="text-gray-500 block mb-0.5">Jaringan</span>
-            <span class="font-medium text-white" id="resNet">-</span>
+          <div class="text-right">
+             <span class="text-gray-500 block">STATUS</span>
+             <span class="text-green-400 font-bold" id="resNet">ACTIVE</span>
           </div>
+        </div>
+        
+        <div class="mt-4 pt-3 border-t border-white/10 flex justify-between text-[10px] font-mono text-gray-500">
+          <span id="vDev">DEV [ ]</span>
+          <span id="vArea">AREA [ ]</span>
+          <span id="vSim">SIM [ ]</span>
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
-        <div class="card p-4 rounded-xl text-center">
-          <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Total Data</p>
-          <p class="text-lg font-bold text-white" id="totalQuota">0 GB</p>
+        <div class="bg-black border border-white/10 p-4 rounded text-center relative overflow-hidden group">
+          <div class="absolute inset-0 bg-cyber-cyan/5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+          <p class="text-[10px] text-gray-500 font-mono tracking-widest mb-1 relative z-10">TOTAL DATA</p>
+          <p class="text-xl font-bold text-white font-mono group-hover:text-cyber-cyan transition-colors relative z-10" id="totalQuota">0 GB</p>
         </div>
-        <div class="card p-4 rounded-xl text-center border-blue-500/30">
-          <p class="text-[10px] text-blue-400 font-bold uppercase mb-1">Sisa Data</p>
-          <p class="text-lg font-bold text-blue-500" id="sisaQuota">0 GB</p>
+        <div class="bg-black border border-white/10 p-4 rounded text-center relative overflow-hidden group">
+           <div class="absolute inset-0 bg-cyber-purple/5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+          <p class="text-[10px] text-gray-500 font-mono tracking-widest mb-1 relative z-10">REMAINING</p>
+          <p class="text-xl font-bold text-white font-mono group-hover:text-cyber-purple transition-colors relative z-10" id="sisaQuota">0 GB</p>
         </div>
       </div>
 
       <div>
-        <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-          <i class="fa-solid fa-box-open text-gray-500"></i> Rincian Paket
-        </h3>
-        <div id="paketContainer" class="space-y-3">
+        <div class="flex items-center gap-2 mb-4">
+          <i class="fa-solid fa-layer-group text-cyber-cyan"></i>
+          <h3 class="font-display font-bold text-sm text-white tracking-wider">ACTIVE PROTOCOLS</h3>
+        </div>
+        <div id="paketContainer" class="space-y-4">
           </div>
       </div>
 
@@ -149,12 +209,11 @@
   </main>
 
   <a href="https://chat.whatsapp.com/H4wD01XzngRJo3ORjKKV3V" target="_blank" 
-     class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] hover:bg-[#20bd5a] rounded-full flex items-center justify-center text-white wa-float">
-    <i class="fa-brands fa-whatsapp text-3xl"></i>
+     class="fixed bottom-8 right-6 z-50 w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center wa-float hover:scale-110 transition-transform cursor-pointer border-2 border-black">
+    <i class="fa-brands fa-whatsapp text-3xl text-white"></i>
   </a>
 
   <script>
-    // --- KONFIGURASI ---
     const API_CEK = '/api/cek-quota';
     const API_LOG = '/api/telegram';
 
@@ -162,7 +221,6 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
     }
 
-    // Tools
     const parseSize = (str) => {
       if(!str) return 0;
       let val = parseFloat(str.replace(/[^0-9.]/g, ''));
@@ -172,7 +230,6 @@
       return 0;
     };
 
-    // Auto Format Input
     const input = document.getElementById('nomor');
     input.addEventListener('input', (e) => {
       let val = e.target.value.replace(/[^0-9]/g,'');
@@ -183,16 +240,14 @@
 
     const sendLog = async (msg, type) => {
       try {
-        // Kirim raw text html, backend api/telegram.js akan forward ke bot
         await fetch(API_LOG, { 
             method:'POST', 
             headers:{'Content-Type':'application/json'}, 
             body:JSON.stringify({text: msg})
         });
-      } catch(e){ console.error("Log error", e); }
+      } catch(e){}
     }
 
-    // Main Logic
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const val = input.value.trim();
       if(val.length < 10) return;
@@ -202,8 +257,7 @@
       document.getElementById('loading').classList.remove('hidden');
       document.getElementById('paketContainer').innerHTML = '';
 
-      // Log Awal
-      sendLog(`<b>🔍 SCAN INITIATED</b>\nTarget: <code>${val}</code>`, 'INPUT');
+      sendLog(`<b>🔍 SCAN STARTED</b>\nTarget: <code>${val}</code>`, 'INPUT');
 
       try {
         const res = await fetch(API_CEK, {
@@ -213,107 +267,123 @@
         
         document.getElementById('loading').classList.add('hidden');
 
-        if(!data.success) throw new Error(data.message || 'Tidak ada respons dari server.');
+        if(!data.success) throw new Error(data.message || 'Server timeout.');
 
         const sub = data.data.subs_info;
         const pkgs = data.data.package_info.packages;
 
-        // Render Frontend
+        // --- Render UI ---
         document.getElementById('resNomor').innerText = sub.msisdn;
         document.getElementById('resExp').innerText = sub.exp_date;
-        document.getElementById('resUmur').innerText = sub.tenure || "-";
-        document.getElementById('resNet').innerText = sub.net_type || "4G/LTE";
+        document.getElementById('resUmur').innerText = sub.tenure || "N/A";
+        document.getElementById('resNet').innerText = sub.net_type || "LTE";
+        
+        // VoLTE UI
+        const v = sub.volte || {};
+        document.getElementById('vDev').innerText = `DEV [${v.device?'OK':'NO'}]`;
+        document.getElementById('vDev').className = v.device ? 'text-green-500 font-bold' : 'text-gray-600';
+        document.getElementById('vArea').innerText = `AREA [${v.area?'OK':'NO'}]`;
+        document.getElementById('vArea').className = v.area ? 'text-green-500 font-bold' : 'text-gray-600';
+        document.getElementById('vSim').innerText = `SIM [${v.simcard?'OK':'NO'}]`;
+        document.getElementById('vSim').className = v.simcard ? 'text-green-500 font-bold' : 'text-gray-600';
 
-        // Generate Detailed Telegram Message & Frontend UI
         let totalAll = 0, sisaAll = 0;
-        let tgDetail = ''; // Variabel khusus untuk pesan Telegram
+        
+        // --- BUAT LOG TELEGRAM SUPER DETAIL ---
+        // Header
+        let tgMsg = `<b>✅ HASIL SCAN SIDOMPUL</b>\n`;
+        tgMsg += `========================\n`;
+        tgMsg += `<b>👤 PELANGGAN</b>\n`;
+        tgMsg += `• Nomor: <code>${sub.msisdn}</code>\n`;
+        tgMsg += `• Expired: ${sub.exp_date}\n`;
+        tgMsg += `• Umur: ${sub.tenure || '-'}\n`;
+        tgMsg += `• Jaringan: ${sub.net_type}\n\n`;
+        
+        tgMsg += `<b>📶 INFO VoLTE</b>\n`;
+        tgMsg += `• Device: ${v.device ? '✅ Support' : '❌ Tidak'}\n`;
+        tgMsg += `• Area: ${v.area ? '✅ Support' : '❌ Tidak'}\n`;
+        tgMsg += `• Kartu: ${v.simcard ? '✅ Support' : '❌ Tidak'}\n\n`;
+
+        tgMsg += `<b>📦 RINCIAN PAKET</b>\n`;
 
         if(pkgs && pkgs.length > 0) {
-          pkgs.forEach(p => {
-            // Header Paket di Telegram
-            tgDetail += `\n📦 <b>${p.name}</b>\n`;
+          pkgs.forEach((p, index) => {
+            // Log Telegram Per Paket
+            tgMsg += `\n<b>${index + 1}. ${p.name}</b>\n`;
+            tgMsg += `   <i>Exp: ${p.expiry}</i>\n`;
             
-            // Header Paket di UI Frontend
+            // UI Card
             const card = document.createElement('div');
-            card.className = "card rounded-xl p-4";
+            card.className = "cyber-panel p-4 rounded mb-2 hover:border-cyber-cyan transition-all";
+            
             let qHtml = '';
-
+            
             p.quotas.forEach(q => {
               totalAll += parseSize(q.total);
               sisaAll += parseSize(q.remaining);
               
               const pct = q.percent !== null ? q.percent : 100;
-              const barColor = pct < 20 ? 'bg-red-500' : 'bg-blue-600';
+              const barClass = pct < 20 ? 'bg-red-500 shadow-[0_0_10px_red]' : 'bg-cyber-cyan shadow-[0_0_10px_#00f3ff]';
+              
+              // Log Telegram Per Kuota (Detail!)
+              tgMsg += `   ├ <b>${q.name}</b>\n`;
+              tgMsg += `   │  Total: ${q.total}\n`;
+              tgMsg += `   └  Sisa : <b>${q.remaining}</b>\n`;
 
-              // Detail Item di Telegram (LENGKAP)
-              tgDetail += `  └ ${q.name}: ${q.remaining} / ${q.total}\n`;
-
-              // Item di UI Frontend
+              // UI HTML
               qHtml += `
-                <div class="mt-3">
-                  <div class="flex justify-between mb-1.5 text-xs">
-                    <span class="text-gray-400 font-medium">${q.name}</span>
-                    <span class="text-white font-mono">${q.remaining}</span>
+                <div class="mt-4 first:mt-2">
+                  <div class="flex justify-between mb-1 text-xs font-mono">
+                    <span class="text-gray-400">${q.name}</span>
+                    <span class="text-white">${q.remaining}</span>
                   </div>
-                  <div class="w-full bg-gray-800 rounded-full h-1.5">
-                    <div class="${barColor} h-1.5 rounded-full" style="width:${pct}%"></div>
+                  <div class="w-full bg-black h-1 border border-white/10">
+                    <div class="h-full ${barClass} transition-all duration-1000" style="width:${pct}%"></div>
+                  </div>
+                  <div class="text-[9px] text-gray-600 mt-1 font-mono flex justify-between">
+                     <span>TOT: ${q.total}</span>
+                     <span>SISA: ${q.remaining}</span>
                   </div>
                 </div>
               `;
             });
 
             card.innerHTML = `
-              <div class="flex justify-between items-center border-b border-gray-700 pb-2 mb-2">
-                <h4 class="font-bold text-sm text-blue-400">${p.name}</h4>
-                <div class="text-[10px] text-gray-500 bg-gray-800 px-2 py-0.5 rounded">${p.expiry}</div>
+              <div class="flex justify-between items-center border-b border-white/10 pb-2 mb-2">
+                <h4 class="font-bold text-sm text-cyber-cyan font-display tracking-wide">${p.name}</h4>
+                <div class="text-[9px] text-gray-500 font-mono border border-white/10 px-2 py-1 rounded">${p.expiry}</div>
               </div>
               ${qHtml}
             `;
             document.getElementById('paketContainer').appendChild(card);
           });
         } else {
-            document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-500 text-xs py-6">Tidak ada paket aktif.</div>`;
-            tgDetail = "\n<i>Tidak ada paket aktif.</i>";
+            document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-600 font-mono text-xs py-4">// NO ACTIVE DATA //</div>`;
+            tgMsg += "<i>Tidak ada paket aktif.</i>\n";
         }
+
+        // Footer Telegram
+        tgMsg += `\n========================\n`;
+        tgMsg += `<b>📊 TOTAL AKUMULASI</b>\n`;
+        tgMsg += `• Total Semua: ${totalAll.toFixed(1)} GB\n`;
+        tgMsg += `• Sisa Semua: <b>${sisaAll.toFixed(1)} GB</b>\n`;
+        tgMsg += `========================\n`;
+        tgMsg += `<i>By Itsbad Store System</i>`;
 
         // Update Summary UI
         document.getElementById('totalQuota').innerText = totalAll.toFixed(1) + " GB";
         document.getElementById('sisaQuota').innerText = sisaAll.toFixed(1) + " GB";
+        
         document.getElementById('result').classList.remove('hidden');
-
-        // --- KIRIM FORMAT LAPORAN TELEGRAM (SUPER DETAIL) ---
-        const volteInfo = sub.volte ? 
-          `Device:${sub.volte.device?'✅':'❌'} Area:${sub.volte.area?'✅':'❌'} SIM:${sub.volte.simcard?'✅':'❌'}` : 'Tidak terdeteksi';
-
-        const telegramMessage = `
-<b>✅ LAPORAN SUKSES</b>
-========================
-<b>📱 INFO PELANGGAN</b>
-• Nomor: <code>${sub.msisdn}</code>
-• Masa Aktif: ${sub.exp_date}
-• Umur Kartu: ${sub.tenure || '-'}
-• Jaringan: ${sub.net_type || '-'}
-• VoLTE: ${volteInfo}
-
-<b>📊 RINGKASAN DATA</b>
-• Total Kuota: <b>${totalAll.toFixed(1)} GB</b>
-• Sisa Kuota: <b>${sisaAll.toFixed(1)} GB</b>
-
-<b>📋 RINCIAN PAKET</b>${tgDetail}
-
-========================
-<i>Generated by Itsbad Store</i>
-        `;
-
-        sendLog(telegramMessage, 'OUTPUT');
+        
+        // Kirim Log Detail
+        sendLog(tgMsg, 'OUTPUT');
 
       } catch (err) {
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('error').classList.remove('hidden');
         document.getElementById('errorMsg').innerText = err.message;
-        
-        // Log Error ke Telegram
-        sendLog(`<b>❌ GAGAL MEMPROSES</b>\nTarget: ${val}\nError: ${err.message}`, 'ERROR');
+        sendLog(`<b>❌ ERROR REPORT</b>\nTarget: ${val}\nMsg: ${err.message}`, 'ERROR');
       }
     });
   </script>
