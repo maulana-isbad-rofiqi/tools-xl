@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sidompul Intelligence Dashboard</title>
+  <title>Sidompul Pro Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script>
@@ -12,237 +12,278 @@
       theme: {
         extend: {
           colors: {
-            dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' },
+            dark: { 950: '#020617', 900: '#0f172a', 800: '#1e293b', 700: '#334155' },
             primary: { 500: '#3b82f6', 600: '#2563eb' }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
           }
         }
       }
     }
   </script>
   <style>
-    /* Efek Glassmorphism */
-    .glass {
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.4);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
-    .gradient-text {
-      background: linear-gradient(to right, #60a5fa, #c084fc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .animate-enter { animation: enter 0.5s ease-out forwards; opacity: 0; transform: translateY(20px); }
-    @keyframes enter { to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
-<body class="bg-dark-900 text-gray-200 font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
+<body class="bg-dark-950 text-gray-200 font-sans min-h-screen flex selection:bg-blue-500 selection:text-white">
 
-  <aside class="w-full md:w-64 bg-dark-800 border-r border-gray-700 flex-shrink-0 flex flex-col z-20">
-    <div class="h-16 flex items-center px-6 border-b border-gray-700">
-      <i class="fa-solid fa-bolt text-blue-500 text-xl mr-3"></i>
-      <h1 class="font-bold text-lg tracking-wider">SIDOMPUL <span class="text-xs bg-blue-600 px-1 rounded text-white">PRO</span></h1>
+  <aside class="hidden md:flex w-72 flex-col border-r border-gray-800 bg-dark-900/50 backdrop-blur-xl fixed h-full z-50">
+    <div class="h-20 flex items-center px-8 border-b border-gray-800">
+      <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-lg shadow-blue-500/20">
+        <i class="fa-solid fa-bolt text-white text-sm"></i>
+      </div>
+      <h1 class="font-bold text-xl tracking-tight text-white">SIDOMPUL <span class="text-blue-500">.ID</span></h1>
     </div>
-    <nav class="flex-1 py-4 space-y-1 px-2">
-      <a href="#" class="flex items-center px-4 py-3 bg-blue-600/20 text-blue-400 rounded-lg">
-        <i class="fa-solid fa-chart-pie w-6"></i> Dashboard
+    
+    <nav class="flex-1 py-6 px-4 space-y-2">
+      <div class="px-4 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Menu Utama</div>
+      <a href="#" class="flex items-center px-4 py-3 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-900/20 transition-all">
+        <i class="fa-solid fa-layer-group w-6"></i> <span class="font-medium">Dashboard Kuota</span>
       </a>
-      <a href="#" class="flex items-center px-4 py-3 text-gray-400 hover:bg-dark-700 hover:text-white rounded-lg transition">
-        <i class="fa-solid fa-history w-6"></i> Riwayat
+      <a href="#" class="flex items-center px-4 py-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all">
+        <i class="fa-solid fa-clock-rotate-left w-6"></i> <span class="font-medium">Riwayat Cek</span>
       </a>
     </nav>
-    <div class="p-4 border-t border-gray-700 text-xs text-gray-500 text-center">
-      System v3.0 • Secure API
+
+    <div class="p-6 border-t border-gray-800">
+      <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-4 border border-gray-700">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+          <span class="text-xs font-medium text-green-400">System Operational</span>
+        </div>
+        <p class="text-[10px] text-gray-500">Server v3.2.1 (Stable)</p>
+      </div>
     </div>
   </aside>
 
-  <main class="flex-1 overflow-y-auto relative p-4 md:p-8">
-    <header class="flex justify-between items-center mb-8">
-      <div>
-        <h2 class="text-2xl font-bold text-white">Selamat Datang</h2>
-        <p class="text-gray-400 text-sm">Monitoring kuota real-time & presisi.</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <span class="px-3 py-1 bg-green-500/20 text-green-400 text-xs rounded-full border border-green-500/30">
-          ● System Online
-        </span>
+  <main class="flex-1 md:ml-72 min-h-screen flex flex-col relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-96 bg-blue-600/10 blur-[100px] pointer-events-none"></div>
+    
+    <header class="md:hidden h-16 border-b border-gray-800 flex items-center justify-between px-6 bg-dark-900/80 backdrop-blur-md sticky top-0 z-40">
+      <div class="font-bold text-lg text-white">SIDOMPUL</div>
+      <div class="w-8 h-8 bg-blue-600/20 text-blue-400 rounded-full flex items-center justify-center">
+        <i class="fa-solid fa-user text-xs"></i>
       </div>
     </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-      <div class="glass p-5 rounded-2xl flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
-          <i class="fa-solid fa-server"></i>
-        </div>
-        <div>
-          <p class="text-xs text-gray-400">API Latency</p>
-          <p class="font-bold text-white text-lg">Fast <span class="text-green-400 text-xs">ms</span></p>
-        </div>
-      </div>
-      <div class="glass p-5 rounded-2xl flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400">
-          <i class="fa-solid fa-users"></i>
-        </div>
-        <div>
-          <p class="text-xs text-gray-400">Visitor Status</p>
-          <p class="font-bold text-white text-lg" id="visitorStatus">Tracking...</p>
-        </div>
-      </div>
-      <div class="glass p-5 rounded-2xl flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400">
-          <i class="fa-solid fa-shield-halved"></i>
-        </div>
-        <div>
-          <p class="text-xs text-gray-400">Security</p>
-          <p class="font-bold text-white text-lg">Encrypted</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="glass rounded-2xl p-6 md:p-8 mb-8 relative overflow-hidden">
-      <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+    <div class="flex-1 p-6 md:p-10 max-w-5xl mx-auto w-full z-10">
       
-      <h3 class="text-xl font-semibold mb-6 flex items-center text-white">
-        <i class="fa-solid fa-magnifying-glass mr-2 text-blue-500"></i> Cek Kuota XL & Axis
-      </h3>
+      <div class="mb-10 text-center md:text-left">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">Cek Kuota & Paket</h2>
+        <p class="text-gray-400">Monitoring sisa kuota XL & Axis dengan detail presisi.</p>
+      </div>
 
-      <div class="flex flex-col md:flex-row gap-4">
-        <div class="relative flex-1">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <span class="text-gray-400 text-sm font-bold">+62</span>
+      <div class="glass-panel rounded-2xl p-1 shadow-2xl shadow-blue-900/10 mb-8">
+        <div class="bg-dark-900/80 rounded-xl p-6 md:p-8">
+          
+          <label class="block text-sm font-medium text-gray-400 mb-3 ml-1">Nomor Telepon Target</label>
+          <div class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+              <span id="flagIcon" class="text-gray-500 text-lg group-focus-within:text-blue-500 transition-colors">
+                <i class="fa-solid fa-mobile-screen"></i>
+              </span>
+            </div>
+            
+            <input type="text" id="nomor" 
+              placeholder="Paste nomor disini (Contoh: 0878-xxxx-xxxx)" 
+              class="block w-full bg-dark-950 border border-gray-700 rounded-xl py-4 pl-12 pr-4 text-lg text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-mono tracking-wide shadow-inner"
+              autocomplete="off"
+            >
+            
+            <button id="clearBtn" class="absolute inset-y-0 right-32 hidden items-center text-gray-500 hover:text-white transition-colors">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+
+            <button id="cekBtn" class="absolute right-2 top-2 bottom-2 bg-blue-600 hover:bg-blue-500 text-white font-medium px-6 rounded-lg transition-all shadow-lg hover:shadow-blue-500/25 active:scale-95 flex items-center gap-2">
+              <span>Cek</span> <i class="fa-solid fa-arrow-right"></i>
+            </button>
           </div>
-          <input type="text" id="nomor" placeholder="878xxxxx" 
-            class="w-full bg-dark-900 border border-gray-600 text-white rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition shadow-inner">
-        </div>
-        <button id="cekBtn" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2">
-          <span>Scan Data</span> <i class="fa-solid fa-rocket"></i>
-        </button>
-      </div>
-    </div>
+          <p class="mt-3 text-xs text-gray-500 flex items-center gap-2">
+            <i class="fa-solid fa-circle-info text-blue-500/50"></i>
+            <span>Format otomatis diperbaiki (08xx / +62xx &rarr; 628xx)</span>
+          </p>
 
-    <div id="loading" class="hidden py-12 text-center">
-      <div class="inline-block relative w-20 h-20">
-        <div class="animate-spin absolute top-0 left-0 w-full h-full border-4 border-blue-500/30 rounded-full"></div>
-        <div class="animate-spin absolute top-0 left-0 w-full h-full border-4 border-transparent border-t-blue-500 rounded-full"></div>
-        <i class="fa-solid fa-satellite-dish absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-blue-400"></i>
-      </div>
-      <p class="mt-4 text-blue-400 animate-pulse font-mono text-sm">Connecting to Satellite...</p>
-    </div>
-
-    <div id="error" class="hidden mb-8 animate-enter">
-      <div class="bg-red-500/10 border border-red-500/50 text-red-200 p-4 rounded-xl flex items-start gap-3">
-        <i class="fa-solid fa-triangle-exclamation mt-1"></i>
-        <div>
-          <h4 class="font-bold text-red-400">Gagal Mengambil Data</h4>
-          <p class="text-sm opacity-80" id="errorMsg">Silakan coba lagi nanti.</p>
         </div>
       </div>
-    </div>
 
-    <div id="result" class="hidden animate-enter space-y-6">
+      <div id="loading" class="hidden py-20 text-center">
+        <div class="relative inline-flex">
+          <div class="w-16 h-16 border-4 border-blue-600/30 rounded-full animate-spin"></div>
+          <div class="w-16 h-16 border-4 border-t-blue-500 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+          <div class="absolute inset-0 flex items-center justify-center text-blue-400">
+            <i class="fa-solid fa-satellite-dish text-xl"></i>
+          </div>
+        </div>
+        <p class="mt-6 text-gray-300 font-medium">Menghubungi Satelit Sidompul...</p>
+        <p class="text-xs text-gray-500 mt-1">Mengambil data paket terbaru</p>
+      </div>
+
+      <div id="error" class="hidden mb-8">
+        <div class="bg-red-500/10 border border-red-500/20 text-red-200 p-4 rounded-xl flex items-center gap-4">
+          <div class="bg-red-500/20 p-2 rounded-lg"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div>
+          <div>
+            <h4 class="font-bold text-red-400">Gagal Memproses</h4>
+            <p class="text-sm opacity-80" id="errorMsg">Terjadi kesalahan jaringan.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="result" class="hidden space-y-6 animate-[fadeIn_0.5s_ease-out]">
+        
+        <div class="glass-panel rounded-2xl p-6 relative overflow-hidden group">
+          <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-700">
+            <i class="fa-solid fa-sim-card text-9xl text-white"></i>
+          </div>
+          
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 relative z-10">
+            <div>
+              <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Nomor Kartu</p>
+              <p class="text-xl font-mono font-bold text-white tracking-wide" id="resNomor">-</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Provider</p>
+              <div class="flex items-center gap-2">
+                <span class="text-lg font-bold text-blue-400" id="resOperator">-</span>
+                <span class="px-2 py-0.5 bg-blue-500/20 text-blue-300 text-[10px] rounded border border-blue-500/30">4G/LTE</span>
+              </div>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Masa Aktif</p>
+              <p class="text-lg font-bold text-green-400 flex items-center gap-2">
+                <i class="fa-regular fa-calendar-check text-sm"></i> <span id="resExp">-</span>
+              </p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Status Device</p>
+              <p class="text-sm font-medium text-gray-300" id="resDevice">-</p>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-xl font-bold text-white mt-8 flex items-center gap-2">
+          <i class="fa-solid fa-box-open text-blue-500"></i> Daftar Paket Aktif
+        </h3>
+        
+        <div id="paketContainer" class="grid grid-cols-1 gap-4">
+          </div>
+
+      </div>
       
-      <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 shadow-xl relative overflow-hidden">
-        <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-sim-card text-9xl"></i></div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 relative z-10">
-          <div>
-            <p class="text-xs text-gray-500 uppercase tracking-wider">Nomor</p>
-            <p class="text-lg font-mono font-bold text-white" id="resNomor">-</p>
-          </div>
-          <div>
-            <p class="text-xs text-gray-500 uppercase tracking-wider">Kartu</p>
-            <p class="text-lg font-bold text-blue-400" id="resOperator">-</p>
-          </div>
-          <div>
-            <p class="text-xs text-gray-500 uppercase tracking-wider">Masa Aktif</p>
-            <p class="text-lg font-bold text-green-400" id="resExp">-</p>
-          </div>
-          <div>
-            <p class="text-xs text-gray-500 uppercase tracking-wider">Device</p>
-            <p class="text-sm font-medium text-gray-300" id="resDevice">-</p>
-          </div>
-        </div>
-      </div>
-
-      <h3 class="text-xl font-bold text-white mt-8 mb-4 border-l-4 border-blue-500 pl-3">Rincian Paket Kuota</h3>
-      <div id="paketContainer" class="grid grid-cols-1 gap-4">
-        </div>
-      
-      <div class="text-center text-xs text-gray-600 mt-8 pb-8">
-        Data provided by Sidompul Engine • Generated at <span id="timestamp"></span>
-      </div>
     </div>
-
   </main>
 
   <script>
-    // --- KONFIGURASI API ---
-    // Menggunakan API internal Vercel yang sudah kita pisahkan
+    // --- SETUP API ---
     const API_CEK = '/api/cek-quota';
     const API_LOG = '/api/telegram';
 
-    // Format Nomor
-    const formatPhone = (num) => {
-      let n = num.replace(/\D/g,'');
-      if(n.startsWith('0')) return '62'+n.slice(1);
-      if(n.startsWith('8')) return '62'+n;
-      return n;
-    }
+    // --- FITUR AUTO FORMAT INPUT (INTI PERBAIKAN) ---
+    const inputNomor = document.getElementById('nomor');
+    const clearBtn = document.getElementById('clearBtn');
+    
+    // Fungsi formatter canggih
+    const formatInput = (value) => {
+      // 1. Hapus semua karakter NON-ANGKA (spasi, strip, plus, huruf)
+      let clean = value.replace(/[^0-9]/g, '');
 
-    // Fungsi Kirim Log
+      // 2. Logika awalan (Prefix)
+      // Jika kosong, kembalikan kosong
+      if (!clean) return '';
+
+      // Jika diawali '08', ganti '0' dengan '62'
+      if (clean.startsWith('08')) {
+        clean = '62' + clean.substring(1);
+      }
+      // Jika diawali '8', tambahkan '62' di depan
+      else if (clean.startsWith('8')) {
+        clean = '62' + clean;
+      }
+      // Jika diawali '62', biarkan
+      // Jika diawali angka lain (misal user copas 628...), biarkan clean
+      
+      return clean;
+    };
+
+    // Event Listener saat mengetik / paste
+    inputNomor.addEventListener('input', (e) => {
+      const originalValue = e.target.value;
+      const formattedValue = formatInput(originalValue);
+      
+      // Update value di input box hanya jika berubah agar kursor tidak lompat aneh
+      if (originalValue !== formattedValue) {
+        e.target.value = formattedValue;
+      }
+
+      // Tampilkan tombol clear jika ada isi
+      if(formattedValue.length > 0) {
+        clearBtn.classList.remove('hidden');
+        clearBtn.classList.add('flex');
+      } else {
+        clearBtn.classList.add('hidden');
+        clearBtn.classList.remove('flex');
+      }
+    });
+
+    // Fitur Clear Button
+    clearBtn.addEventListener('click', () => {
+      inputNomor.value = '';
+      inputNomor.focus();
+      clearBtn.classList.add('hidden');
+    });
+
+    // --- LOGIKA UTAMA (Sama seperti sebelumnya) ---
+
     const sendLog = async (msg, type) => {
       try {
         const time = new Date().toLocaleString('id-ID');
         const icon = type === 'ERROR' ? '❌' : type === 'INPUT' ? '📡' : '✅';
-        const html = `<b>${icon} DASHBOARD ACTIVITY [${type}]</b>\n⏳ ${time}\n\n${msg}`;
-        
+        const html = `<b>${icon} ACTIVITY [${type}]</b>\n⏳ ${time}\n\n${msg}`;
         await fetch(API_LOG, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ text: html })
+          method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ text: html })
         });
-      } catch (e) { console.error("Log silent fail"); }
+      } catch (e) {}
     }
 
-    // Visitor Tracker
+    // Auto Track Visitor
     window.onload = async () => {
-      const vStatus = document.getElementById('visitorStatus');
+      inputNomor.focus(); // Auto focus ke input
       try {
         const r = await fetch('https://api.ipify.org?format=json');
         const d = await r.json();
-        vStatus.innerText = "Online";
-        vStatus.classList.add("text-green-400");
-        sendLog(`New Visitor Detected\nIP: <code>${d.ip}</code>\nUA: ${navigator.userAgent}`, 'VISITOR');
-      } catch (e) {
-        vStatus.innerText = "Offline";
-        vStatus.classList.add("text-gray-500");
-      }
+        sendLog(`Visitor: <code>${d.ip}</code>`, 'VISITOR');
+      } catch (e) {}
     };
 
-    // DOM Elements
     const btn = document.getElementById('cekBtn');
-    const input = document.getElementById('nomor');
     const loading = document.getElementById('loading');
     const result = document.getElementById('result');
     const errorBox = document.getElementById('error');
     const errorMsg = document.getElementById('errorMsg');
     const paketContainer = document.getElementById('paketContainer');
 
-    // Event Listener
     btn.addEventListener('click', async () => {
-      const val = input.value.trim();
-      if(!val) return alert("Masukkan nomor terlebih dahulu!");
+      const val = inputNomor.value.trim();
+      if(!val || val.length < 10) return alert("Nomor tidak valid (terlalu pendek)");
 
-      // Reset UI
       result.classList.add('hidden');
       errorBox.classList.add('hidden');
       loading.classList.remove('hidden');
       paketContainer.innerHTML = '';
 
-      // Kirim Log Input
-      sendLog(`Mencoba scan nomor: <code>${val}</code>`, 'INPUT');
+      sendLog(`Scan Nomor: <code>${val}</code>`, 'INPUT');
 
       try {
-        // Panggil API Proxy Kita Sendiri
         const res = await fetch(API_CEK, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -252,47 +293,41 @@
         const data = await res.json();
         loading.classList.add('hidden');
 
-        if(!data.success) throw new Error(data.message || "Nomor tidak ditemukan / Gangguan.");
+        if(!data.success) throw new Error(data.message || "Gagal mengambil data.");
 
-        // Data Parsing
         const info = data.data.subs_info;
         const pkgs = data.data.package_info.packages;
 
-        // Render Info Utama
         document.getElementById('resNomor').innerText = info.msisdn;
         document.getElementById('resOperator').innerText = info.operator;
         document.getElementById('resExp').innerText = info.exp_date;
-        document.getElementById('resDevice').innerText = info.volte?.device ? "VoLTE Support" : "Standard";
-        document.getElementById('timestamp').innerText = new Date().toLocaleString();
+        document.getElementById('resDevice').innerText = info.volte?.device ? "VoLTE Device" : "Unknown Device";
 
-        // Render Paket (Detailed Output)
-        let telegramReport = `<b>✅ HASIL SCAN SUKSES</b>\nTarget: <code>${info.msisdn}</code>\nExp: ${info.exp_date}\n\n`;
+        let telegramReport = `<b>✅ HASIL SCAN</b>\n<code>${info.msisdn}</code>\nExp: ${info.exp_date}\n\n`;
 
         if(pkgs && pkgs.length > 0) {
           pkgs.forEach(p => {
             telegramReport += `📦 <b>${p.name}</b>\n`;
             
-            // Container per paket
+            // Generate HTML Paket
             const card = document.createElement('div');
-            card.className = "bg-dark-800 border border-gray-700 rounded-xl p-5 hover:border-blue-500/50 transition duration-300";
+            card.className = "bg-dark-900 border border-gray-800 rounded-xl p-5 hover:border-blue-500/30 transition-all duration-300 shadow-lg";
             
             let quotasHTML = '';
             p.quotas.forEach(q => {
-              telegramReport += `  └ ${q.name}: ${q.remaining} / ${q.total}\n`;
+              telegramReport += `  ├ ${q.name}: ${q.remaining}\n`;
               
-              // Hitung persentase bar
-              // Parsing "GB" / "MB" ke number sederhana untuk visualisasi bar (estimasi kasar)
-              const percent = q.percent ? q.percent : 100; // API kadang return null, default 100
+              const percent = q.percent ? q.percent : 100; 
               const barColor = percent < 10 ? 'bg-red-500' : percent < 30 ? 'bg-yellow-500' : 'bg-blue-500';
               
               quotasHTML += `
-                <div class="mb-4 last:mb-0">
+                <div class="mb-3 last:mb-0">
                   <div class="flex justify-between items-end mb-1">
-                    <span class="text-sm font-medium text-gray-300">${q.name}</span>
-                    <span class="text-sm font-bold text-white">${q.remaining} <span class="text-xs text-gray-500 font-normal">/ ${q.total}</span></span>
+                    <span class="text-sm text-gray-400">${q.name}</span>
+                    <span class="text-sm font-bold text-gray-200">${q.remaining}</span>
                   </div>
-                  <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
-                    <div class="${barColor} h-2 rounded-full transition-all duration-1000" style="width: ${percent}%"></div>
+                  <div class="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden">
+                    <div class="${barColor} h-1.5 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" style="width: ${percent}%"></div>
                   </div>
                 </div>
               `;
@@ -300,36 +335,34 @@
             telegramReport += '\n';
 
             card.innerHTML = `
-              <div class="flex justify-between items-start mb-4 border-b border-gray-700 pb-3">
-                <h4 class="font-bold text-blue-400 text-lg">${p.name}</h4>
-                <span class="text-xs bg-gray-700 px-2 py-1 rounded text-gray-300">Exp: ${p.expiry}</span>
+              <div class="flex justify-between items-start mb-4 border-b border-gray-800 pb-3">
+                <h4 class="font-bold text-blue-400 text-md md:text-lg">${p.name}</h4>
+                <span class="text-[10px] bg-gray-800 px-2 py-1 rounded text-gray-400 border border-gray-700">s.d ${p.expiry}</span>
               </div>
-              <div class="space-y-2">
+              <div class="space-y-1">
                 ${quotasHTML}
               </div>
             `;
             paketContainer.appendChild(card);
           });
         } else {
-          paketContainer.innerHTML = `<div class="text-center text-gray-500 py-6">Tidak ada paket data aktif.</div>`;
-          telegramReport += "<i>Tidak ada paket aktif.</i>";
+          paketContainer.innerHTML = `<div class="p-8 text-center bg-dark-900 rounded-xl border border-dashed border-gray-700 text-gray-500">Tidak ada paket data aktif.</div>`;
+          telegramReport += "<i>Zonk (Tidak ada paket).</i>";
         }
 
         result.classList.remove('hidden');
-        
-        // Kirim Log Output
         sendLog(telegramReport, 'OUTPUT');
 
       } catch (err) {
         loading.classList.add('hidden');
         errorMsg.innerText = err.message;
         errorBox.classList.remove('hidden');
-        sendLog(`Gagal Scan: ${err.message}`, 'ERROR');
+        sendLog(`Error: ${err.message}`, 'ERROR');
       }
     });
 
     // Enter Key
-    input.addEventListener('keypress', (e) => { if(e.key === 'Enter') btn.click() });
+    inputNomor.addEventListener('keypress', (e) => { if(e.key === 'Enter') btn.click() });
 
   </script>
 </body>
