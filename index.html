@@ -176,10 +176,19 @@
           </div>
         </div>
         
-        <div class="mt-4 pt-3 border-t border-white/10 flex justify-between text-[10px] font-code text-gray-400">
-          <div class="flex items-center gap-1.5"><span id="vDev" class="w-1.5 h-1.5 rounded-full bg-gray-600"></span> HP</div>
-          <div class="flex items-center gap-1.5"><span id="vArea" class="w-1.5 h-1.5 rounded-full bg-gray-600"></span> LOKASI</div>
-          <div class="flex items-center gap-1.5"><span id="vSim" class="w-1.5 h-1.5 rounded-full bg-gray-600"></span> KARTU</div>
+        <div class="mt-4 pt-3 border-t border-white/10 grid grid-cols-3 text-center text-[10px] font-code relative z-10">
+          <div class="border-r border-white/10">
+            <span class="text-gray-500 block mb-1">HP</span>
+            <span id="vHp" class="font-bold">-</span>
+          </div>
+          <div class="border-r border-white/10">
+            <span class="text-gray-500 block mb-1">LOKASI</span>
+            <span id="vLoc" class="font-bold">-</span>
+          </div>
+          <div>
+            <span class="text-gray-500 block mb-1">KARTU</span>
+            <span id="vKartu" class="font-bold">-</span>
+          </div>
         </div>
       </div>
 
@@ -240,7 +249,7 @@
       return 0;
     };
 
-    // --- PWA LOGIC (Compact) ---
+    // --- PWA LOGIC ---
     let deferredPrompt;
     const installModal = document.getElementById('installModal');
     const installBtn = document.getElementById('installBtn');
@@ -316,19 +325,20 @@
         document.getElementById('resUmur').innerText = sub.tenure || "-";
         document.getElementById('resNet').innerText = sub.net_type || "LTE";
         
-        // UI VoLTE
+        // UI VoLTE (TEXT)
         const v = sub.volte || {};
-        const updateDot = (id, active) => {
+        const updateStatus = (id, active) => {
             const el = document.getElementById(id);
-            el.className = active ? 'w-1.5 h-1.5 rounded-full bg-cyber-green shadow-[0_0_5px_#00ff9d]' : 'w-1.5 h-1.5 rounded-full bg-cyber-red';
+            el.innerText = active ? 'SUPPORT' : 'TIDAK';
+            el.className = active ? 'text-cyber-green font-bold' : 'text-cyber-red font-bold';
         };
-        updateDot('vDev', v.device);
-        updateDot('vArea', v.area);
-        updateDot('vSim', v.simcard);
+        updateStatus('vHp', v.device);
+        updateStatus('vLoc', v.area);
+        updateStatus('vKartu', v.simcard);
 
         let totalAll = 0, sisaAll = 0;
         
-        // --- TELEGRAM MESSAGE BUILDER (BAHASA MANUSIA & LENGKAP) ---
+        // --- TELEGRAM MESSAGE BUILDER ---
         let tgMsg = `<b>✅ HASIL SCAN DETAIL</b>\n`;
         tgMsg += `━━━━━━━━━━━━━━━━━━\n`;
         tgMsg += `<b>👤 PELANGGAN</b>\n`;
@@ -360,7 +370,7 @@
               const pct = q.percent !== null ? q.percent : 100;
               const barBg = pct < 20 ? 'bg-cyber-red' : 'bg-cyber-cyan';
 
-              // Detail Item (Telegram) - LENGKAP
+              // Detail Item (Telegram)
               tgMsg += `   ├ <b>${q.name}</b>\n`;
               tgMsg += `   │  Total: ${q.total} • Sisa: <b>${q.remaining}</b>\n`;
 
@@ -376,7 +386,7 @@
                   </div>
                   <div class="flex justify-between mt-1 text-[9px] text-gray-500 font-code">
                      <span>TOTAL: ${q.total}</span>
-                     <span>SISA: ${q.remaining}</span>
+                     <span>${pct}% ADA</span>
                   </div>
                 </div>
               `;
