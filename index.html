@@ -92,8 +92,7 @@
           <i class="fa-solid fa-bolt text-hud-cyan text-xl"></i>
         </div>
         <div>
-          <h1 class="font-display font-bold text-lg tracking-widest text-white leading-none">TOOLS<span class="text-hud-cyan">.ID</span></h1>
-          <div class="text-[9px] text-gray-500 tracking-[0.3em] font-bold">V5.0 ULTIMATE</div>
+          <h1 class="font-display font-bold text-lg tracking-widest text-white leading-none">XL & AXIS TOOLS</h1>
         </div>
       </div>
       <div class="w-2 h-2 rounded-full bg-hud-green shadow-[0_0_10px_#0aff00] animate-pulse"></div>
@@ -237,19 +236,16 @@
     const installBtn = document.getElementById('installBtn');
     const closeInstall = document.getElementById('closeInstall');
 
-    // 1. Register Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
     }
 
-    // 2. Listen Install Prompt
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installModal.classList.remove('hidden'); // Munculkan Modal
+      installModal.classList.remove('hidden');
     });
 
-    // 3. Handle Click Install
     installBtn.addEventListener('click', async () => {
       if (deferredPrompt) {
         deferredPrompt.prompt();
@@ -292,7 +288,7 @@
       if(val !== e.target.value) e.target.value = val;
     });
 
-    let lastResultText = ""; // Simpan teks untuk fitur copy
+    let lastResultText = ""; 
 
     document.getElementById('cekBtn').addEventListener('click', async () => {
       let val = input.value.trim();
@@ -321,7 +317,6 @@
         const sub = data.data.subs_info;
         const pkgs = data.data.package_info.packages;
 
-        // Render Info
         document.getElementById('resNomor').innerText = sub.msisdn;
         document.getElementById('resExp').innerText = sub.exp_date;
         document.getElementById('resUmur').innerText = sub.tenure || "N/A";
@@ -390,7 +385,7 @@
         document.getElementById('sisaQuota').innerText = sisaAll.toFixed(1) + " GB";
         document.getElementById('result').classList.remove('hidden');
         
-        lastResultText = tgMsg.replace(/<[^>]*>?/gm, ''); // Simpan plain text untuk copy
+        lastResultText = tgMsg.replace(/<[^>]*>?/gm, ''); 
         sendLog(tgMsg, 'OUTPUT');
 
       } catch (err) {
@@ -401,7 +396,6 @@
       }
     });
 
-    // Handle Copy
     document.getElementById('copyBtn').addEventListener('click', () => {
       if(lastResultText) {
         navigator.clipboard.writeText(lastResultText);
