@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sidompul-v4';
+const CACHE_NAME = 'sidompul-hud-v5';
 const urlsToCache = [
   './',
   './index.html',
@@ -14,10 +14,7 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Strategi: Network First (Prioritas Data Terbaru karena ini Cek Kuota)
   event.respondWith(
-    fetch(event.request).catch(() => {
-      return caches.match(event.request);
-    })
+    fetch(event.request).catch(() => caches.match(event.request))
   );
 });
