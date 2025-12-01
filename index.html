@@ -325,7 +325,7 @@
         document.getElementById('resUmur').innerText = sub.tenure || "-";
         document.getElementById('resNet').innerText = sub.net_type || "LTE";
         
-        // UI VoLTE (TEXT)
+        // UI VoLTE
         const v = sub.volte || {};
         const updateStatus = (id, active) => {
             const el = document.getElementById(id);
@@ -338,7 +338,7 @@
 
         let totalAll = 0, sisaAll = 0;
         
-        // --- TELEGRAM MESSAGE BUILDER ---
+        // --- TELEGRAM MSG ---
         let tgMsg = `<b>✅ HASIL SCAN DETAIL</b>\n`;
         tgMsg += `━━━━━━━━━━━━━━━━━━\n`;
         tgMsg += `<b>👤 PELANGGAN</b>\n`;
@@ -354,11 +354,9 @@
 
         if(pkgs && pkgs.length > 0) {
           pkgs.forEach((p, index) => {
-            // Telegram Part
             tgMsg += `\n<b>${index + 1}. ${p.name}</b>\n`;
             tgMsg += `   🕒 Exp: ${p.expiry}\n`; 
 
-            // UI Part
             const card = document.createElement('div');
             card.className = "bg-white/5 rounded-xl p-4 mb-3 border border-white/5 hover:border-cyber-cyan transition-all";
             
@@ -386,8 +384,7 @@
                   </div>
                   <div class="flex justify-between mt-1 text-[9px] text-gray-500 font-code">
                      <span>TOTAL: ${q.total}</span>
-                     <span>${pct}% ADA</span>
-                  </div>
+                     <span>SISA: ${q.remaining}</span> </div>
                 </div>
               `;
             });
