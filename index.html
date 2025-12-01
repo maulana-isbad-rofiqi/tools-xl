@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>XL & Axis Tools - Itsbad Store</title>
   
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3616/3616927.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3616/3616927.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#020202">
   
@@ -252,24 +254,16 @@
     };
 
     const input = document.getElementById('nomor');
-    
-    // --- PERBAIKAN LOGIC INPUT ---
+    // Input hanya menerima angka, tidak mengubah 08 saat mengetik
     input.addEventListener('input', (e) => {
-      // Hanya hapus karakter aneh (selain angka)
-      // Jadi: +62-878 akan berubah jadi 62878
-      // Tapi: 0878 akan TETAP 0878 (tidak dipaksa berubah saat mengetik)
       let val = e.target.value.replace(/[^0-9]/g, '');
-      
-      if(val !== e.target.value) {
-        e.target.value = val;
-      }
+      if(val !== e.target.value) e.target.value = val;
     });
 
     document.getElementById('cekBtn').addEventListener('click', async () => {
       let val = input.value.trim();
       
-      // Sanitasi angka SEBELUM dikirim ke Server
-      // Disini kita ubah 08 -> 62 agar API tetap bisa baca
+      // Ubah 08 -> 62 hanya saat tombol ditekan
       if(val.startsWith('0')) val = '62' + val.slice(1);
       if(val.startsWith('8')) val = '62' + val;
 
