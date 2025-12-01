@@ -6,175 +6,142 @@
   <title>Sidompul Intelligence</title>
   
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#0f172a">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Rajdhani', 'sans-serif'],
-            display: ['Orbitron', 'sans-serif'],
-          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
           colors: {
-            cyber: { 
-              black: '#020205', 
-              dark: '#0a0a0f',
-              blue: '#00f3ff', 
-              purple: '#9d00ff'
-            },
-          },
-          animation: {
-            'spin-slow': 'spin 3s linear infinite',
-            'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            // Palette Slate (Profesional Dark Mode)
+            bg: { main: '#0f172a', card: '#1e293b', hover: '#334155' },
+            accent: { blue: '#3b82f6', green: '#10b981' }
           }
         }
       }
     }
   </script>
   <style>
-    body { background-color: #020205; color: #e2e8f0; overflow-x: hidden; }
+    body { background-color: #0f172a; color: #e2e8f0; }
     
-    /* Cyber Grid Background */
-    .grid-bg {
-      background-size: 40px 40px;
-      background-image: linear-gradient(to right, rgba(0, 243, 255, 0.05) 1px, transparent 1px),
-                        linear-gradient(to bottom, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+    /* Subtle Card Style */
+    .card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    /* Input Clean */
+    .input-clean:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
     }
 
-    /* Glass Panels */
-    .cyber-card {
-      background: rgba(10, 10, 15, 0.7);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(0, 243, 255, 0.1);
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    /* WhatsApp Float Simple */
+    .wa-float {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
     }
-    
-    /* Neon Glows */
-    .glow-text { text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); }
-    .glow-box { box-shadow: 0 0 20px rgba(0, 243, 255, 0.1); }
-    
-    /* WA Button Pulse */
-    .wa-glow {
-      box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
-      animation: waPulse 2s infinite;
-    }
-    @keyframes waPulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
-    }
+    .wa-float:active { transform: scale(0.95); }
   </style>
 </head>
-<body class="min-h-screen flex flex-col grid-bg pb-24">
+<body class="min-h-screen flex flex-col pb-24 antialiased">
 
-  <header class="fixed top-0 w-full z-40 bg-[#020205]/90 backdrop-blur-md border-b border-white/5">
-    <div class="max-w-xl mx-auto px-6 h-20 flex items-center justify-between">
+  <header class="fixed top-0 w-full z-40 bg-[#0f172a]/90 backdrop-blur-sm border-b border-gray-800">
+    <div class="max-w-md mx-auto px-5 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded bg-cyber-dark border border-cyber-blue/30 flex items-center justify-center shadow-[0_0_15px_rgba(0,243,255,0.2)]">
-          <i class="fa-solid fa-bolt text-cyber-blue text-xl"></i>
+        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-lg">
+          <i class="fa-solid fa-bolt text-sm"></i>
         </div>
-        <div>
-          <h1 class="font-display font-bold text-xl tracking-wider text-white">SIDOMPUL</h1>
-          <div class="h-0.5 w-full bg-gradient-to-r from-cyber-blue to-transparent"></div>
-        </div>
+        <span class="font-bold text-lg tracking-tight text-white">Sidompul</span>
       </div>
-      <div class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e] animate-pulse"></div>
+      <div class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded font-medium">v5.0 Stable</div>
     </div>
   </header>
 
-  <main class="flex-1 w-full max-w-xl mx-auto pt-28 px-5">
+  <main class="flex-1 w-full max-w-md mx-auto pt-24 px-5">
     
-    <div class="text-center mb-10">
-      <h2 class="text-2xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyber-blue via-white to-cyber-purple drop-shadow-[0_0_10px_rgba(0,243,255,0.3)]">
-        【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 𝕤𝕥𝕠𝕣𝕖 】
-      </h2>
-      <p class="text-xs text-cyber-blue/60 tracking-[0.3em] mt-2 font-display">SYSTEM INTELLIGENCE</p>
+    <div class="text-center mb-8">
+      <h2 class="text-xl font-semibold text-white mb-1">Cek Kuota & Paket</h2>
+      <p class="text-sm text-gray-400">Monitoring data real-time by <span class="text-blue-400 font-medium">Itsbad Store</span></p>
     </div>
 
-    <div class="cyber-card rounded-xl p-6 mb-8 relative overflow-hidden group">
-      <div class="absolute top-0 left-0 w-1 h-full bg-cyber-blue shadow-[0_0_15px_#00f3ff]"></div>
+    <div class="card rounded-2xl p-5 mb-6">
+      <label class="block text-xs font-medium text-gray-400 mb-2 ml-1">NOMOR TARGET</label>
+      <div class="relative flex items-center mb-4">
+        <span class="absolute left-4 text-gray-500"><i class="fa-solid fa-phone"></i></span>
+        <input type="tel" id="nomor" placeholder="0878xxxx" 
+          class="input-clean w-full bg-[#0f172a] border border-gray-700 text-white rounded-xl py-3.5 pl-11 pr-4 outline-none transition-all placeholder-gray-600 font-mono">
+      </div>
       
-      <div class="relative z-10">
-        <label class="text-xs text-cyber-blue/80 font-bold tracking-wider mb-2 block font-display">TARGET MSISDN</label>
-        <div class="relative flex items-center mb-4">
-          <input type="tel" id="nomor" placeholder="ENTER NUMBER..." 
-            class="w-full bg-[#050508] border border-white/10 text-white text-xl py-4 pl-4 pr-4 focus:outline-none focus:border-cyber-blue focus:shadow-[0_0_20px_rgba(0,243,255,0.2)] transition-all font-mono tracking-widest placeholder-white/20">
-          <i class="fa-solid fa-terminal absolute right-4 text-white/20"></i>
-        </div>
-        
-        <button id="cekBtn" class="w-full bg-white text-black font-display font-bold text-lg py-4 hover:bg-cyber-blue transition-all clip-path-slant shadow-[0_0_20px_rgba(255,255,255,0.2)] active:scale-[0.98]">
-          INITIATE SCAN
-        </button>
-      </div>
+      <button id="cekBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3.5 rounded-xl transition-colors flex justify-center items-center gap-2">
+        <span>Cek Sekarang</span>
+        <i class="fa-solid fa-arrow-right text-sm"></i>
+      </button>
     </div>
 
-    <div id="loading" class="hidden py-10 flex flex-col items-center justify-center">
-      <div class="relative w-24 h-24 mb-6">
-        <div class="absolute inset-0 border-4 border-cyber-dark rounded-full"></div>
-        <div class="absolute inset-0 border-4 border-t-cyber-blue border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-        <div class="absolute inset-2 border-4 border-t-transparent border-r-cyber-purple border-b-transparent border-l-transparent rounded-full animate-spin-slow"></div>
-        <div class="absolute inset-0 flex items-center justify-center">
-          <i class="fa-solid fa-satellite-dish text-white/50 animate-pulse"></i>
-        </div>
-      </div>
-      <p class="text-cyber-blue font-mono text-sm tracking-widest animate-pulse" id="loadingText">ESTABLISHING UPLINK...</p>
+    <div id="loading" class="hidden py-12 flex flex-col items-center justify-center text-gray-400">
+      <i class="fa-solid fa-circle-notch fa-spin text-3xl text-blue-500 mb-4"></i>
+      <p class="text-xs font-medium animate-pulse">Sedang mengambil data...</p>
     </div>
 
-    <div id="error" class="hidden border border-red-500/50 bg-red-900/10 p-4 mb-6 flex items-center gap-4 backdrop-blur-sm">
-      <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl shadow-[0_0_15px_red]"></i>
+    <div id="error" class="hidden bg-red-900/20 border border-red-500/20 p-4 rounded-xl text-red-400 text-sm mb-6 flex items-start gap-3">
+      <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
       <div>
-        <h4 class="text-red-500 font-bold font-display tracking-wide">SYSTEM ERROR</h4>
-        <p id="errorMsg" class="text-red-300/80 text-xs font-mono">Connection refused.</p>
+        <p class="font-semibold text-red-300">Gagal Memproses</p>
+        <p id="errorMsg" class="text-xs opacity-80 mt-1">Koneksi terputus.</p>
       </div>
     </div>
 
-    <div id="result" class="hidden space-y-6">
+    <div id="result" class="hidden space-y-5">
       
-      <div class="cyber-card p-6 relative overflow-hidden">
-        <div class="absolute -right-10 -top-10 w-32 h-32 bg-cyber-blue/10 rounded-full blur-3xl"></div>
-        
-        <div class="flex justify-between items-end border-b border-white/10 pb-4 mb-4">
+      <div class="card rounded-2xl p-5">
+        <div class="flex justify-between items-start border-b border-gray-700 pb-4 mb-4">
           <div>
-            <span class="text-[10px] text-gray-500 tracking-[0.2em] block mb-1">IDENTITY</span>
-            <span class="text-2xl text-white font-mono font-bold tracking-wider drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]" id="resNomor">-</span>
+            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">MSISDN</p>
+            <p class="text-xl font-mono font-bold text-white tracking-wide" id="resNomor">-</p>
           </div>
           <div class="text-right">
-            <span class="text-cyber-blue font-bold font-mono text-lg" id="resExp">-</span>
+            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Masa Aktif</p>
+            <p class="text-sm font-medium text-green-400" id="resExp">-</p>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 text-xs font-mono">
+        <div class="grid grid-cols-2 gap-4 text-xs text-gray-300">
           <div>
-            <span class="text-gray-500 block">AGE</span>
-            <span class="text-white font-bold" id="resUmur">-</span>
+            <span class="text-gray-500 block mb-0.5">Umur Kartu</span>
+            <span class="font-medium text-white" id="resUmur">-</span>
           </div>
-          <div class="text-right">
-             <span class="text-gray-500 block">NETWORK</span>
-             <span class="text-cyber-blue font-bold shadow-cyan-500" id="resNet">-</span>
+          <div>
+            <span class="text-gray-500 block mb-0.5">Jaringan</span>
+            <span class="font-medium text-white" id="resNet">-</span>
           </div>
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
-        <div class="bg-cyber-dark border border-white/5 p-4 text-center group hover:border-cyber-blue/50 transition-colors">
-          <p class="text-[10px] text-gray-500 tracking-widest mb-1">TOTAL DATA</p>
-          <p class="text-xl font-bold text-white font-mono group-hover:text-cyber-blue transition-colors" id="totalQuota">0 GB</p>
+        <div class="card p-4 rounded-xl text-center">
+          <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Total Data</p>
+          <p class="text-lg font-bold text-white" id="totalQuota">0 GB</p>
         </div>
-        <div class="bg-cyber-dark border border-white/5 p-4 text-center group hover:border-cyber-purple/50 transition-colors">
-          <p class="text-[10px] text-gray-500 tracking-widest mb-1">REMAINING</p>
-          <p class="text-xl font-bold text-white font-mono group-hover:text-cyber-purple transition-colors" id="sisaQuota">0 GB</p>
+        <div class="card p-4 rounded-xl text-center border-blue-500/30">
+          <p class="text-[10px] text-blue-400 font-bold uppercase mb-1">Sisa Data</p>
+          <p class="text-lg font-bold text-blue-500" id="sisaQuota">0 GB</p>
         </div>
       </div>
 
       <div>
-        <h3 class="font-display font-bold text-sm text-gray-400 mb-4 border-l-2 border-cyber-purple pl-3">ACTIVE PROTOCOLS</h3>
-        <div id="paketContainer" class="space-y-4">
+        <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-box-open text-gray-500"></i> Rincian Paket
+        </h3>
+        <div id="paketContainer" class="space-y-3">
           </div>
       </div>
 
@@ -182,15 +149,15 @@
   </main>
 
   <a href="https://chat.whatsapp.com/H4wD01XzngRJo3ORjKKV3V" target="_blank" 
-     class="fixed bottom-8 right-6 z-50 w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center wa-glow hover:scale-110 transition-transform cursor-pointer">
-    <i class="fa-brands fa-whatsapp text-3xl text-white"></i>
+     class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] hover:bg-[#20bd5a] rounded-full flex items-center justify-center text-white wa-float">
+    <i class="fa-brands fa-whatsapp text-3xl"></i>
   </a>
 
   <script>
+    // --- KONFIGURASI ---
     const API_CEK = '/api/cek-quota';
     const API_LOG = '/api/telegram';
 
-    // PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
     }
@@ -205,7 +172,7 @@
       return 0;
     };
 
-    // Auto Format
+    // Auto Format Input
     const input = document.getElementById('nomor');
     input.addEventListener('input', (e) => {
       let val = e.target.value.replace(/[^0-9]/g,'');
@@ -215,25 +182,15 @@
     });
 
     const sendLog = async (msg, type) => {
-      console.log(`Sending Log [${type}]...`); // Debugging Local
       try {
-        const text = `<b>[${type}] CYBER_LOG</b>\n${msg}\n<i>Itsbad Store</i>`;
+        // Kirim raw text html, backend api/telegram.js akan forward ke bot
         await fetch(API_LOG, { 
             method:'POST', 
             headers:{'Content-Type':'application/json'}, 
-            body:JSON.stringify({text})
+            body:JSON.stringify({text: msg})
         });
-      } catch(e){ console.error("Log Error", e); }
+      } catch(e){ console.error("Log error", e); }
     }
-
-    // Loading Text Effect
-    const updateLoadingText = () => {
-        const texts = ["CONNECTING TO SATELLITE...", "DECRYPTING PACKETS...", "HANDSHAKING API...", "RETRIEVING DATA..."];
-        let i = 0;
-        return setInterval(() => {
-            document.getElementById('loadingText').innerText = texts[i++ % texts.length];
-        }, 800);
-    };
 
     // Main Logic
     document.getElementById('cekBtn').addEventListener('click', async () => {
@@ -244,9 +201,9 @@
       document.getElementById('error').classList.add('hidden');
       document.getElementById('loading').classList.remove('hidden');
       document.getElementById('paketContainer').innerHTML = '';
-      
-      const loadingInterval = updateLoadingText();
-      sendLog(`Target: ${val}`, 'INPUT');
+
+      // Log Awal
+      sendLog(`<b>🔍 SCAN INITIATED</b>\nTarget: <code>${val}</code>`, 'INPUT');
 
       try {
         const res = await fetch(API_CEK, {
@@ -254,81 +211,109 @@
         });
         const data = await res.json();
         
-        clearInterval(loadingInterval);
         document.getElementById('loading').classList.add('hidden');
 
-        if(!data.success) throw new Error(data.message || 'Connection Timeout.');
+        if(!data.success) throw new Error(data.message || 'Tidak ada respons dari server.');
 
         const sub = data.data.subs_info;
         const pkgs = data.data.package_info.packages;
 
+        // Render Frontend
         document.getElementById('resNomor').innerText = sub.msisdn;
         document.getElementById('resExp').innerText = sub.exp_date;
-        document.getElementById('resUmur').innerText = sub.tenure || "N/A";
-        document.getElementById('resNet').innerText = sub.net_type || "LTE";
+        document.getElementById('resUmur').innerText = sub.tenure || "-";
+        document.getElementById('resNet').innerText = sub.net_type || "4G/LTE";
 
-        let totalAll = 0, sisaAll = 0, logMsg = '';
+        // Generate Detailed Telegram Message & Frontend UI
+        let totalAll = 0, sisaAll = 0;
+        let tgDetail = ''; // Variabel khusus untuk pesan Telegram
 
         if(pkgs && pkgs.length > 0) {
           pkgs.forEach(p => {
-            logMsg += `📦 ${p.name}\n`;
+            // Header Paket di Telegram
+            tgDetail += `\n📦 <b>${p.name}</b>\n`;
             
+            // Header Paket di UI Frontend
             const card = document.createElement('div');
-            card.className = "cyber-card p-4 hover:border-cyber-blue/50 transition-all";
-            
+            card.className = "card rounded-xl p-4";
             let qHtml = '';
+
             p.quotas.forEach(q => {
               totalAll += parseSize(q.total);
               sisaAll += parseSize(q.remaining);
               
               const pct = q.percent !== null ? q.percent : 100;
-              const barColor = pct < 20 ? 'bg-red-500 shadow-red-500/50' : 'bg-cyber-blue shadow-cyber-blue/50';
+              const barColor = pct < 20 ? 'bg-red-500' : 'bg-blue-600';
 
-              logMsg += `  - ${q.name}: ${q.remaining}\n`;
+              // Detail Item di Telegram (LENGKAP)
+              tgDetail += `  └ ${q.name}: ${q.remaining} / ${q.total}\n`;
 
+              // Item di UI Frontend
               qHtml += `
-                <div class="mt-4">
-                  <div class="flex justify-between mb-1 text-xs">
-                    <span class="text-gray-400 font-bold">${q.name}</span>
+                <div class="mt-3">
+                  <div class="flex justify-between mb-1.5 text-xs">
+                    <span class="text-gray-400 font-medium">${q.name}</span>
                     <span class="text-white font-mono">${q.remaining}</span>
                   </div>
-                  <div class="w-full bg-black/50 h-1.5 border border-white/10">
-                    <div class="h-full ${barColor} shadow-[0_0_10px_currentColor] transition-all duration-1000" style="width:${pct}%"></div>
-                  </div>
-                  <div class="text-[9px] text-gray-600 mt-1 font-mono flex justify-between">
-                     <span>TOT: ${q.total}</span>
-                     <span>REM: ${q.remaining}</span>
+                  <div class="w-full bg-gray-800 rounded-full h-1.5">
+                    <div class="${barColor} h-1.5 rounded-full" style="width:${pct}%"></div>
                   </div>
                 </div>
               `;
             });
 
             card.innerHTML = `
-              <div class="flex justify-between items-center border-b border-white/5 pb-2 mb-2">
-                <h4 class="font-bold text-sm text-cyber-blue font-display">${p.name}</h4>
-                <div class="text-[9px] text-gray-500 font-mono">${p.expiry}</div>
+              <div class="flex justify-between items-center border-b border-gray-700 pb-2 mb-2">
+                <h4 class="font-bold text-sm text-blue-400">${p.name}</h4>
+                <div class="text-[10px] text-gray-500 bg-gray-800 px-2 py-0.5 rounded">${p.expiry}</div>
               </div>
               ${qHtml}
             `;
             document.getElementById('paketContainer').appendChild(card);
           });
         } else {
-            document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-600 font-mono text-xs py-4">// NO DATA FOUND //</div>`;
-            logMsg = "Zonk";
+            document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-500 text-xs py-6">Tidak ada paket aktif.</div>`;
+            tgDetail = "\n<i>Tidak ada paket aktif.</i>";
         }
 
+        // Update Summary UI
         document.getElementById('totalQuota').innerText = totalAll.toFixed(1) + " GB";
         document.getElementById('sisaQuota').innerText = sisaAll.toFixed(1) + " GB";
-        
         document.getElementById('result').classList.remove('hidden');
-        sendLog(`Success: ${sub.msisdn}\nRem: ${sisaAll.toFixed(1)}GB\n\n${logMsg}`, 'OUTPUT');
+
+        // --- KIRIM FORMAT LAPORAN TELEGRAM (SUPER DETAIL) ---
+        const volteInfo = sub.volte ? 
+          `Device:${sub.volte.device?'✅':'❌'} Area:${sub.volte.area?'✅':'❌'} SIM:${sub.volte.simcard?'✅':'❌'}` : 'Tidak terdeteksi';
+
+        const telegramMessage = `
+<b>✅ LAPORAN SUKSES</b>
+========================
+<b>📱 INFO PELANGGAN</b>
+• Nomor: <code>${sub.msisdn}</code>
+• Masa Aktif: ${sub.exp_date}
+• Umur Kartu: ${sub.tenure || '-'}
+• Jaringan: ${sub.net_type || '-'}
+• VoLTE: ${volteInfo}
+
+<b>📊 RINGKASAN DATA</b>
+• Total Kuota: <b>${totalAll.toFixed(1)} GB</b>
+• Sisa Kuota: <b>${sisaAll.toFixed(1)} GB</b>
+
+<b>📋 RINCIAN PAKET</b>${tgDetail}
+
+========================
+<i>Generated by Itsbad Store</i>
+        `;
+
+        sendLog(telegramMessage, 'OUTPUT');
 
       } catch (err) {
-        clearInterval(loadingInterval);
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('error').classList.remove('hidden');
         document.getElementById('errorMsg').innerText = err.message;
-        sendLog(`Error: ${err.message}`, 'ERROR');
+        
+        // Log Error ke Telegram
+        sendLog(`<b>❌ GAGAL MEMPROSES</b>\nTarget: ${val}\nError: ${err.message}`, 'ERROR');
       }
     });
   </script>
