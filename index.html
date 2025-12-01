@@ -9,10 +9,10 @@
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3616/3616927.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#020202">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 
   <script>
@@ -27,20 +27,26 @@
           colors: {
             hud: {
               black: '#020202',
-              panel: '#0a0b10',
               cyan: '#00f0ff',
               green: '#0aff00',
               red: '#ff003c',
-              border: 'rgba(0, 240, 255, 0.3)'
+              dim: 'rgba(0, 240, 255, 0.1)'
             }
           },
           animation: {
-            'scan': 'scan 2s linear infinite',
+            'glitch': 'glitch 1s linear infinite',
+            'scan-bar': 'scanBar 2s ease-in-out infinite',
           },
           keyframes: {
-            scan: {
-              '0%': { backgroundPosition: '0% 0%' },
-              '100%': { backgroundPosition: '0% 100%' },
+            glitch: {
+              '2%, 64%': { transform: 'translate(2px,0) skew(0deg)' },
+              '4%, 60%': { transform: 'translate(-2px,0) skew(0deg)' },
+              '62%': { transform: 'translate(0,0) skew(5deg)' },
+            },
+            scanBar: {
+              '0%': { top: '0%' },
+              '50%': { top: '100%' },
+              '100%': { top: '0%' },
             }
           }
         }
@@ -48,175 +54,176 @@
     }
   </script>
   <style>
-    body { background-color: #020202; color: #fff; overflow-x: hidden; font-family: 'Rajdhani', sans-serif; }
+    body { background-color: #020202; color: #fff; font-family: 'Rajdhani', sans-serif; overflow-x: hidden; }
     
     .bg-grid {
-      background-image: 
-        linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
-      background-size: 30px 30px;
-      mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+      background-image: linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(circle at center, black 50%, transparent 100%);
     }
 
-    .hud-panel {
-      background: rgba(10, 11, 16, 0.85);
-      border: 1px solid rgba(0, 240, 255, 0.3);
-      backdrop-filter: blur(8px);
-      position: relative;
-      clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+    .hud-box {
+      background: rgba(10, 15, 20, 0.85);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      backdrop-filter: blur(10px);
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+      box-shadow: 0 0 15px rgba(0,0,0,0.8);
     }
     
-    .hud-corner::before {
-      content: ''; position: absolute; top: 0; left: 0;
-      width: 8px; height: 8px; border-top: 2px solid #00f0ff; border-left: 2px solid #00f0ff;
-    }
-    .hud-corner::after {
-      content: ''; position: absolute; bottom: 0; right: 0;
-      width: 8px; height: 8px; border-bottom: 2px solid #00f0ff; border-right: 2px solid #00f0ff;
-    }
-
-    .scanline {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: linear-gradient(to bottom, transparent 50%, rgba(0, 240, 255, 0.05) 50%);
-      background-size: 100% 4px; pointer-events: none; z-index: 50;
-    }
-
     .input-hud:focus {
-      background: rgba(0, 240, 255, 0.05);
       border-color: #00f0ff;
-      box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.2) inset;
     }
 
-    .wa-float { animation: float 3s ease-in-out infinite; box-shadow: 0 0 20px rgba(37, 211, 102, 0.4); }
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    /* PWA Modal Animation */
+    .modal-enter { animation: modalIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes modalIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   </style>
 </head>
-<body class="min-h-screen flex flex-col pb-24 relative">
+<body class="min-h-screen flex flex-col pb-24 relative selection:bg-hud-cyan selection:text-black">
 
   <div class="fixed inset-0 bg-grid -z-10"></div>
-  <div class="scanline"></div>
-
-  <header class="fixed top-0 w-full z-40 bg-[#020202]/90 backdrop-blur-md border-b border-hud-border">
+  
+  <header class="fixed top-0 w-full z-40 bg-[#020202]/90 backdrop-blur-md border-b border-hud-cyan/20">
     <div class="max-w-xl mx-auto px-6 h-20 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 border border-hud-cyan bg-hud-cyan/10 flex items-center justify-center skew-x-[-10deg]">
-          <i class="fa-solid fa-signal text-hud-cyan text-lg skew-x-[10deg]"></i>
+        <div class="w-10 h-10 bg-hud-cyan/10 border border-hud-cyan flex items-center justify-center">
+          <i class="fa-solid fa-bolt text-hud-cyan text-xl"></i>
         </div>
         <div>
-          <h1 class="font-display font-bold text-lg tracking-widest text-white leading-none">XL & AXIS TOOLS</h1>
-          <div class="flex gap-1 mt-1">
-            <div class="h-1 w-8 bg-hud-cyan"></div>
-            <div class="h-1 w-2 bg-hud-red"></div>
-            <div class="h-1 w-2 bg-hud-green"></div>
-          </div>
+          <h1 class="font-display font-bold text-lg tracking-widest text-white leading-none">TOOLS<span class="text-hud-cyan">.ID</span></h1>
+          <div class="text-[9px] text-gray-500 tracking-[0.3em] font-bold">V5.0 ULTIMATE</div>
         </div>
       </div>
-      <div class="text-[10px] font-tech text-hud-cyan border border-hud-cyan px-2 py-0.5 animate-pulse">ONLINE</div>
+      <div class="w-2 h-2 rounded-full bg-hud-green shadow-[0_0_10px_#0aff00] animate-pulse"></div>
     </div>
   </header>
 
   <main class="flex-1 w-full max-w-xl mx-auto pt-28 px-5 relative z-10">
     
-    <div class="text-center mb-8">
-      <h2 class="text-2xl font-display font-bold italic tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white via-hud-cyan to-white">
+    <div class="text-center mb-8 relative">
+      <div class="absolute inset-0 bg-hud-cyan/20 blur-3xl -z-10 opacity-30"></div>
+      <h2 class="text-3xl font-display font-black italic tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white via-hud-cyan to-white hover:animate-glitch cursor-default">
         【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 𝕤𝕥𝕠𝕣𝕖 】
       </h2>
-      <p class="text-xs text-hud-cyan/80 tracking-[0.2em] mt-2 font-bold bg-hud-cyan/10 inline-block px-3 py-1 rounded">
-        CEK KUOTA & MASA AKTIF DENGAN DETAIL
+      <p class="text-xs text-hud-cyan/80 tracking-[0.2em] mt-2 font-bold bg-hud-dim inline-block px-3 py-1 border-l-2 border-r-2 border-hud-cyan">
+        CEK KUOTA & MASA AKTIF
       </p>
     </div>
 
-    <div class="hud-panel p-6 mb-8 hud-corner">
+    <div class="hud-box p-6 mb-8">
       <label class="text-xs text-hud-cyan font-bold tracking-widest mb-2 block">
-        <i class="fa-solid fa-angle-right"></i> INPUT NOMOR TARGET
+        > INPUT_NOMOR
       </label>
       <div class="relative group">
         <input type="tel" id="nomor" placeholder="08xxx / 628xxx" 
-          class="input-hud w-full bg-black border border-hud-border text-white font-tech text-xl py-4 pl-4 pr-12 outline-none transition-all placeholder-gray-700 tracking-wider">
-        <i class="fa-solid fa-keyboard absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-hud-cyan transition-colors"></i>
+          class="input-hud w-full bg-black/50 border border-white/20 text-white font-tech text-xl py-4 pl-4 pr-12 outline-none transition-all placeholder-gray-700 tracking-wider">
+        <i class="fa-solid fa-crosshairs absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-hud-cyan group-focus-within:animate-spin transition-colors"></i>
       </div>
       
-      <button id="cekBtn" class="mt-4 w-full bg-white text-black font-display font-bold text-lg py-3 hover:bg-hud-cyan hover:tracking-widest transition-all duration-300 clip-path-polygon shadow-[0_0_15px_rgba(255,255,255,0.2)] skew-x-[-5deg]">
-        SCAN DATABASE
+      <button id="cekBtn" class="mt-4 w-full bg-white text-black font-display font-bold text-lg py-3 hover:bg-hud-cyan hover:tracking-[0.1em] transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.2)] skew-x-[-3deg]">
+        SCAN NOMOR TARGET
       </button>
     </div>
 
     <div id="loading" class="hidden py-10 text-center">
-      <div class="relative w-20 h-20 mx-auto">
-        <div class="absolute inset-0 border-2 border-hud-cyan/30 rounded-full"></div>
-        <div class="absolute inset-0 border-t-2 border-hud-cyan rounded-full animate-spin shadow-[0_0_15px_#00f0ff]"></div>
-        <i class="fa-solid fa-satellite-dish text-hud-cyan absolute inset-0 m-auto w-6 h-6 animate-pulse"></i>
+      <div class="relative w-24 h-24 mx-auto mb-4">
+        <div class="absolute inset-0 border-2 border-hud-dim rounded-full"></div>
+        <div class="absolute inset-0 border-t-2 border-hud-cyan rounded-full animate-spin shadow-[0_0_20px_#00f0ff]"></div>
+        <div class="absolute inset-4 border-l-2 border-hud-green rounded-full animate-spin direction-reverse"></div>
+        <i class="fa-solid fa-fingerprint text-hud-cyan absolute inset-0 m-auto w-8 h-8 animate-pulse text-2xl flex items-center justify-center"></i>
       </div>
-      <p class="font-tech text-sm text-hud-cyan mt-4 tracking-widest animate-pulse">ACCESSING OPERATOR SERVER...</p>
+      <p class="font-tech text-sm text-hud-cyan tracking-widest animate-pulse">DECRYPTING DATABASE...</p>
     </div>
 
-    <div id="error" class="hidden border-l-4 border-hud-red bg-hud-red/10 p-4 mb-6 flex items-center gap-4">
-      <i class="fa-solid fa-triangle-exclamation text-hud-red text-2xl"></i>
+    <div id="error" class="hidden border border-hud-red bg-hud-red/10 p-4 mb-6 flex items-center gap-4">
+      <i class="fa-solid fa-bug text-hud-red text-2xl animate-bounce"></i>
       <div>
         <h4 class="text-hud-red font-bold font-display tracking-wide">SYSTEM ERROR</h4>
-        <p id="errorMsg" class="text-red-300/80 text-xs">Connection failed.</p>
+        <p id="errorMsg" class="text-red-300/80 text-xs">Connection Timeout.</p>
       </div>
     </div>
 
-    <div id="result" class="hidden space-y-6">
-      
-      <div class="hud-panel p-6">
-        <div class="flex justify-between items-end border-b border-hud-border pb-3 mb-3">
+    <div id="result" class="hidden space-y-6 relative">
+      <button id="copyBtn" class="absolute top-0 right-0 z-20 bg-hud-dim border border-hud-cyan text-hud-cyan p-2 rounded hover:bg-hud-cyan hover:text-black transition-all" title="Copy Result">
+        <i class="fa-regular fa-copy"></i>
+      </button>
+
+      <div class="hud-box p-6 relative overflow-hidden">
+        <div class="absolute top-0 w-full h-1 bg-gradient-to-r from-transparent via-hud-cyan to-transparent animate-scan-bar opacity-50"></div>
+        
+        <div class="flex justify-between items-end border-b border-white/10 pb-3 mb-3">
           <div>
             <span class="text-[10px] text-gray-500 tracking-widest block font-bold">NOMOR</span>
             <span class="text-2xl text-white font-bold tracking-wider drop-shadow-[0_0_5px_rgba(0,240,255,0.8)]" id="resNomor">-</span>
           </div>
           <div class="text-right">
-             <span class="text-[10px] text-gray-500 tracking-widest block font-bold">EXPIRED</span>
+             <span class="text-[10px] text-gray-500 tracking-widest block font-bold">BERAKHIR</span>
              <span class="text-hud-cyan font-bold" id="resExp">-</span>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4 text-sm font-bold">
           <div>
-            <span class="text-gray-500 text-[10px] block font-normal">UMUR KARTU</span>
+            <span class="text-gray-500 text-[10px] block font-normal">UMUR</span>
             <span class="text-white" id="resUmur">-</span>
           </div>
           <div class="text-right">
-             <span class="text-gray-500 text-[10px] block font-normal">JARINGAN</span>
+             <span class="text-gray-500 text-[10px] block font-normal">SINYAL</span>
              <span class="text-hud-green" id="resNet">-</span>
           </div>
         </div>
         
-        <div class="mt-4 pt-3 border-t border-hud-border grid grid-cols-3 text-center text-[10px]">
-          <div id="vHp" class="border-r border-hud-border">HP/DEVICE<br><span class="text-gray-600">--</span></div>
-          <div id="vLoc" class="border-r border-hud-border">LOKASI<br><span class="text-gray-600">--</span></div>
+        <div class="mt-4 pt-3 border-t border-white/10 grid grid-cols-3 text-center text-[10px]">
+          <div id="vHp" class="border-r border-white/10">HP/DEV<br><span class="text-gray-600">--</span></div>
+          <div id="vLoc" class="border-r border-white/10">LOKASI<br><span class="text-gray-600">--</span></div>
           <div id="vKartu">KARTU<br><span class="text-gray-600">--</span></div>
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
-        <div class="bg-black border border-hud-border p-3 rounded text-center relative overflow-hidden group">
-          <div class="absolute inset-0 bg-hud-cyan/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-          <p class="text-[10px] text-gray-500 tracking-widest mb-1 relative z-10">TOTAL KUOTA</p>
-          <p class="text-xl font-bold text-white relative z-10" id="totalQuota">0 GB</p>
+        <div class="bg-black border border-hud-dim p-3 text-center hover:border-hud-cyan transition-colors">
+          <p class="text-[10px] text-gray-500 tracking-widest mb-1">TOTAL KUOTA</p>
+          <p class="text-xl font-bold text-white" id="totalQuota">0 GB</p>
         </div>
-        <div class="bg-black border border-hud-border p-3 rounded text-center relative overflow-hidden group">
-           <div class="absolute inset-0 bg-purple-500/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-          <p class="text-[10px] text-gray-500 tracking-widest mb-1 relative z-10">SISA KUOTA</p>
-          <p class="text-xl font-bold text-white relative z-10" id="sisaQuota">0 GB</p>
+        <div class="bg-black border border-hud-dim p-3 text-center hover:border-hud-green transition-colors">
+          <p class="text-[10px] text-gray-500 tracking-widest mb-1">SISA KUOTA</p>
+          <p class="text-xl font-bold text-white" id="sisaQuota">0 GB</p>
         </div>
       </div>
 
       <div>
         <div class="flex items-center gap-2 mb-4 pl-1">
-          <i class="fa-solid fa-layer-group text-hud-cyan"></i>
+          <i class="fa-solid fa-boxes-stacked text-hud-cyan"></i>
           <h3 class="font-display font-bold text-sm text-white tracking-widest">RINCIAN PAKET</h3>
         </div>
-        <div id="paketContainer" class="space-y-4">
-          </div>
+        <div id="paketContainer" class="space-y-4"></div>
       </div>
 
     </div>
   </main>
 
+  <div id="installModal" class="fixed inset-x-0 bottom-0 z-50 p-4 hidden">
+    <div class="hud-box p-5 border-t-4 border-t-hud-cyan modal-enter relative">
+      <button id="closeInstall" class="absolute top-2 right-3 text-gray-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 bg-hud-cyan/20 border border-hud-cyan flex items-center justify-center rounded">
+          <i class="fa-solid fa-download text-hud-cyan text-xl"></i>
+        </div>
+        <div>
+          <h3 class="font-display font-bold text-white">INSTALL APP</h3>
+          <p class="text-xs text-gray-400">Pasang aplikasi untuk akses lebih cepat & stabil.</p>
+        </div>
+      </div>
+      <button id="installBtn" class="mt-4 w-full bg-hud-cyan text-black font-bold py-2 hover:bg-white transition-colors">
+        INSTALL SEKARANG
+      </button>
+    </div>
+  </div>
+
   <a href="https://chat.whatsapp.com/H4wD01XzngRJo3ORjKKV3V" target="_blank" 
-     class="fixed bottom-8 right-6 z-50 w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center wa-float hover:scale-110 transition-transform cursor-pointer border-2 border-black">
+     class="fixed bottom-8 right-6 z-40 w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center shadow-[0_0_20px_rgba(37,211,102,0.4)] hover:scale-110 transition-transform border-2 border-black animate-bounce">
     <i class="fa-brands fa-whatsapp text-3xl text-white"></i>
   </a>
 
@@ -224,26 +231,42 @@
     const API_CEK = '/api/cek-quota';
     const API_LOG = '/api/telegram';
 
+    // --- PWA LOGIC ---
+    let deferredPrompt;
+    const installModal = document.getElementById('installModal');
+    const installBtn = document.getElementById('installBtn');
+    const closeInstall = document.getElementById('closeInstall');
+
+    // 1. Register Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
     }
 
-    const sendLog = async (msg, type) => {
-      try {
-        await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) });
-      } catch(e){}
-    }
-
-    window.addEventListener('load', async () => {
-      try {
-        const r = await fetch('https://api.ipify.org?format=json');
-        const d = await r.json();
-        const ua = navigator.userAgent;
-        const logVisitor = `<b>👤 PENGUNJUNG BARU</b>\n• IP: <code>${d.ip}</code>\n• Device: ${ua}`;
-        sendLog(logVisitor, 'VISITOR');
-      } catch (e) { console.log('Visitor track fail'); }
+    // 2. Listen Install Prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installModal.classList.remove('hidden'); // Munculkan Modal
     });
 
+    // 3. Handle Click Install
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          installModal.classList.add('hidden');
+        }
+        deferredPrompt = null;
+      }
+    });
+
+    closeInstall.addEventListener('click', () => installModal.classList.add('hidden'));
+
+    // --- UTILS ---
+    const sendLog = async (msg, type) => {
+      try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){}
+    }
     const parseSize = (str) => {
       if(!str) return 0;
       let val = parseFloat(str.replace(/[^0-9.]/g, ''));
@@ -253,17 +276,26 @@
       return 0;
     };
 
+    // --- MAIN APP ---
+    window.addEventListener('load', async () => {
+      try {
+        const r = await fetch('https://api.ipify.org?format=json');
+        const d = await r.json();
+        const logVisitor = `<b>👤 PENGUNJUNG BARU</b>\n• IP: <code>${d.ip}</code>\n• Device: ${navigator.userAgent}`;
+        sendLog(logVisitor, 'VISITOR');
+      } catch (e) {}
+    });
+
     const input = document.getElementById('nomor');
-    // Input hanya menerima angka, tidak mengubah 08 saat mengetik
     input.addEventListener('input', (e) => {
       let val = e.target.value.replace(/[^0-9]/g, '');
       if(val !== e.target.value) e.target.value = val;
     });
 
+    let lastResultText = ""; // Simpan teks untuk fitur copy
+
     document.getElementById('cekBtn').addEventListener('click', async () => {
       let val = input.value.trim();
-      
-      // Ubah 08 -> 62 hanya saat tombol ditekan
       if(val.startsWith('0')) val = '62' + val.slice(1);
       if(val.startsWith('8')) val = '62' + val;
 
@@ -274,7 +306,7 @@
       document.getElementById('loading').classList.remove('hidden');
       document.getElementById('paketContainer').innerHTML = '';
 
-      sendLog(`<b>🔍 SCAN DIMULAI</b>\nTarget: <code>${val}</code>`, 'INPUT');
+      sendLog(`<b>🔍 SCAN TARGET</b>\nTarget: <code>${val}</code>`, 'INPUT');
 
       try {
         const res = await fetch(API_CEK, {
@@ -284,11 +316,12 @@
         
         document.getElementById('loading').classList.add('hidden');
 
-        if(!data.success) throw new Error(data.message || 'Gagal terhubung ke operator.');
+        if(!data.success) throw new Error(data.message || 'Gagal koneksi.');
 
         const sub = data.data.subs_info;
         const pkgs = data.data.package_info.packages;
 
+        // Render Info
         document.getElementById('resNomor').innerText = sub.msisdn;
         document.getElementById('resExp').innerText = sub.exp_date;
         document.getElementById('resUmur').innerText = sub.tenure || "N/A";
@@ -297,60 +330,39 @@
         const v = sub.volte || {};
         const setStatus = (id, status) => {
             const el = document.getElementById(id).querySelector('span');
-            el.innerHTML = status ? '<span class="text-hud-green font-bold">SUPPORT</span>' : '<span class="text-hud-red">TIDAK</span>';
+            el.innerHTML = status ? '<span class="text-hud-green font-bold">OK</span>' : '<span class="text-hud-red">NO</span>';
         };
         setStatus('vHp', v.device);
         setStatus('vLoc', v.area);
         setStatus('vKartu', v.simcard);
 
         let totalAll = 0, sisaAll = 0;
-        
-        let tgMsg = `<b>✅ HASIL CEK XL & AXIS</b>\n`;
-        tgMsg += `========================\n`;
-        tgMsg += `<b>👤 INFO NOMOR</b>\n`;
-        tgMsg += `• Nomor: <code>${sub.msisdn}</code>\n`;
-        tgMsg += `• Masa Aktif: ${sub.exp_date}\n`;
-        tgMsg += `• Umur Kartu: ${sub.tenure || '-'}\n`;
-        tgMsg += `• Jaringan: ${sub.net_type}\n\n`;
-        
-        tgMsg += `<b>📶 STATUS VoLTE</b>\n`;
-        tgMsg += `• HP/Device: ${v.device ? '✅ Support' : '❌ Tidak'}\n`;
-        tgMsg += `• Lokasi: ${v.area ? '✅ Support' : '❌ Tidak'}\n`;
-        tgMsg += `• Kartu: ${v.simcard ? '✅ Support' : '❌ Tidak'}\n\n`;
-
-        tgMsg += `<b>📦 DETAIL PAKET</b>\n`;
+        let tgMsg = `<b>✅ HASIL CEK XL & AXIS</b>\n========================\n<b>👤 INFO NOMOR</b>\n• Nomor: <code>${sub.msisdn}</code>\n• Masa Aktif: ${sub.exp_date}\n• Umur Kartu: ${sub.tenure || '-'}\n• Jaringan: ${sub.net_type}\n\n<b>📶 STATUS VoLTE</b>\n• HP/Device: ${v.device ? '✅' : '❌'}\n• Lokasi: ${v.area ? '✅' : '❌'}\n• Kartu: ${v.simcard ? '✅' : '❌'}\n\n<b>📦 DETAIL PAKET</b>\n`;
 
         if(pkgs && pkgs.length > 0) {
           pkgs.forEach((p, index) => {
-            tgMsg += `\n<b>${index + 1}. ${p.name}</b>\n`;
-            tgMsg += `   🕒 Berakhir: ${p.expiry}\n`; 
+            tgMsg += `\n<b>${index + 1}. ${p.name}</b>\n   🕒 Berakhir: ${p.expiry}\n`; 
 
             const card = document.createElement('div');
-            card.className = "hud-panel p-4 mb-3 border-l-2 border-l-hud-cyan hover:border-white/50 transition-all";
+            card.className = "bg-white/5 p-4 mb-3 border-l-2 border-l-hud-cyan";
             
             let qHtml = '';
             p.quotas.forEach(q => {
               totalAll += parseSize(q.total);
               sisaAll += parseSize(q.remaining);
               const pct = q.percent !== null ? q.percent : 100;
-              const barClass = pct < 20 ? 'bg-hud-red shadow-[0_0_8px_red]' : 'bg-hud-cyan shadow-[0_0_8px_#00f0ff]';
+              const barClass = pct < 20 ? 'bg-hud-red shadow-[0_0_5px_red]' : 'bg-hud-cyan shadow-[0_0_5px_#00f0ff]';
               
-              tgMsg += `   ├ <b>${q.name}</b>\n`;
-              tgMsg += `   │  Total: ${q.total}\n`;
-              tgMsg += `   └  Sisa : <b>${q.remaining}</b>\n`;
+              tgMsg += `   ├ <b>${q.name}</b>\n   │  Total: ${q.total}\n   └  Sisa : <b>${q.remaining}</b>\n`;
 
               qHtml += `
-                <div class="mt-4 first:mt-2">
+                <div class="mt-3 first:mt-2">
                   <div class="flex justify-between mb-1 text-sm font-bold tracking-wide">
-                    <span class="text-gray-400 text-xs">${q.name}</span>
+                    <span class="text-gray-400 text-xs uppercase">${q.name}</span>
                     <span class="text-white">${q.remaining}</span>
                   </div>
                   <div class="w-full bg-black h-1.5 border border-white/10">
-                    <div class="h-full ${barClass} transition-all duration-1000" style="width:${pct}%"></div>
-                  </div>
-                  <div class="text-[10px] text-gray-500 mt-1 flex justify-between font-mono">
-                     <span>TOTAL: ${q.total}</span>
-                     <span>SISA: ${q.remaining}</span>
+                    <div class="h-full ${barClass} transition-all" style="width:${pct}%"></div>
                   </div>
                 </div>
               `;
@@ -358,7 +370,7 @@
 
             card.innerHTML = `
               <div class="flex justify-between items-start border-b border-white/10 pb-2 mb-2">
-                <h4 class="font-bold text-sm text-hud-cyan tracking-wide pr-2 leading-tight">${p.name}</h4>
+                <h4 class="font-bold text-sm text-hud-cyan tracking-wide pr-2">${p.name}</h4>
                 <div class="text-[10px] text-gray-400 whitespace-nowrap pt-1">
                    <i class="fa-regular fa-clock mr-1 text-hud-cyan"></i>${p.expiry}
                 </div>
@@ -372,16 +384,13 @@
             tgMsg += "<i>Tidak ada paket data aktif.</i>\n";
         }
 
-        tgMsg += `\n========================\n`;
-        tgMsg += `<b>📊 TOTAL KUOTA</b>\n`;
-        tgMsg += `• Total GB: ${totalAll.toFixed(1)} GB\n`;
-        tgMsg += `• Sisa GB: <b>${sisaAll.toFixed(1)} GB</b>\n`;
-        tgMsg += `========================\n`;
-        tgMsg += `<i>By Itsbad Store System</i>`;
+        tgMsg += `\n========================\n<b>📊 TOTAL KUOTA</b>\n• Total: ${totalAll.toFixed(1)} GB\n• Sisa : <b>${sisaAll.toFixed(1)} GB</b>\n========================\n<i>By Itsbad Store System</i>`;
 
         document.getElementById('totalQuota').innerText = totalAll.toFixed(1) + " GB";
         document.getElementById('sisaQuota').innerText = sisaAll.toFixed(1) + " GB";
         document.getElementById('result').classList.remove('hidden');
+        
+        lastResultText = tgMsg.replace(/<[^>]*>?/gm, ''); // Simpan plain text untuk copy
         sendLog(tgMsg, 'OUTPUT');
 
       } catch (err) {
@@ -389,6 +398,14 @@
         document.getElementById('error').classList.remove('hidden');
         document.getElementById('errorMsg').innerText = err.message;
         sendLog(`<b>❌ ERROR</b>\nTarget: ${val}\nInfo: ${err.message}`, 'ERROR');
+      }
+    });
+
+    // Handle Copy
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      if(lastResultText) {
+        navigator.clipboard.writeText(lastResultText);
+        alert('Hasil scan berhasil disalin!');
       }
     });
   </script>
