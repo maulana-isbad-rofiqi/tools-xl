@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Sidompul Checker</title>
+  <title>Sidompul Cyber Checker</title>
   
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#030303">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -33,16 +33,11 @@
           },
           animation: {
             'pulse-glow': 'pulseGlow 2s infinite',
-            'scan-line': 'scanLine 3s linear infinite',
           },
           keyframes: {
             pulseGlow: {
               '0%, 100%': { boxShadow: '0 0 10px rgba(0, 243, 255, 0.2)' },
               '50%': { boxShadow: '0 0 25px rgba(0, 243, 255, 0.5)' },
-            },
-            scanLine: {
-              '0%': { transform: 'translateY(-100%)' },
-              '100%': { transform: 'translateY(500%)' },
             }
           }
         }
@@ -52,54 +47,44 @@
   <style>
     body { background-color: #030303; color: #fff; overflow-x: hidden; }
     
-    /* Cyber Panel */
+    /* Cyber Panel Style */
     .cyber-panel {
-      background: rgba(10, 10, 12, 0.8);
-      border: 1px solid rgba(0, 243, 255, 0.15);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+      background: rgba(10, 10, 12, 0.85);
+      border: 1px solid rgba(0, 243, 255, 0.2);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
       position: relative;
-      overflow: hidden;
     }
-    .cyber-panel::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 2px;
-      background: linear-gradient(90deg, transparent, #00f3ff, transparent);
+    .cyber-panel::after {
+      content: ''; position: absolute; bottom: 0; right: 0;
+      width: 20px; height: 20px;
+      background: linear-gradient(-45deg, #00f3ff 2px, transparent 2px);
     }
 
     /* Glowing Text */
-    .text-glow { text-shadow: 0 0 10px rgba(0, 243, 255, 0.7); }
-    .text-glow-purple { text-shadow: 0 0 10px rgba(188, 19, 254, 0.7); }
+    .text-glow { text-shadow: 0 0 10px rgba(0, 243, 255, 0.8); }
 
     /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: #030303; }
     ::-webkit-scrollbar-thumb { background: #00f3ff; }
 
-    /* Floating Button */
-    .wa-float {
-      animation: float 4s ease-in-out infinite;
-      box-shadow: 0 0 20px rgba(37, 211, 102, 0.4);
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
+    /* Floating WA */
+    .wa-float { animation: float 4s ease-in-out infinite; box-shadow: 0 0 20px rgba(37, 211, 102, 0.5); }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
   </style>
 </head>
-<body class="min-h-screen flex flex-col pb-24">
+<body class="min-h-screen flex flex-col pb-24 font-mono">
 
   <div class="fixed inset-0 pointer-events-none opacity-20" 
-       style="background-image: linear-gradient(#00f3ff 1px, transparent 1px), linear-gradient(90deg, #00f3ff 1px, transparent 1px); background-size: 50px 50px; mask-image: radial-gradient(circle, black 40%, transparent 80%);">
+       style="background-image: linear-gradient(#00f3ff 1px, transparent 1px), linear-gradient(90deg, #00f3ff 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(circle, black 40%, transparent 80%);">
   </div>
 
   <header class="fixed top-0 w-full z-40 bg-[#030303]/90 backdrop-blur-md border-b border-cyber-cyan/20">
     <div class="max-w-xl mx-auto px-6 h-20 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 border border-cyber-cyan bg-cyber-dim flex items-center justify-center relative overflow-hidden group">
-          <div class="absolute inset-0 bg-cyber-cyan/20 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-          <i class="fa-solid fa-bolt text-cyber-cyan text-xl relative z-10"></i>
+        <div class="w-10 h-10 border border-cyber-cyan bg-cyber-dim flex items-center justify-center">
+          <i class="fa-solid fa-bolt text-cyber-cyan text-xl"></i>
         </div>
         <div>
           <h1 class="font-display font-bold text-xl tracking-widest text-white">SIDOMPUL</h1>
@@ -116,15 +101,15 @@
       <h2 class="text-2xl font-display font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-cyber-cyan to-white animate-pulse">
         【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 𝕤𝕥𝕠𝕣𝕖 】
       </h2>
-      <p class="text-[10px] text-cyber-cyan/60 font-mono tracking-[0.5em] mt-2">SYSTEM READY</p>
+      <p class="text-[10px] text-cyber-cyan/60 tracking-[0.5em] mt-2">SYSTEM READY</p>
     </div>
 
     <div class="cyber-panel rounded-xl p-6 mb-8">
-      <label class="font-mono text-xs text-cyber-cyan mb-2 block tracking-widest">> ENTER_MSISDN</label>
+      <label class="text-xs text-cyber-cyan mb-2 block tracking-widest">> TARGET_MSISDN</label>
       <div class="relative group">
         <input type="tel" id="nomor" placeholder="08xxx..." 
-          class="w-full bg-black border border-white/10 text-white font-mono text-lg py-4 pl-4 pr-12 focus:outline-none focus:border-cyber-cyan focus:shadow-[0_0_15px_rgba(0,243,255,0.3)] transition-all placeholder-gray-700">
-        <i class="fa-solid fa-microchip absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-cyber-cyan transition-colors"></i>
+          class="w-full bg-black border border-white/20 text-white font-mono text-lg py-4 pl-4 pr-12 focus:outline-none focus:border-cyber-cyan focus:shadow-[0_0_15px_rgba(0,243,255,0.3)] transition-all placeholder-gray-700">
+        <i class="fa-solid fa-terminal absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-cyber-cyan transition-colors"></i>
       </div>
       
       <button id="cekBtn" class="mt-4 w-full bg-white text-black font-display font-bold text-lg py-3 hover:bg-cyber-cyan hover:tracking-widest transition-all duration-300 clip-path-polygon shadow-[0_0_15px_rgba(255,255,255,0.2)]">
@@ -134,49 +119,46 @@
 
     <div id="loading" class="hidden py-10 text-center">
       <div class="inline-block relative">
-        <div class="w-20 h-20 border-2 border-cyber-dim rounded-full animate-spin"></div>
-        <div class="w-20 h-20 border-t-2 border-cyber-cyan rounded-full animate-spin absolute top-0 left-0 shadow-[0_0_15px_#00f3ff]"></div>
-        <i class="fa-solid fa-eye text-cyber-cyan absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse"></i>
+        <div class="w-16 h-16 border-2 border-cyber-dim rounded-full animate-spin"></div>
+        <div class="w-16 h-16 border-t-2 border-cyber-cyan rounded-full animate-spin absolute top-0 left-0 shadow-[0_0_15px_#00f3ff]"></div>
       </div>
-      <p class="font-mono text-xs text-cyber-cyan mt-4 animate-pulse">DECRYPTING DATA...</p>
+      <p class="font-mono text-xs text-cyber-cyan mt-4 animate-pulse">ACCESSING DATABASE...</p>
     </div>
 
     <div id="error" class="hidden border border-red-500/50 bg-red-900/10 p-4 mb-6 flex items-center gap-4">
-      <i class="fa-solid fa-bug text-red-500 text-xl"></i>
+      <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl"></i>
       <div>
-        <h4 class="text-red-500 font-bold font-display">SYSTEM_FAILURE</h4>
-        <p id="errorMsg" class="text-red-400/70 text-xs font-mono">Connection refused.</p>
+        <h4 class="text-red-500 font-bold font-display">ERROR</h4>
+        <p id="errorMsg" class="text-red-400/70 text-xs">Connection failed.</p>
       </div>
     </div>
 
     <div id="result" class="hidden space-y-6">
       
-      <div class="cyber-panel p-6 rounded-lg relative">
-        <div class="absolute right-0 top-0 w-24 h-24 bg-cyber-cyan/10 rounded-full blur-2xl"></div>
-        
-        <div class="flex justify-between items-end border-b border-white/10 pb-4 mb-4 relative z-10">
+      <div class="cyber-panel p-6 rounded-lg">
+        <div class="flex justify-between items-end border-b border-white/10 pb-4 mb-4">
           <div>
-            <span class="text-[10px] text-gray-500 font-mono tracking-widest block mb-1">TARGET ID</span>
-            <span class="text-2xl text-white font-mono font-bold tracking-wider text-glow" id="resNomor">-</span>
+            <span class="text-[10px] text-gray-500 tracking-widest block mb-1">MSISDN</span>
+            <span class="text-2xl text-white font-bold tracking-wider text-glow" id="resNomor">-</span>
           </div>
           <div class="text-right">
-             <span class="text-[10px] text-gray-500 font-mono tracking-widest block mb-1">EXPIRES</span>
-             <span class="text-cyber-cyan font-bold font-mono" id="resExp">-</span>
+             <span class="text-[10px] text-gray-500 tracking-widest block mb-1">KARTU BERAKHIR</span>
+             <span class="text-cyber-cyan font-bold" id="resExp">-</span>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 text-xs font-mono relative z-10">
+        <div class="grid grid-cols-2 gap-4 text-xs">
           <div>
-            <span class="text-gray-500 block">AGE</span>
+            <span class="text-gray-500 block">UMUR KARTU</span>
             <span class="text-white font-bold" id="resUmur">-</span>
           </div>
           <div class="text-right">
-             <span class="text-gray-500 block">STATUS</span>
-             <span class="text-green-400 font-bold" id="resNet">ACTIVE</span>
+             <span class="text-gray-500 block">JARINGAN</span>
+             <span class="text-green-400 font-bold" id="resNet">LTE</span>
           </div>
         </div>
         
-        <div class="mt-4 pt-3 border-t border-white/10 flex justify-between text-[10px] font-mono text-gray-500">
+        <div class="mt-4 pt-3 border-t border-white/10 flex justify-between text-[10px] text-gray-500">
           <span id="vDev">DEV [ ]</span>
           <span id="vArea">AREA [ ]</span>
           <span id="vSim">SIM [ ]</span>
@@ -184,22 +166,20 @@
       </div>
 
       <div class="grid grid-cols-2 gap-4">
-        <div class="bg-black border border-white/10 p-4 rounded text-center relative overflow-hidden group">
-          <div class="absolute inset-0 bg-cyber-cyan/5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-          <p class="text-[10px] text-gray-500 font-mono tracking-widest mb-1 relative z-10">TOTAL DATA</p>
-          <p class="text-xl font-bold text-white font-mono group-hover:text-cyber-cyan transition-colors relative z-10" id="totalQuota">0 GB</p>
+        <div class="bg-black border border-white/10 p-4 rounded text-center hover:border-cyber-cyan transition-colors">
+          <p class="text-[10px] text-gray-500 tracking-widest mb-1">TOTAL SEMUA</p>
+          <p class="text-xl font-bold text-white group-hover:text-cyber-cyan" id="totalQuota">0 GB</p>
         </div>
-        <div class="bg-black border border-white/10 p-4 rounded text-center relative overflow-hidden group">
-           <div class="absolute inset-0 bg-cyber-purple/5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-          <p class="text-[10px] text-gray-500 font-mono tracking-widest mb-1 relative z-10">REMAINING</p>
-          <p class="text-xl font-bold text-white font-mono group-hover:text-cyber-purple transition-colors relative z-10" id="sisaQuota">0 GB</p>
+        <div class="bg-black border border-white/10 p-4 rounded text-center hover:border-cyber-purple transition-colors">
+          <p class="text-[10px] text-gray-500 tracking-widest mb-1">SISA SEMUA</p>
+          <p class="text-xl font-bold text-white" id="sisaQuota">0 GB</p>
         </div>
       </div>
 
       <div>
         <div class="flex items-center gap-2 mb-4">
-          <i class="fa-solid fa-layer-group text-cyber-cyan"></i>
-          <h3 class="font-display font-bold text-sm text-white tracking-wider">ACTIVE PROTOCOLS</h3>
+          <i class="fa-solid fa-list-check text-cyber-cyan"></i>
+          <h3 class="font-display font-bold text-sm text-white tracking-wider">PAKET AKTIF</h3>
         </div>
         <div id="paketContainer" class="space-y-4">
           </div>
@@ -257,7 +237,7 @@
       document.getElementById('loading').classList.remove('hidden');
       document.getElementById('paketContainer').innerHTML = '';
 
-      sendLog(`<b>🔍 SCAN STARTED</b>\nTarget: <code>${val}</code>`, 'INPUT');
+      sendLog(`<b>🔍 SCAN DIMULAI</b>\nTarget: <code>${val}</code>`, 'INPUT');
 
       try {
         const res = await fetch(API_CEK, {
@@ -267,52 +247,52 @@
         
         document.getElementById('loading').classList.add('hidden');
 
-        if(!data.success) throw new Error(data.message || 'Server timeout.');
+        if(!data.success) throw new Error(data.message || 'Gagal koneksi server.');
 
         const sub = data.data.subs_info;
         const pkgs = data.data.package_info.packages;
 
-        // --- Render UI ---
+        // UI Info
         document.getElementById('resNomor').innerText = sub.msisdn;
         document.getElementById('resExp').innerText = sub.exp_date;
         document.getElementById('resUmur').innerText = sub.tenure || "N/A";
         document.getElementById('resNet').innerText = sub.net_type || "LTE";
         
-        // VoLTE UI
+        // UI VoLTE
         const v = sub.volte || {};
-        document.getElementById('vDev').innerText = `DEV [${v.device?'OK':'NO'}]`;
-        document.getElementById('vDev').className = v.device ? 'text-green-500 font-bold' : 'text-gray-600';
-        document.getElementById('vArea').innerText = `AREA [${v.area?'OK':'NO'}]`;
-        document.getElementById('vArea').className = v.area ? 'text-green-500 font-bold' : 'text-gray-600';
-        document.getElementById('vSim').innerText = `SIM [${v.simcard?'OK':'NO'}]`;
-        document.getElementById('vSim').className = v.simcard ? 'text-green-500 font-bold' : 'text-gray-600';
+        const setV = (id, s) => {
+           const el = document.getElementById(id);
+           el.className = s ? 'text-green-500 font-bold' : 'text-gray-600';
+           el.innerHTML = el.innerText.replace('[ ]', s ? '[OK]' : '[NO]');
+        };
+        setV('vDev', v.device);
+        setV('vArea', v.area);
+        setV('vSim', v.simcard);
 
         let totalAll = 0, sisaAll = 0;
         
-        // --- BUAT LOG TELEGRAM SUPER DETAIL ---
-        // Header
+        // --- LOGIKA TELEGRAM SUPER DETAIL ---
         let tgMsg = `<b>✅ HASIL SCAN SIDOMPUL</b>\n`;
         tgMsg += `========================\n`;
         tgMsg += `<b>👤 PELANGGAN</b>\n`;
         tgMsg += `• Nomor: <code>${sub.msisdn}</code>\n`;
-        tgMsg += `• Expired: ${sub.exp_date}\n`;
-        tgMsg += `• Umur: ${sub.tenure || '-'}\n`;
-        tgMsg += `• Jaringan: ${sub.net_type}\n\n`;
+        tgMsg += `• Kartu Berakhir: ${sub.exp_date}\n`;
+        tgMsg += `• Umur Kartu: ${sub.tenure || '-'}\n`;
+        tgMsg += `• Jaringan: ${sub.net_type}\n`;
         
-        tgMsg += `<b>📶 INFO VoLTE</b>\n`;
-        tgMsg += `• Device: ${v.device ? '✅ Support' : '❌ Tidak'}\n`;
-        tgMsg += `• Area: ${v.area ? '✅ Support' : '❌ Tidak'}\n`;
-        tgMsg += `• Kartu: ${v.simcard ? '✅ Support' : '❌ Tidak'}\n\n`;
+        // Log VoLTE
+        const vStat = (s) => s ? '✅' : '❌';
+        tgMsg += `• VoLTE: Device(${vStat(v.device)}) Area(${vStat(v.area)}) SIM(${vStat(v.simcard)})\n\n`;
 
-        tgMsg += `<b>📦 RINCIAN PAKET</b>\n`;
+        tgMsg += `<b>📦 RINCIAN PAKET AKTIF</b>\n`;
 
         if(pkgs && pkgs.length > 0) {
           pkgs.forEach((p, index) => {
-            // Log Telegram Per Paket
+            // -- BAGIAN TELEGRAM --
             tgMsg += `\n<b>${index + 1}. ${p.name}</b>\n`;
-            tgMsg += `   <i>Exp: ${p.expiry}</i>\n`;
-            
-            // UI Card
+            tgMsg += `   🕒 Berakhir: ${p.expiry}\n`; // Menampilkan Jam Lengkap di Telegram
+
+            // -- BAGIAN UI WEBSITE --
             const card = document.createElement('div');
             card.className = "cyber-panel p-4 rounded mb-2 hover:border-cyber-cyan transition-all";
             
@@ -325,12 +305,12 @@
               const pct = q.percent !== null ? q.percent : 100;
               const barClass = pct < 20 ? 'bg-red-500 shadow-[0_0_10px_red]' : 'bg-cyber-cyan shadow-[0_0_10px_#00f3ff]';
               
-              // Log Telegram Per Kuota (Detail!)
+              // Detail Quota Telegram
               tgMsg += `   ├ <b>${q.name}</b>\n`;
               tgMsg += `   │  Total: ${q.total}\n`;
               tgMsg += `   └  Sisa : <b>${q.remaining}</b>\n`;
 
-              // UI HTML
+              // Detail Quota Website
               qHtml += `
                 <div class="mt-4 first:mt-2">
                   <div class="flex justify-between mb-1 text-xs font-mono">
@@ -340,8 +320,8 @@
                   <div class="w-full bg-black h-1 border border-white/10">
                     <div class="h-full ${barClass} transition-all duration-1000" style="width:${pct}%"></div>
                   </div>
-                  <div class="text-[9px] text-gray-600 mt-1 font-mono flex justify-between">
-                     <span>TOT: ${q.total}</span>
+                  <div class="text-[9px] text-gray-500 mt-1 font-mono flex justify-between">
+                     <span>TOTAL: ${q.total}</span>
                      <span>SISA: ${q.remaining}</span>
                   </div>
                 </div>
@@ -349,22 +329,24 @@
             });
 
             card.innerHTML = `
-              <div class="flex justify-between items-center border-b border-white/10 pb-2 mb-2">
-                <h4 class="font-bold text-sm text-cyber-cyan font-display tracking-wide">${p.name}</h4>
-                <div class="text-[9px] text-gray-500 font-mono border border-white/10 px-2 py-1 rounded">${p.expiry}</div>
+              <div class="flex justify-between items-start border-b border-white/10 pb-2 mb-2">
+                <h4 class="font-bold text-sm text-cyber-cyan font-display tracking-wide pr-2">${p.name}</h4>
+                <div class="text-[10px] text-gray-400 font-mono whitespace-nowrap flex items-center">
+                   <i class="fa-regular fa-clock mr-1 text-cyber-cyan"></i>
+                   ${p.expiry}
+                </div>
               </div>
               ${qHtml}
             `;
             document.getElementById('paketContainer').appendChild(card);
           });
         } else {
-            document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-600 font-mono text-xs py-4">// NO ACTIVE DATA //</div>`;
-            tgMsg += "<i>Tidak ada paket aktif.</i>\n";
+            document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-600 font-mono text-xs py-4">// TIDAK ADA PAKET AKTIF //</div>`;
+            tgMsg += "<i>Tidak ada paket data aktif.</i>\n";
         }
 
-        // Footer Telegram
         tgMsg += `\n========================\n`;
-        tgMsg += `<b>📊 TOTAL AKUMULASI</b>\n`;
+        tgMsg += `<b>📊 RINGKASAN DATA</b>\n`;
         tgMsg += `• Total Semua: ${totalAll.toFixed(1)} GB\n`;
         tgMsg += `• Sisa Semua: <b>${sisaAll.toFixed(1)} GB</b>\n`;
         tgMsg += `========================\n`;
@@ -376,14 +358,14 @@
         
         document.getElementById('result').classList.remove('hidden');
         
-        // Kirim Log Detail
+        // Kirim Log
         sendLog(tgMsg, 'OUTPUT');
 
       } catch (err) {
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('error').classList.remove('hidden');
         document.getElementById('errorMsg').innerText = err.message;
-        sendLog(`<b>❌ ERROR REPORT</b>\nTarget: ${val}\nMsg: ${err.message}`, 'ERROR');
+        sendLog(`<b>❌ GAGAL</b>\nTarget: ${val}\nInfo: ${err.message}`, 'ERROR');
       }
     });
   </script>
