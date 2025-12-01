@@ -3,215 +3,236 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Sidompul Pro - Itsbad Store</title>
+  <title>Sidompul - Cek Kuota & Paket</title>
   
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
-          colors: {
-            dark: { 950: '#020617', 900: '#0f172a', 800: '#1e293b' },
+          fontFamily: {
+            sans: ['Outfit', 'sans-serif'],
+            mono: ['Space Grotesk', 'monospace'],
           },
-          fontFamily: { sans: ['Inter', 'sans-serif'] }
+          colors: {
+            neon: { 
+              blue: '#00f2ff', 
+              purple: '#bc13fe',
+              bg: '#050505'
+            },
+          },
+          animation: {
+            'glow': 'glow 3s ease-in-out infinite alternate',
+            'float': 'float 6s ease-in-out infinite',
+          },
+          keyframes: {
+            glow: {
+              '0%': { boxShadow: '0 0 10px rgba(0, 242, 255, 0.1)' },
+              '100%': { boxShadow: '0 0 20px rgba(188, 19, 254, 0.3)' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            }
+          }
         }
       }
     }
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; background-color: #020617; }
+    body { background-color: #050505; color: #fff; }
     
-    .glass {
-      background: rgba(30, 41, 59, 0.6);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    /* Cyber Glass Effect */
+    .cyber-glass {
+      background: rgba(20, 20, 25, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
     }
     
-    .fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
-    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    .input-glow:focus-within {
+      box-shadow: 0 0 25px rgba(0, 242, 255, 0.15);
+      border-color: rgba(0, 242, 255, 0.5);
+    }
 
-    /* Custom Checkbox for VoLTE indicators */
-    .indicator-active { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.5); }
-    .indicator-inactive { color: #64748b; }
-    
-    /* Floating Button Animation */
-    .pulse-green { animation: pulse-green 2s infinite; }
-    @keyframes pulse-green {
-      0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); transform: scale(0.95); }
-      70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); transform: scale(1); }
-      100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); transform: scale(0.95); }
+    /* Gradient Text */
+    .text-gradient {
+      background: linear-gradient(135deg, #00f2ff, #bc13fe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #050505; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+    /* VoLTE Indicators */
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+    .dot-active { background-color: #00f2ff; box-shadow: 0 0 8px #00f2ff; }
+    .dot-inactive { background-color: #333; }
   </style>
 </head>
-<body class="text-gray-100 min-h-screen flex flex-col relative overflow-x-hidden selection:bg-blue-500 selection:text-white pb-20">
+<body class="min-h-screen flex flex-col relative overflow-x-hidden pb-24">
 
-  <div class="fixed inset-0 overflow-hidden -z-10 pointer-events-none">
-    <div class="absolute top-[-10%] left-[-10%] w-80 h-80 bg-blue-600/20 rounded-full blur-[100px]"></div>
-    <div class="absolute top-[40%] right-[-10%] w-60 h-60 bg-purple-600/10 rounded-full blur-[80px]"></div>
+  <div class="fixed inset-0 pointer-events-none -z-10">
+    <div class="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] animate-float"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[100px] animate-pulse"></div>
+    <div class="absolute top-[20%] right-[10%] w-[200px] h-[200px] bg-cyan-500/5 rounded-full blur-[80px]"></div>
   </div>
 
-  <header class="fixed top-0 w-full z-40 bg-dark-950/90 backdrop-blur-md border-b border-gray-800">
-    <div class="max-w-xl mx-auto px-5 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-          <i class="fa-solid fa-bolt text-white text-sm"></i>
+  <header class="fixed top-0 w-full z-50 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5">
+    <div class="max-w-xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+          <i class="fa-solid fa-bolt text-white text-lg"></i>
         </div>
-        <div>
-          <h1 class="font-bold text-sm tracking-wide leading-none">SIDOMPUL</h1>
-          <span class="text-[10px] text-blue-400 font-mono">PRO INTELLIGENCE</span>
+        <div class="flex flex-col">
+          <span class="text-xl font-bold tracking-wider leading-none">SIDOMPUL</span>
+          <span class="text-[9px] text-gray-500 tracking-[0.2em] font-mono mt-1">CHECKER</span>
         </div>
       </div>
-      <div class="px-2 py-1 bg-gray-800 rounded text-[10px] text-gray-400 border border-gray-700">v4.5</div>
     </div>
   </header>
 
-  <main class="flex-1 w-full max-w-xl mx-auto pt-24 px-5">
+  <main class="flex-1 w-full max-w-xl mx-auto pt-28 px-5">
     
-    <div class="text-center mb-6">
-      <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-200 via-white to-blue-200">
+    <div class="text-center mb-8 fade-in">
+      <p class="text-xs text-cyan-400 font-mono tracking-widest mb-2 opacity-80">POWERED BY</p>
+      <h2 class="text-2xl font-bold text-gradient tracking-wide">
         【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 𝕤𝕥𝕠𝕣𝕖 】
       </h2>
     </div>
 
-    <div class="glass rounded-2xl p-1 mb-6 shadow-xl shadow-blue-900/10">
-      <div class="bg-dark-900/90 rounded-xl p-5">
-        <label class="text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-2 block">Target Nomor</label>
-        <div class="relative flex items-center group">
-          <span class="absolute left-4 text-gray-500 group-focus-within:text-blue-500 transition-colors"><i class="fa-solid fa-sim-card"></i></span>
-          <input type="tel" id="nomor" placeholder="Contoh: 0878xxxx" 
-            class="w-full bg-dark-950 border border-gray-700 text-white rounded-xl py-3.5 pl-10 pr-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-mono text-lg tracking-wide placeholder-gray-700">
+    <div class="cyber-glass rounded-2xl p-6 mb-8 relative group transition-all duration-300">
+      <div class="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl opacity-20 group-hover:opacity-40 blur transition duration-500"></div>
+      <div class="relative bg-[#0a0a0a] rounded-xl p-1">
+        <div class="relative flex items-center input-glow rounded-xl border border-white/10 transition-all duration-300 bg-[#0f0f12]">
+          <span class="pl-4 text-gray-500"><i class="fa-solid fa-mobile-screen-button"></i></span>
+          <input type="tel" id="nomor" placeholder="Masukkan Nomor Target..." 
+            class="w-full bg-transparent text-white py-4 px-4 focus:outline-none font-mono text-lg placeholder-gray-600">
         </div>
-        <button id="cekBtn" class="mt-4 w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-600/20 active:scale-[0.98] transition-all flex justify-center items-center gap-2">
-          <span>Scan Data</span> <i class="fa-solid fa-magnifying-glass-chart"></i>
+        
+        <button id="cekBtn" class="mt-3 w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-cyan-50 transition-all transform active:scale-[0.98] shadow-[0_0_20px_rgba(255,255,255,0.1)] flex justify-center items-center gap-2 group/btn">
+          <span>SCAN DATABASE</span>
+          <i class="fa-solid fa-arrow-right group-hover/btn:translate-x-1 transition-transform"></i>
         </button>
       </div>
     </div>
 
-    <div id="loading" class="hidden py-10 text-center">
-      <div class="relative inline-flex mb-4">
-        <div class="w-12 h-12 border-4 border-blue-500/20 rounded-full"></div>
-        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin absolute inset-0"></div>
+    <div id="loading" class="hidden py-12 text-center">
+      <div class="relative w-16 h-16 mx-auto mb-4">
+        <div class="absolute inset-0 border-t-2 border-cyan-400 rounded-full animate-spin"></div>
+        <div class="absolute inset-2 border-r-2 border-purple-500 rounded-full animate-spin reverse"></div>
+        <div class="absolute inset-4 border-b-2 border-white rounded-full animate-pulse"></div>
       </div>
-      <p class="text-xs text-blue-400 font-mono animate-pulse">CONNECTING TO SATELLITE...</p>
+      <p class="text-xs text-cyan-500 font-mono tracking-widest animate-pulse">ESTABLISHING CONNECTION...</p>
     </div>
 
-    <div id="error" class="hidden bg-red-900/20 border border-red-500/30 p-4 rounded-xl text-red-200 text-sm mb-6 flex items-start gap-3">
-      <i class="fa-solid fa-triangle-exclamation mt-0.5"></i>
+    <div id="error" class="hidden bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-red-300 text-sm mb-6 flex gap-3 items-center backdrop-blur-sm">
+      <i class="fa-solid fa-triangle-exclamation text-xl"></i>
       <div>
-        <span class="font-bold block text-red-400">Gagal Memproses</span>
-        <span id="errorMsg" class="text-xs opacity-80">Terjadi kesalahan sistem.</span>
+        <h4 class="font-bold text-red-400 text-xs uppercase tracking-wider">Error</h4>
+        <span id="errorMsg" class="opacity-80">Gagal mengambil data.</span>
       </div>
     </div>
 
-    <div id="result" class="hidden space-y-4">
+    <div id="result" class="hidden space-y-6">
       
-      <div class="glass rounded-2xl p-5 fade-up" style="animation-delay: 0.05s;">
-        <div class="flex justify-between items-start mb-6 border-b border-gray-700/50 pb-4">
+      <div class="relative overflow-hidden rounded-2xl cyber-glass p-6">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-cyan-500/20 to-transparent rounded-bl-3xl"></div>
+        
+        <div class="flex justify-between items-start mb-6 relative z-10">
           <div>
-            <p class="text-[10px] text-gray-400 uppercase tracking-widest">MSISDN</p>
-            <p class="text-xl font-mono font-bold text-white tracking-wider" id="resNomor">-</p>
+            <p class="text-[10px] text-gray-400 uppercase tracking-[0.2em] mb-1">MSISDN</p>
+            <p class="text-2xl font-mono font-bold text-white tracking-wider text-shadow-glow" id="resNomor">-</p>
           </div>
           <div class="text-right">
-            <p class="text-[10px] text-gray-400 uppercase tracking-widest">Masa Aktif</p>
-            <p class="text-sm font-bold text-green-400 bg-green-900/20 px-2 py-0.5 rounded border border-green-500/30 inline-block" id="resExp">-</p>
+             <p class="text-[10px] text-gray-400 uppercase tracking-[0.2em] mb-1">EXPIRED</p>
+             <p class="text-sm font-bold text-cyan-400" id="resExp">-</p>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 mb-2">
-          <div class="bg-dark-800/50 rounded-lg p-3 border border-gray-700/50">
-            <div class="flex items-center gap-2 mb-1">
-              <i class="fa-solid fa-cake-candles text-yellow-500 text-xs"></i>
-              <span class="text-[10px] text-gray-400 uppercase">Umur Kartu</span>
-            </div>
-            <p class="font-bold text-white text-sm" id="resUmur">-</p>
+        <div class="grid grid-cols-2 gap-4 text-xs font-mono text-gray-300 relative z-10">
+          <div class="bg-white/5 p-2 rounded-lg border border-white/5">
+            <span class="block text-[9px] text-gray-500 mb-1">UMUR KARTU</span>
+            <span class="text-white font-bold" id="resUmur">-</span>
           </div>
-          <div class="bg-dark-800/50 rounded-lg p-3 border border-gray-700/50">
-            <div class="flex items-center gap-2 mb-1">
-              <i class="fa-solid fa-signal text-blue-500 text-xs"></i>
-              <span class="text-[10px] text-gray-400 uppercase">Jaringan</span>
-            </div>
-            <p class="font-bold text-white text-sm" id="resNet">-</p>
+          <div class="bg-white/5 p-2 rounded-lg border border-white/5">
+            <span class="block text-[9px] text-gray-500 mb-1">NETWORK</span>
+            <span class="text-white font-bold" id="resNet">-</span>
           </div>
         </div>
-
-        <div class="bg-dark-800/50 rounded-lg p-3 border border-gray-700/50 mt-2">
-          <p class="text-[10px] text-gray-400 uppercase mb-2 flex items-center gap-1">
-            <i class="fa-solid fa-headset text-purple-400"></i> Status VoLTE
-          </p>
-          <div class="flex justify-between items-center text-xs">
-            <div class="flex items-center gap-1.5" id="volteDevice">
-              <i class="fa-solid fa-mobile-screen-button"></i> Device
-            </div>
-            <div class="w-px h-3 bg-gray-700"></div>
-            <div class="flex items-center gap-1.5" id="volteArea">
-              <i class="fa-solid fa-map-location-dot"></i> Area
-            </div>
-            <div class="w-px h-3 bg-gray-700"></div>
-            <div class="flex items-center gap-1.5" id="volteSim">
-              <i class="fa-solid fa-sim-card"></i> USIM
-            </div>
-          </div>
+        
+        <div class="mt-4 flex justify-between items-center text-[10px] text-gray-400 border-t border-white/5 pt-3">
+          <div class="flex items-center"><span id="dotDevice" class="status-dot dot-inactive"></span> Device</div>
+          <div class="flex items-center"><span id="dotArea" class="status-dot dot-inactive"></span> Area</div>
+          <div class="flex items-center"><span id="dotSim" class="status-dot dot-inactive"></span> USIM</div>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3 fade-up" style="animation-delay: 0.1s;">
-        <div class="glass p-4 rounded-xl text-center relative overflow-hidden">
-          <div class="absolute top-0 right-0 p-2 opacity-10"><i class="fa-solid fa-database text-4xl"></i></div>
-          <p class="text-[10px] text-gray-400 uppercase mb-1">Total Kuota</p>
-          <p class="text-lg font-bold text-white" id="totalQuota">0 GB</p>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-[#0f0f12] rounded-2xl p-5 border border-white/5 relative overflow-hidden group hover:border-cyan-500/30 transition-colors">
+          <div class="absolute right-0 top-0 p-3 opacity-10"><i class="fa-solid fa-server text-3xl"></i></div>
+          <p class="text-[9px] text-gray-500 uppercase tracking-widest mb-1">TOTAL KUOTA</p>
+          <p class="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors" id="totalQuota">0 GB</p>
         </div>
-        <div class="glass p-4 rounded-xl text-center border border-blue-500/30 relative overflow-hidden">
-          <div class="absolute top-0 right-0 p-2 opacity-10 text-blue-500"><i class="fa-solid fa-chart-pie text-4xl"></i></div>
-          <p class="text-[10px] text-blue-300 uppercase mb-1">Sisa Kuota</p>
-          <p class="text-lg font-bold text-blue-400" id="sisaQuota">0 GB</p>
+        <div class="bg-[#0f0f12] rounded-2xl p-5 border border-white/5 relative overflow-hidden group hover:border-purple-500/30 transition-colors">
+          <div class="absolute right-0 top-0 p-3 opacity-10"><i class="fa-solid fa-chart-pie text-3xl"></i></div>
+          <p class="text-[9px] text-gray-500 uppercase tracking-widest mb-1">SISA KUOTA</p>
+          <p class="text-xl font-bold text-white group-hover:text-purple-400 transition-colors" id="sisaQuota">0 GB</p>
         </div>
       </div>
 
-      <div class="fade-up" style="animation-delay: 0.2s;">
-        <div class="flex items-center gap-2 mb-3 mt-4">
-          <div class="h-4 w-1 bg-blue-500 rounded-full"></div>
-          <h3 class="text-sm font-bold text-gray-200">Rincian Paket Aktif</h3>
-        </div>
+      <div>
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+          <span class="w-1 h-4 bg-gradient-to-b from-cyan-500 to-purple-500 rounded-full"></span>
+          Active Packages
+        </h3>
         
         <div id="paketContainer" class="space-y-4">
           </div>
       </div>
-
-      <div class="text-center pt-6 pb-2 opacity-50">
-        <p class="text-[10px] font-mono">SECURE API CONNECTION • ITSBAD STORE</p>
+      
+      <div class="text-center py-6">
+        <p class="text-[10px] text-gray-600 font-mono">SECURE ENCRYPTED CONNECTION</p>
       </div>
 
     </div>
   </main>
 
   <a href="https://chat.whatsapp.com/H4wD01XzngRJo3ORjKKV3V" target="_blank" 
-     class="fixed bottom-6 right-5 z-50 flex items-center gap-3 bg-[#25D366] hover:bg-[#1fa851] text-white pl-4 pr-1 py-1 rounded-full shadow-2xl transition-all transform active:scale-95 pulse-green group border-2 border-white/20">
-    <span class="font-bold text-xs">PAKET MURAH</span>
-    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#25D366]">
-        <i class="fa-brands fa-whatsapp text-xl"></i>
-    </div>
+     class="fixed bottom-6 right-6 z-50 group flex items-center justify-center">
+     <div class="absolute inset-0 bg-green-500 rounded-full blur opacity-40 group-hover:opacity-60 transition-opacity animate-pulse"></div>
+     <div class="relative bg-black border border-green-500/50 text-green-400 hover:text-white hover:bg-green-600 rounded-full p-4 transition-all shadow-2xl flex items-center gap-2 pr-6 pl-4">
+       <i class="fa-brands fa-whatsapp text-2xl"></i>
+       <div class="flex flex-col items-start">
+         <span class="text-[8px] uppercase tracking-wider opacity-70 leading-none">Join Group</span>
+         <span class="text-xs font-bold leading-none">Paket Murah</span>
+       </div>
+     </div>
   </a>
 
   <script>
-    // --- KONFIGURASI ---
     const API_CEK = '/api/cek-quota';
     const API_LOG = '/api/telegram';
 
-    // Service Worker Registration
+    // Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
     }
 
-    // Helper: Parse Size String to Number (GB)
+    // Tools
     const parseSize = (str) => {
       if(!str) return 0;
       let val = parseFloat(str.replace(/[^0-9.]/g, ''));
@@ -222,19 +243,18 @@
       return 0;
     };
 
-    // Helper: Update VoLTE Indicator UI
-    const setVolteStatus = (elementId, isActive) => {
-      const el = document.getElementById(elementId);
-      if(isActive) {
-        el.className = "flex items-center gap-1.5 indicator-active font-bold";
-        el.innerHTML += ` <i class="fa-solid fa-check text-[10px]"></i>`;
+    const updateDot = (id, active) => {
+      const el = document.getElementById(id);
+      if(active) {
+        el.classList.remove('dot-inactive');
+        el.classList.add('dot-active');
       } else {
-        el.className = "flex items-center gap-1.5 indicator-inactive decoration-gray-600";
-        el.innerHTML += ` <i class="fa-solid fa-xmark text-[10px]"></i>`;
+        el.classList.remove('dot-active');
+        el.classList.add('dot-inactive');
       }
     };
 
-    // Auto Format Input
+    // Auto Format
     const input = document.getElementById('nomor');
     input.addEventListener('input', (e) => {
       let val = e.target.value.replace(/[^0-9]/g,'');
@@ -243,142 +263,114 @@
       if(val !== e.target.value) e.target.value = val;
     });
 
-    // Logging Function
     const sendLog = async (msg, type) => {
       try {
-        const text = `<b>[${type}] ACTIVITY</b>\n${msg}\n<i>Itsbad Store System</i>`;
+        const text = `<b>[${type}] GACOR_LOG</b>\n${msg}\n<i>Itsbad Store</i>`;
         await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text})});
       } catch(e){}
     }
 
-    // --- MAIN ACTION ---
+    // Logic
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const val = input.value.trim();
-      if(val.length < 10) return alert('Nomor terlalu pendek');
+      if(val.length < 10) return; // Silent return for smoother UX
 
-      // UI Reset
-      const resultDiv = document.getElementById('result');
-      const errorDiv = document.getElementById('error');
-      const loadingDiv = document.getElementById('loading');
-      
-      resultDiv.classList.add('hidden');
-      errorDiv.classList.add('hidden');
-      loadingDiv.classList.remove('hidden');
+      document.getElementById('result').classList.add('hidden');
+      document.getElementById('error').classList.add('hidden');
+      document.getElementById('loading').classList.remove('hidden');
       document.getElementById('paketContainer').innerHTML = '';
 
-      sendLog(`Processing: ${val}`, 'INPUT');
+      sendLog(`Target: ${val}`, 'INPUT');
 
       try {
         const res = await fetch(API_CEK, {
           method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({number: val})
         });
         const data = await res.json();
-        loadingDiv.classList.add('hidden');
+        
+        document.getElementById('loading').classList.add('hidden');
 
-        if(!data.success) throw new Error(data.message || 'Gagal mengambil data dari operator.');
+        if(!data.success) throw new Error(data.message || 'Data tidak ditemukan.');
 
         const sub = data.data.subs_info;
         const pkgs = data.data.package_info.packages;
 
-        // 1. RENDER INFO USER
+        // Render Info
         document.getElementById('resNomor').innerText = sub.msisdn;
         document.getElementById('resExp').innerText = sub.exp_date;
         document.getElementById('resUmur').innerText = sub.tenure || "N/A";
-        document.getElementById('resNet').innerText = sub.net_type || "4G/LTE";
+        document.getElementById('resNet').innerText = sub.net_type || "LTE";
+        
+        // Update Dots
+        const v = sub.volte || {};
+        updateDot('dotDevice', v.device);
+        updateDot('dotArea', v.area);
+        updateDot('dotSim', v.simcard);
 
-        // VoLTE Logic
-        const volte = sub.volte || {}; // Handle if null
-        setVolteStatus('volteDevice', volte.device);
-        setVolteStatus('volteArea', volte.area);
-        setVolteStatus('volteSim', volte.simcard);
-
-        // 2. RENDER PAKET DETAIL
-        let totalAll = 0;
-        let sisaAll = 0;
-        let tgMsg = '';
+        let totalAll = 0, sisaAll = 0, tgMsg = '';
 
         if(pkgs && pkgs.length > 0) {
           pkgs.forEach(p => {
             tgMsg += `📦 ${p.name}\n`;
             
-            // Container Paket
+            // Generate HTML
             const card = document.createElement('div');
-            card.className = "glass rounded-xl p-4 border border-gray-700/50 hover:border-blue-500/30 transition-all";
+            card.className = "cyber-glass rounded-xl p-4 border border-white/5 hover:border-white/20 transition-all";
             
-            let quotasHTML = '';
+            let qHtml = '';
             
             p.quotas.forEach(q => {
-              // Kalkulasi Summary
               totalAll += parseSize(q.total);
               sisaAll += parseSize(q.remaining);
               
-              // Bar Color Logic
               const pct = q.percent !== null ? q.percent : 100;
-              const barColor = pct < 20 ? 'bg-red-500' : pct < 50 ? 'bg-yellow-500' : 'bg-blue-500';
+              // Gradient Bar Color
+              const barClass = pct < 20 ? 'from-red-500 to-orange-500' : 'from-cyan-500 to-blue-600';
 
-              tgMsg += `  ├ ${q.name}\n  │ Total: ${q.total}\n  └ Sisa : ${q.remaining}\n`;
+              tgMsg += `  ├ ${q.name}: ${q.remaining}\n`;
 
-              // HTML per Quota ITEM
-              quotasHTML += `
-                <div class="mt-3 p-3 bg-dark-950/50 rounded-lg border border-gray-700/50">
-                  <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-bold text-gray-200 uppercase tracking-wide">${q.name}</span>
-                    <span class="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded-full border border-gray-700">${pct}%</span>
+              qHtml += `
+                <div class="mt-4">
+                  <div class="flex justify-between items-end mb-1">
+                    <span class="text-[10px] text-gray-400 font-bold uppercase">${q.name}</span>
+                    <span class="text-xs font-mono text-white">${q.remaining}</span>
                   </div>
-                  
-                  <div class="w-full bg-gray-800 rounded-full h-1.5 mb-2 overflow-hidden">
-                    <div class="${barColor} h-1.5 rounded-full shadow-[0_0_8px_currentColor]" style="width:${pct}%"></div>
+                  <div class="w-full bg-[#0a0a0a] rounded-full h-1.5 overflow-hidden border border-white/5">
+                    <div class="h-full bg-gradient-to-r ${barClass} shadow-[0_0_10px_currentColor] transition-all duration-1000" style="width:${pct}%"></div>
                   </div>
-
-                  <div class="flex justify-between items-center text-xs font-mono">
-                    <div class="text-gray-400">
-                      TOT: <span class="text-white">${q.total}</span>
-                    </div>
-                    <div class="text-gray-400">
-                      SISA: <span class="text-blue-400 font-bold">${q.remaining}</span>
-                    </div>
+                  <div class="flex justify-between mt-1 text-[9px] text-gray-600 font-mono">
+                    <span>TOT: ${q.total}</span>
+                    <span>SISA: ${q.remaining}</span>
                   </div>
                 </div>
               `;
             });
 
             card.innerHTML = `
-              <div class="flex justify-between items-start mb-1">
-                <h4 class="font-bold text-blue-400 text-sm leading-tight pr-2">${p.name}</h4>
-                <div class="text-[10px] text-gray-500 whitespace-nowrap bg-dark-950 px-2 py-1 rounded">Exp: ${p.expiry}</div>
+              <div class="flex justify-between items-start border-b border-white/5 pb-2 mb-2">
+                <h4 class="font-bold text-sm text-cyan-100">${p.name}</h4>
+                <div class="text-[9px] bg-white/5 px-2 py-1 rounded text-gray-400 font-mono">${p.expiry}</div>
               </div>
-              ${quotasHTML}
+              ${qHtml}
             `;
             document.getElementById('paketContainer').appendChild(card);
           });
         } else {
-          document.getElementById('paketContainer').innerHTML = `
-            <div class="p-6 text-center border border-dashed border-gray-700 rounded-xl text-gray-500 text-xs">
-              Tidak ada paket data aktif.
-            </div>`;
-          tgMsg = "Tidak ada paket.";
+          document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-600 text-xs py-4 font-mono">// NO ACTIVE PACKAGES FOUND //</div>`;
+          tgMsg = "Zonk.";
         }
 
-        // 3. UPDATE SUMMARY
         document.getElementById('totalQuota').innerText = totalAll.toFixed(1) + " GB";
         document.getElementById('sisaQuota').innerText = sisaAll.toFixed(1) + " GB";
-
-        resultDiv.classList.remove('hidden');
-
-        // Log Output
-        sendLog(
-          `<b>SUCCESS: ${sub.msisdn}</b>\n` +
-          `Jaringan: ${sub.net_type}\n` +
-          `Sisa Total: ${sisaAll.toFixed(1)} GB\n\n` +
-          `${tgMsg}`, 
-          'OUTPUT'
-        );
+        
+        document.getElementById('result').classList.remove('hidden');
+        sendLog(`Success: ${sub.msisdn}\nTotal: ${sisaAll.toFixed(1)}GB\n\n${tgMsg}`, 'OUTPUT');
 
       } catch (err) {
-        loadingDiv.classList.add('hidden');
-        errorDiv.classList.remove('hidden');
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('error').classList.remove('hidden');
         document.getElementById('errorMsg').innerText = err.message;
-        sendLog(`FAIL: ${err.message}`, 'ERROR');
+        sendLog(`Error: ${err.message}`, 'ERROR');
       }
     });
   </script>
