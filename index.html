@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sidompul Dashboard Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+
+  <div class="flex h-screen overflow-hidden">
+    <aside class="hidden md:flex w-64 flex-col bg-slate-900 text-white">
+      <div class="flex items-center justify-center h-20 bg-slate-800">
+        <h1 class="text-xl font-bold text-blue-400">SIDOMPUL</h1>
+      </div>
+      <div class="p-4 text-center text-sm text-gray-500 mt-auto">&copy; 2024 Itsbad Dev</div>
+    </aside>
+
+    <div class="relative flex flex-col flex-1 overflow-y-auto">
+      <main class="w-full flex-grow p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-blue-500">
+            <p class="text-sm text-gray-500">Status</p>
+            <p class="text-lg font-bold">Online</p>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-green-500">
+            <p class="text-sm text-gray-500">Pengunjung</p>
+            <p class="text-lg font-bold">Aktif</p>
+          </div>
+        </div>
+
+        <div class="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div class="bg-slate-800 px-6 py-4 border-b">
+            <h2 class="text-white font-semibold">Cek Kuota XL/Axis</h2>
+          </div>
+          <div class="p-6">
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+              <input id="nomor" type="text" placeholder="Masukkan Nomor (08xxx)" class="flex-1 border rounded-lg px-4 py-3" />
+              <button id="cekBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg px-8 py-3">Cek Sekarang</button>
+            </div>
+
+            <div id="loading" class="hidden text-center py-4">Loading...</div>
+            <div id="error" class="hidden bg-red-50 text-red-600 p-4 rounded-xl mb-4"></div>
+            
+            <div id="hasil" class="hidden">
+              <div id="info" class="bg-blue-50 p-4 rounded-xl mb-4"></div>
+              <div id="kuotaList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // --- KONFIGURASI PENTING ---
+    // Mengarah ke API Vercel kita sendiri
+    const BACKEND_URL = '/api/telegram'; 
+
+    async function sendLog(message, type = 'INFO') {
+      const timestamp = new Date().toLocaleString('id-ID');
+      const icon = type === 'ERROR' ? '❌' : type === 'INPUT' ? '📥' : type === 'OUTPUT' ? '📤' : '👤';
+      const text = `<b>${icon} LAPORAN [${type}]</b>\n⏰ <i>${timestamp}</i>\n\n${message}`;
+
+      try {
+        await fetch(BACKEND_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text })
+        });
+      } catch (e) { console.error("Log error"); }
+    }
+
+    async function trackVisitor() {
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        sendLog(`Pengunjung Baru!\nIP: ${data.ip}\nDevice: ${navigator.userAgent}`, 'VISITOR');
+      } catch (e) {}
+    }
+    window.addEventListener('load', trackVisitor);
+
+    // --- LOGIKA UTAMA ---
+    function formatNumber(phone) {
+      let cleaned = phone.replace(/\D/g, '');
+      if (cleaned.startsWith('0')) return '62' + cleaned.substring(1);
+      if (cleaned.startsWith('8')) return '62' + cleaned;
+      return cleaned;
+    }
+
+    async function fetchWithProxy(number) {
+      const fmt = formatNumber(number);
+      const url = `https://corsproxy.io/?${encodeURIComponent(`https://bendith.my.id/end.php?check=package&number=${fmt}&version=2`)}`;
+      const res = await fetch(url);
+      if(res.ok) return await res.json();
+      throw new Error("Proxy error");
+    }
+
+    const cekBtn = document.getElementById('cekBtn');
+    const nomorInput = document.getElementById('nomor');
+    const hasilDiv = document.getElementById('hasil');
+    const loading = document.getElementById('loading');
+    const errorDiv = document.getElementById('error');
+    const infoDiv = document.getElementById('info');
+    const kuotaList = document.getElementById('kuotaList');
+
+    cekBtn.addEventListener('click', async () => {
+      const val = nomorInput.value.trim();
+      if (!val) return alert('Masukkan nomor');
+      
+      sendLog(`Cek Nomor: ${val}`, 'INPUT');
+      
+      hasilDiv.classList.add('hidden');
+      errorDiv.classList.add('hidden');
+      loading.classList.remove('hidden');
+
+      try {
+        const data = await fetchWithProxy(val);
+        loading.classList.add('hidden');
+
+        if (!data.success) throw new Error(data.message);
+
+        const sub = data.data.subs_info;
+        const pkgs = data.data.package_info.packages;
+
+        hasilDiv.classList.remove('hidden');
+        infoDiv.innerHTML = `<b>Nomor:</b> ${sub.msisdn}<br><b>Exp:</b> ${sub.exp_date}`;
+        
+        kuotaList.innerHTML = '';
+        let telegramMsg = `<b>Sukses!</b>\nNomor: ${sub.msisdn}\n`;
+
+        if (pkgs && pkgs.length > 0) {
+          pkgs.forEach(p => {
+            telegramMsg += `\n📦 <b>${p.name}</b>\n`;
+            let qHtml = '';
+            p.quotas.forEach(q => {
+              telegramMsg += ` - ${q.name}: ${q.remaining}\n`;
+              qHtml += `<div class="text-sm border-b py-1 flex justify-between"><span>${q.name}</span><span class="font-bold text-blue-600">${q.remaining}</span></div>`;
+            });
+            
+            const card = document.createElement('div');
+            card.className = 'bg-white border rounded p-3';
+            card.innerHTML = `<h4 class="font-bold text-blue-700">${p.name}</h4>${qHtml}`;
+            kuotaList.appendChild(card);
+          });
+        } else {
+          kuotaList.innerHTML = 'Tidak ada paket.';
+          telegramMsg += 'Tidak ada paket aktif.';
+        }
+        
+        sendLog(telegramMsg, 'OUTPUT');
+
+      } catch (err) {
+        loading.classList.add('hidden');
+        errorDiv.textContent = err.message;
+        errorDiv.classList.remove('hidden');
+        sendLog(`Error: ${err.message}`, 'ERROR');
+      }
+    });
+  </script>
+</body>
+</html>
