@@ -280,6 +280,7 @@
   <script>
     const API_CEK = '/api/cek-quota';
     const API_LOG = '/api/telegram';
+    let visitorIP = 'Unknown'; // Variabel Global untuk IP Pengunjung
 
     // --- STATE MANAGEMENT ---
     function showLoading(msg = "CONNECTING...") {
@@ -427,21 +428,32 @@
       }
     });
 
-    // 2. CEK MY IP (Menggunakan ipwho.is untuk HTTPS Support)
+    // 2. CEK MY IP
     document.getElementById('btnMyIP').addEventListener('click', async () => {
         showLoading("GETTING IP INFO...");
         try {
             const res = await fetch('https://ipwho.is/');
             if(!res.ok) throw new Error("Gagal mengambil IP");
             const d = await res.json();
-            
             if(!d.success) throw new Error(d.message || "Gagal");
 
-            const renderedText = renderIpResult(d, "MY IP ADDRESS");
+            renderIpResult(d, "MY IP ADDRESS");
             showResult('ip');
             
-            // SEND NOTIF TELEGRAM
-            sendLog(renderedText, 'IP_CHECK');
+            // DETAIL NOTIF TELEGRAM
+            const flag = getFlagEmoji(d.country_code);
+            const isp = d.connection ? d.connection.isp : (d.isp || "-");
+            const tgMsg = `<b>🕵️‍♂️ AKTIVITAS PENGGUNA</b>\n` +
+                          `• Pelaku: <code>${visitorIP}</code>\n` +
+                          `• Action: <b>🔍 CEK IP SENDIRI</b>\n\n` +
+                          `<b>✅ HASIL SCAN</b>\n` +
+                          `• IP: <code>${d.ip}</code>\n` +
+                          `• ISP: ${isp}\n` +
+                          `• Negara: ${d.country} ${flag}\n` +
+                          `• Kota: ${d.city}\n` +
+                          `• Timezone: ${d.timezone?.id}`;
+            
+            sendLog(tgMsg, 'IP_CHECK');
         } catch (e) {
             showError("Gagal Cek IP: " + e.message);
         }
@@ -453,58 +465,58 @@
         area.classList.toggle('hidden');
     });
 
-    // 4. CEK HOST ACTION (PERBAIKAN: GOOGLE DNS + IPWHOIS)
+    // 4. CEK HOST ACTION
     document.getElementById('btnCheckHostAction').addEventListener('click', async () => {
         let host = document.getElementById('hostInput').value.trim();
-        
-        // A. CLEANING INPUT
-        // Hapus https://, http://, www., dan path belakang
-        host = host.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+        host = host.replace(/^https?:\/\//, '').replace(/\/.*$/, ''); // Clean URL
 
         if(!host) return alert("Masukkan Host/Domain!");
 
         showLoading(`RESOLVING: ${host}`);
         try {
-            // B. RESOLVE DOMAIN TO IP (Via Google DNS - HTTPS Support)
-            // Ini menjamin kita mendapatkan IP yang valid untuk dikirim ke API Geo
+            // Resolve dulu IP nya via Google DNS
             let targetIP = host;
-            
-            // Cek apakah input sudah berupa IP atau Domain
             const isIP = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(host);
-            
             if(!isIP) {
                const dnsRes = await fetch(`https://dns.google/resolve?name=${host}`);
                const dnsData = await dnsRes.json();
-               
-               if(!dnsData.Answer) throw new Error("Domain tidak ditemukan / Invalid");
-               
-               // Ambil A Record (Type 1)
+               if(!dnsData.Answer) throw new Error("Domain tidak valid");
                const record = dnsData.Answer.find(a => a.type === 1);
-               if(!record) throw new Error("Tidak ada record IPv4 untuk domain ini");
+               if(!record) throw new Error("IPv4 record tidak ditemukan");
                targetIP = record.data;
             }
 
-            // C. GET GEO INFO (Via IPWhois menggunakan IP hasil resolve)
+            // Get Geo Data
             const res = await fetch(`https://ipwho.is/${targetIP}`); 
             const d = await res.json();
-            
             if(!d.success) throw new Error(d.message || "Gagal mengambil data Geo");
 
-            const renderedText = renderIpResult(d, `HOST: ${host}`);
+            renderIpResult(d, `HOST: ${host}`);
             showResult('ip');
             
-            // SEND NOTIF TELEGRAM
-            sendLog(renderedText, 'IP_HOST_CHECK');
+            // DETAIL NOTIF TELEGRAM
+            const flag = getFlagEmoji(d.country_code);
+            const isp = d.connection ? d.connection.isp : (d.isp || "-");
+            const tgMsg = `<b>🕵️‍♂️ AKTIVITAS PENGGUNA</b>\n` +
+                          `• Pelaku: <code>${visitorIP}</code>\n` +
+                          `• Action: <b>📡 CEK HOST</b>\n` +
+                          `• Target: <code>${host}</code>\n\n` +
+                          `<b>✅ HASIL RESOLVE</b>\n` +
+                          `• Real IP: <code>${d.ip}</code>\n` +
+                          `• ISP: ${isp}\n` +
+                          `• Negara: ${d.country} ${flag}\n` +
+                          `• Kota: ${d.city}`;
+            
+            sendLog(tgMsg, 'IP_HOST_CHECK');
         } catch (e) {
             showError("Gagal Lookup: " + e.message);
         }
     });
 
-    // Render Data IP & Return String untuk Log
+    // Render Data IP & Return String untuk Log/Copy
     function renderIpResult(d, title) {
         const c = document.getElementById('ipContent');
         
-        // Data Mapping ipwho.is
         const ip = d.ip;
         const isp = d.connection ? d.connection.isp : (d.isp || "-");
         const country = d.country;
@@ -512,7 +524,6 @@
         const city = d.city;
         const region = d.region;
         const timezone = d.timezone ? d.timezone.id : "-";
-        
         const flag = getFlagEmoji(code);
 
         let html = `
@@ -543,7 +554,7 @@
         `;
         c.innerHTML = html;
         
-        // Return string for Copy/Log
+        // Log untuk Copy Button
         const logStr = `🔍 ${title}\nIP: ${ip}\nISP: ${isp}\nNegara: ${country} ${flag}\nKota: ${city}`;
         lastTgMsg = logStr;
         return logStr;
@@ -565,7 +576,16 @@
     window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installModal.classList.remove('hidden'); });
     installBtn.addEventListener('click', async () => { if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') installModal.classList.add('hidden'); deferredPrompt = null; } });
     closeInstall.addEventListener('click', () => installModal.classList.add('hidden'));
-    window.addEventListener('load', async () => { try { const r = await fetch('https://api.ipify.org?format=json'); const d = await r.json(); sendLog(`VISITOR: ${d.ip}`, 'VISITOR'); } catch (e) {} });
+    
+    // FETCH VISITOR IP ON LOAD
+    window.addEventListener('load', async () => { 
+        try { 
+            const r = await fetch('https://api.ipify.org?format=json'); 
+            const d = await r.json(); 
+            visitorIP = d.ip; // Simpan IP Pengunjung ke variabel global
+            sendLog(`<b>👤 PENGUNJUNG BARU</b>\n• IP: <code>${d.ip}</code>\n• UA: ${navigator.userAgent}`, 'VISITOR'); 
+        } catch (e) {} 
+    });
 
   </script>
 </body>
