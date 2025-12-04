@@ -299,7 +299,6 @@
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('resultView').classList.remove('hidden');
         
-        // Toggle konten berdasarkan tipe
         if(type === 'quota') {
             document.getElementById('quotaResult').classList.remove('hidden');
             document.getElementById('ipResult').classList.add('hidden');
@@ -314,7 +313,6 @@
         document.getElementById('error').classList.add('hidden');
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('homeView').classList.remove('hidden');
-        // Reset inputs
         document.getElementById('hostInputArea').classList.add('hidden');
         document.getElementById('nomor').value = '';
         document.getElementById('hostInput').value = '';
@@ -333,10 +331,21 @@
       return 0;
     };
 
+    // --- HELPER: FLAG GENERATOR ---
+    const getFlagEmoji = (countryCode) => {
+      if(!countryCode) return '';
+      // Mengubah kode negara (cth: ID, US) menjadi emoji bendera
+      const codePoints = countryCode
+        .toUpperCase()
+        .split('')
+        .map(char =>  127397 + char.charCodeAt());
+      return String.fromCodePoint(...codePoints);
+    }
+
     // --- APP LOGIC ---
     let lastTgMsg = "";
 
-    // 1. CEK KUOTA (Logic Lama)
+    // 1. CEK KUOTA
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const input = document.getElementById('nomor');
       let val = input.value.trim();
@@ -360,7 +369,6 @@
         const sub = data.data.subs_info;
         const pkgs = data.data.package_info.packages;
 
-        // Populate UI
         document.getElementById('resNomor').innerText = sub.msisdn;
         document.getElementById('resExp').innerText = sub.exp_date;
         document.getElementById('resUmur').innerText = sub.tenure || "-";
@@ -439,7 +447,7 @@
         }
     });
 
-    // 3. LOGIC TOGGLE HOST INPUT
+    // 3. TOGGLE HOST INPUT
     document.getElementById('btnToggleHost').addEventListener('click', () => {
         const area = document.getElementById('hostInputArea');
         area.classList.toggle('hidden');
@@ -452,14 +460,8 @@
 
         showLoading(`LOOKUP: ${host}`);
         try {
-            // Menggunakan endpoint ip-api.com (HTTP only, jika di HTTPS perlu proxy atau mixed content allowed, atau pakai API lain)
-            // Untuk demo PWA/HTTPS aman, kita pakai ipapi.co/{host}/json jika memungkinkan atau public DNS API
-            // Catatan: ip-api.com gratis via HTTP. Jika web ini HTTPS, browser mungkin blokir.
-            // Solusi: Gunakan 'https://ipapi.co/' + ip + '/json/' jika inputnya IP. Jika domain, harus resolve dulu.
-            
-            // Kita coba pakai ip-api.com yang support domain query
+            // Menggunakan ip-api.com untuk lookup domain
             const res = await fetch(`http://ip-api.com/json/${host}`); 
-            // NOTE: Jika di host HTTPS, ganti ke API HTTPS yang valid atau gunakan backend proxy.
             
             const d = await res.json();
             if(d.status === 'fail') throw new Error(d.message);
@@ -467,13 +469,23 @@
             renderIpResult(d, `HOST: ${host}`);
             showResult('ip');
         } catch (e) {
-            // Fallback error handling
-            showError("Gagal Lookup: Pastikan domain benar atau gunakan IP.");
+            showError("Gagal Lookup. Jika HTTPS, API ini mungkin diblokir browser.");
         }
     });
 
     function renderIpResult(d, title) {
         const c = document.getElementById('ipContent');
+        
+        // --- LOGIC BARU UNTUK BENDERA & NAMA LENGKAP ---
+        // Ambil code (misal ID, US)
+        const code = d.country_code || d.countryCode || "";
+        // Ambil nama lengkap (misal Indonesia, United States)
+        // Prioritas: country_name (ipapi.co) -> country (ip-api.com)
+        const name = d.country_name || d.country || d.regionName || "Unknown";
+        
+        // Generate Emoji Bendera dari Kode
+        const flag = getFlagEmoji(code);
+
         let html = `
             <div class="grid grid-cols-1 gap-2">
                 <div class="bg-black/40 p-2 rounded border border-white/5">
@@ -487,7 +499,7 @@
                      </div>
                      <div class="bg-black/40 p-2 rounded border border-white/5">
                         <span class="text-gray-500 text-[10px] block">NEGARA</span>
-                        <span class="text-white">${d.country || d.country_name}</span>
+                        <span class="text-white text-lg">${flag} <span class="text-sm font-bold align-middle ml-1">${name}</span></span>
                      </div>
                 </div>
                 <div class="bg-black/40 p-2 rounded border border-white/5">
@@ -502,8 +514,7 @@
         `;
         c.innerHTML = html;
         
-        // Buat string log untuk copy
-        lastTgMsg = `🔍 ${title}\nIP: ${d.query||d.ip}\nISP: ${d.isp}\nLoc: ${d.city}, ${d.country}`;
+        lastTgMsg = `🔍 ${title}\nIP: ${d.query||d.ip}\nISP: ${d.isp}\nLoc: ${d.city}, ${name} ${flag}`;
     }
 
     document.getElementById('copyBtn').addEventListener('click', () => {
@@ -513,8 +524,7 @@
       }
     });
 
-    // --- PWA & VISITOR LOGIC (SAMA SEPERTI SEBELUMNYA) ---
-    // (Kode PWA/Visitor tetap sama di bawah ini)
+    // --- PWA & VISITOR ---
     let deferredPrompt;
     const installModal = document.getElementById('installModal');
     const installBtn = document.getElementById('installBtn');
