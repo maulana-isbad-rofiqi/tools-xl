@@ -31,7 +31,8 @@
               cyan: '#00f3ff', 
               green: '#00ff9d',
               red: '#ff003c',
-              dim: 'rgba(0, 243, 255, 0.1)'
+              dim: 'rgba(0, 243, 255, 0.1)',
+              purple: '#bc13fe'
             }
           },
           animation: {
@@ -51,7 +52,6 @@
   <style>
     body { background-color: #050505; color: #fff; font-family: 'Rajdhani', sans-serif; overflow-x: hidden; }
     
-    /* Background Grid Animation */
     .cyber-grid {
       background-image: 
         linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
@@ -60,7 +60,6 @@
       position: fixed; inset: 0; z-index: -10;
     }
 
-    /* Glass Panel */
     .glass-panel {
       background: rgba(10, 15, 20, 0.6);
       backdrop-filter: blur(12px);
@@ -68,17 +67,14 @@
       box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
     }
 
-    /* Input Glow */
     .input-cyber:focus {
       border-color: #00f3ff;
       box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
     }
 
-    /* Progress Bar */
     .prog-track { background: rgba(0,0,0,0.6); height: 6px; border-radius: 3px; overflow: hidden; }
     .prog-fill { height: 100%; box-shadow: 0 0 8px currentColor; transition: width 1s ease; }
     
-    /* Compact PWA Popup */
     .pwa-toast {
       background: rgba(0, 0, 0, 0.9);
       border: 1px solid #00f3ff;
@@ -116,28 +112,54 @@
       <p class="text-xs text-cyber-cyan font-code tracking-[0.4em] mt-2 opacity-80">SYSTEM INTELLIGENCE</p>
     </div>
 
-    <div class="glass-panel p-6 rounded-2xl mb-8 relative group">
-      <div class="absolute -inset-0.5 bg-gradient-to-r from-cyber-cyan to-cyber-green rounded-2xl opacity-20 group-hover:opacity-40 blur transition duration-500"></div>
-      <div class="relative bg-[#0a0a0f] rounded-xl p-1">
-        <div class="relative flex items-center mb-4">
-          <input type="tel" id="nomor" placeholder="08xxx / 628xxx" 
-            class="input-cyber w-full bg-black/50 border border-white/10 text-white font-code text-xl py-4 pl-4 pr-12 outline-none transition-all placeholder-gray-600 tracking-wider rounded-xl">
-          <i class="fa-solid fa-tower-cell absolute right-4 text-gray-500 group-focus-within:text-cyber-cyan transition-colors"></i>
+    <div id="homeView" class="animate-[fadeIn_0.5s_ease-out]">
+      <div class="glass-panel p-6 rounded-2xl mb-6 relative group">
+        <div class="absolute -inset-0.5 bg-gradient-to-r from-cyber-cyan to-cyber-green rounded-2xl opacity-20 group-hover:opacity-40 blur transition duration-500"></div>
+        <div class="relative bg-[#0a0a0f] rounded-xl p-1">
+          <label class="block text-cyber-cyan text-[10px] font-code mb-2 tracking-widest pl-1">CHECK DATA XL/AXIS</label>
+          <div class="relative flex items-center mb-4">
+            <input type="tel" id="nomor" placeholder="08xxx / 628xxx" 
+              class="input-cyber w-full bg-black/50 border border-white/10 text-white font-code text-xl py-4 pl-4 pr-12 outline-none transition-all placeholder-gray-600 tracking-wider rounded-xl">
+            <i class="fa-solid fa-tower-cell absolute right-4 text-gray-500 group-focus-within:text-cyber-cyan transition-colors"></i>
+          </div>
+          
+          <button id="cekBtn" class="w-full bg-white text-black font-head font-bold text-lg py-3 rounded-xl hover:bg-cyber-cyan hover:scale-[1.02] transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+            CEK NOMOR
+          </button>
         </div>
-        
-        <button id="cekBtn" class="w-full bg-white text-black font-head font-bold text-lg py-3 rounded-xl hover:bg-cyber-cyan hover:scale-[1.02] transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-          CEK NOMOR
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <button id="btnMyIP" class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-cyber-purple transition-all group active:scale-95">
+           <div class="w-10 h-10 rounded-full bg-cyber-purple/20 flex items-center justify-center border border-cyber-purple group-hover:shadow-[0_0_15px_#bc13fe]">
+             <i class="fa-solid fa-globe text-cyber-purple"></i>
+           </div>
+           <span class="font-head font-bold text-sm tracking-wide">CEK MY IP</span>
+        </button>
+
+        <button id="btnToggleHost" class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-cyber-green transition-all group active:scale-95">
+           <div class="w-10 h-10 rounded-full bg-cyber-green/20 flex items-center justify-center border border-cyber-green group-hover:shadow-[0_0_15px_#00ff9d]">
+             <i class="fa-solid fa-server text-cyber-green"></i>
+           </div>
+           <span class="font-head font-bold text-sm tracking-wide">CEK IP HOST</span>
         </button>
       </div>
-    </div>
 
+      <div id="hostInputArea" class="hidden mt-4 glass-panel p-4 rounded-xl animate-[fadeIn_0.3s]">
+         <label class="block text-cyber-green text-[10px] font-code mb-2 tracking-widest">DOMAIN / IP ADDRESS</label>
+         <div class="flex gap-2">
+            <input type="text" id="hostInput" placeholder="example.com" class="input-cyber flex-1 bg-black/50 border border-white/10 text-white font-code px-4 py-2 rounded-lg outline-none">
+            <button id="btnCheckHostAction" class="bg-cyber-green text-black font-bold font-code px-4 rounded-lg hover:bg-white"><i class="fa-solid fa-search"></i></button>
+         </div>
+      </div>
+    </div>
     <div id="loading" class="hidden py-12 text-center">
       <div class="relative w-16 h-16 mx-auto mb-4">
         <div class="absolute inset-0 border-2 border-white/10 rounded-full"></div>
         <div class="absolute inset-0 border-t-2 border-cyber-cyan rounded-full animate-spin shadow-[0_0_15px_#00f3ff]"></div>
         <i class="fa-solid fa-satellite-dish text-cyber-cyan absolute inset-0 m-auto w-6 h-6 animate-pulse"></i>
       </div>
-      <p class="font-code text-xs text-cyber-cyan tracking-widest animate-pulse">CONNECTING TO SERVER...</p>
+      <p id="loadingText" class="font-code text-xs text-cyber-cyan tracking-widest animate-pulse">CONNECTING TO SERVER...</p>
     </div>
 
     <div id="error" class="hidden border border-cyber-red bg-cyber-red/10 p-4 mb-6 flex items-center gap-4 rounded-xl">
@@ -146,71 +168,86 @@
         <h4 class="text-cyber-red font-bold font-head">GAGAL MEMPROSES</h4>
         <p id="errorMsg" class="text-red-300/80 text-xs font-code">Koneksi Terputus.</p>
       </div>
+      <button onclick="resetApp()" class="ml-auto text-xs border border-cyber-red text-cyber-red px-2 py-1 rounded hover:bg-cyber-red hover:text-black">OK</button>
     </div>
 
-    <div id="result" class="hidden space-y-6 relative animate-[fadeIn_0.5s_ease-out]">
-      <button id="copyBtn" class="absolute -top-10 right-0 bg-cyber-dim border border-cyber-cyan text-cyber-cyan px-3 py-1 text-[10px] rounded hover:bg-cyber-cyan hover:text-black transition-all font-code font-bold tracking-widest">
-        <i class="fa-regular fa-copy mr-1"></i> SALIN LOG
+    <div id="resultView" class="hidden space-y-6 relative animate-[fadeIn_0.5s_ease-out]">
+      
+      <button onclick="resetApp()" class="w-full bg-white/5 border border-white/10 text-gray-300 font-head font-bold py-3 rounded-xl hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2 mb-4">
+        <i class="fa-solid fa-arrow-left"></i> KEMBALI KE MENU
       </button>
 
-      <div class="glass-panel p-5 rounded-xl border-t-2 border-t-cyber-cyan relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-cyber-cyan/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+      <button id="copyBtn" class="absolute top-16 right-0 bg-cyber-dim border border-cyber-cyan text-cyber-cyan px-3 py-1 text-[10px] rounded hover:bg-cyber-cyan hover:text-black transition-all font-code font-bold tracking-widest z-20">
+        <i class="fa-regular fa-copy mr-1"></i> SALIN
+      </button>
 
-        <div class="flex justify-between items-start border-b border-white/10 pb-4 mb-4 relative z-10">
-          <div>
-            <span class="text-[9px] text-gray-500 font-code tracking-widest block mb-1">NOMOR HP</span>
-            <span class="text-2xl font-code font-bold text-white tracking-wide drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]" id="resNomor">-</span>
+      <div id="quotaResult" class="hidden space-y-6">
+        <div class="glass-panel p-5 rounded-xl border-t-2 border-t-cyber-cyan relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-cyber-cyan/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+
+          <div class="flex justify-between items-start border-b border-white/10 pb-4 mb-4 relative z-10">
+            <div>
+              <span class="text-[9px] text-gray-500 font-code tracking-widest block mb-1">NOMOR HP</span>
+              <span class="text-2xl font-code font-bold text-white tracking-wide drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]" id="resNomor">-</span>
+            </div>
+            <div class="text-right">
+               <span class="text-[9px] text-gray-500 font-code tracking-widest block mb-1">MASA AKTIF</span>
+               <span class="text-cyber-cyan font-bold font-code bg-cyber-cyan/10 px-2 py-1 rounded border border-cyber-cyan/20" id="resExp">-</span>
+            </div>
           </div>
-          <div class="text-right">
-             <span class="text-[9px] text-gray-500 font-code tracking-widest block mb-1">MASA AKTIF</span>
-             <span class="text-cyber-cyan font-bold font-code bg-cyber-cyan/10 px-2 py-1 rounded border border-cyber-cyan/20" id="resExp">-</span>
+
+          <div class="grid grid-cols-2 gap-4 text-xs font-code relative z-10">
+            <div>
+              <span class="text-gray-500 block mb-1">UMUR KARTU</span>
+              <span class="text-white font-bold" id="resUmur">-</span>
+            </div>
+            <div class="text-right">
+               <span class="text-gray-500 block mb-1">JARINGAN</span>
+               <span class="text-cyber-green font-bold" id="resNet">-</span>
+            </div>
+          </div>
+          
+          <div class="mt-4 pt-3 border-t border-white/10 grid grid-cols-3 text-center text-[10px] font-code relative z-10">
+            <div class="border-r border-white/10">
+              <span class="text-gray-500 block mb-1">HP</span>
+              <span id="vHp" class="font-bold">-</span>
+            </div>
+            <div class="border-r border-white/10">
+              <span class="text-gray-500 block mb-1">LOKASI</span>
+              <span id="vLoc" class="font-bold">-</span>
+            </div>
+            <div>
+              <span class="text-gray-500 block mb-1">KARTU</span>
+              <span id="vKartu" class="font-bold">-</span>
+            </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 text-xs font-code relative z-10">
-          <div>
-            <span class="text-gray-500 block mb-1">UMUR KARTU</span>
-            <span class="text-white font-bold" id="resUmur">-</span>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="glass-panel p-4 rounded-xl text-center hover:border-cyber-cyan transition-colors group">
+            <p class="text-[9px] text-gray-500 font-code tracking-widest mb-1 group-hover:text-cyber-cyan transition-colors">TOTAL KUOTA</p>
+            <p class="text-2xl font-head font-bold text-white" id="totalQuota">0</p>
           </div>
-          <div class="text-right">
-             <span class="text-gray-500 block mb-1">JARINGAN</span>
-             <span class="text-cyber-green font-bold" id="resNet">-</span>
+          <div class="glass-panel p-4 rounded-xl text-center hover:border-cyber-green transition-colors group">
+            <p class="text-[9px] text-gray-500 font-code tracking-widest mb-1 group-hover:text-cyber-green transition-colors">SISA KUOTA</p>
+            <p class="text-2xl font-head font-bold text-cyber-green" id="sisaQuota">0</p>
           </div>
         </div>
-        
-        <div class="mt-4 pt-3 border-t border-white/10 grid grid-cols-3 text-center text-[10px] font-code relative z-10">
-          <div class="border-r border-white/10">
-            <span class="text-gray-500 block mb-1">HP</span>
-            <span id="vHp" class="font-bold">-</span>
+
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <i class="fa-solid fa-list-check text-cyber-cyan"></i>
+            <h3 class="font-head font-bold text-sm text-white tracking-widest">RINCIAN PAKET</h3>
           </div>
-          <div class="border-r border-white/10">
-            <span class="text-gray-500 block mb-1">LOKASI</span>
-            <span id="vLoc" class="font-bold">-</span>
-          </div>
-          <div>
-            <span class="text-gray-500 block mb-1">KARTU</span>
-            <span id="vKartu" class="font-bold">-</span>
-          </div>
+          <div id="paketContainer" class="space-y-3"></div>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
-        <div class="glass-panel p-4 rounded-xl text-center hover:border-cyber-cyan transition-colors group">
-          <p class="text-[9px] text-gray-500 font-code tracking-widest mb-1 group-hover:text-cyber-cyan transition-colors">TOTAL KUOTA</p>
-          <p class="text-2xl font-head font-bold text-white" id="totalQuota">0</p>
-        </div>
-        <div class="glass-panel p-4 rounded-xl text-center hover:border-cyber-green transition-colors group">
-          <p class="text-[9px] text-gray-500 font-code tracking-widest mb-1 group-hover:text-cyber-green transition-colors">SISA KUOTA</p>
-          <p class="text-2xl font-head font-bold text-cyber-green" id="sisaQuota">0</p>
-        </div>
-      </div>
-
-      <div>
-        <div class="flex items-center gap-2 mb-4">
-          <i class="fa-solid fa-list-check text-cyber-cyan"></i>
-          <h3 class="font-head font-bold text-sm text-white tracking-widest">RINCIAN PAKET</h3>
-        </div>
-        <div id="paketContainer" class="space-y-3"></div>
+      <div id="ipResult" class="hidden glass-panel p-6 rounded-xl border-t-2 border-t-cyber-purple relative overflow-hidden">
+         <h3 class="font-head font-bold text-lg text-cyber-purple mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-network-wired"></i> INFORMASI IP / HOST
+         </h3>
+         <div id="ipContent" class="space-y-2 font-code text-sm"></div>
       </div>
 
     </div>
@@ -243,6 +280,46 @@
     const API_CEK = '/api/cek-quota';
     const API_LOG = '/api/telegram';
 
+    // --- STATE MANAGEMENT ---
+    function showLoading(msg = "CONNECTING...") {
+        document.getElementById('homeView').classList.add('hidden');
+        document.getElementById('resultView').classList.add('hidden');
+        document.getElementById('error').classList.add('hidden');
+        document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('loadingText').innerText = msg;
+    }
+
+    function showError(msg) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('error').classList.remove('hidden');
+        document.getElementById('errorMsg').innerText = msg;
+    }
+
+    function showResult(type) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('resultView').classList.remove('hidden');
+        
+        // Toggle konten berdasarkan tipe
+        if(type === 'quota') {
+            document.getElementById('quotaResult').classList.remove('hidden');
+            document.getElementById('ipResult').classList.add('hidden');
+        } else {
+            document.getElementById('quotaResult').classList.add('hidden');
+            document.getElementById('ipResult').classList.remove('hidden');
+        }
+    }
+
+    function resetApp() {
+        document.getElementById('resultView').classList.add('hidden');
+        document.getElementById('error').classList.add('hidden');
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('homeView').classList.remove('hidden');
+        // Reset inputs
+        document.getElementById('hostInputArea').classList.add('hidden');
+        document.getElementById('nomor').value = '';
+        document.getElementById('hostInput').value = '';
+    }
+
     // --- UTILS ---
     const sendLog = async (msg, type) => {
       try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){}
@@ -256,62 +333,21 @@
       return 0;
     };
 
-    // --- PWA LOGIC ---
-    let deferredPrompt;
-    const installModal = document.getElementById('installModal');
-    const installBtn = document.getElementById('installBtn');
-    const closeInstall = document.getElementById('closeInstall');
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-    }
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installModal.classList.remove('hidden');
-    });
-    installBtn.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') installModal.classList.add('hidden');
-        deferredPrompt = null;
-      }
-    });
-    closeInstall.addEventListener('click', () => installModal.classList.add('hidden'));
-
-    // --- VISITOR ---
-    window.addEventListener('load', async () => {
-      try {
-        const r = await fetch('https://api.ipify.org?format=json');
-        const d = await r.json();
-        const logVisitor = `<b>👤 PENGUNJUNG BARU</b>\n• IP: <code>${d.ip}</code>\n• UA: ${navigator.userAgent}`;
-        sendLog(logVisitor, 'VISITOR');
-      } catch (e) {}
-    });
-
-    // --- APP ---
-    const input = document.getElementById('nomor');
-    input.addEventListener('input', (e) => {
-      let val = e.target.value.replace(/[^0-9]/g, '');
-      if(val !== e.target.value) e.target.value = val;
-    });
-
+    // --- APP LOGIC ---
     let lastTgMsg = "";
 
+    // 1. CEK KUOTA (Logic Lama)
     document.getElementById('cekBtn').addEventListener('click', async () => {
+      const input = document.getElementById('nomor');
       let val = input.value.trim();
       if(val.startsWith('0')) val = '62' + val.slice(1);
       if(val.startsWith('8')) val = '62' + val;
 
-      if(val.length < 10) return;
+      if(val.length < 10) return alert('Nomor tidak valid');
 
-      document.getElementById('result').classList.add('hidden');
-      document.getElementById('error').classList.add('hidden');
-      document.getElementById('loading').classList.remove('hidden');
+      showLoading("SCANNING NUMBER...");
       document.getElementById('paketContainer').innerHTML = '';
-
-      sendLog(`<b>🔍 SEDANG SCAN...</b>\nTarget: <code>${val}</code>`, 'INPUT');
+      sendLog(`<b>🔍 SCAN NOMOR...</b>\nTarget: <code>${val}</code>`, 'INPUT');
 
       try {
         const res = await fetch(API_CEK, {
@@ -319,20 +355,17 @@
         });
         const data = await res.json();
         
-        document.getElementById('loading').classList.add('hidden');
-
         if(!data.success) throw new Error(data.message || 'Gagal mengambil data.');
 
         const sub = data.data.subs_info;
         const pkgs = data.data.package_info.packages;
 
-        // UI Header
+        // Populate UI
         document.getElementById('resNomor').innerText = sub.msisdn;
         document.getElementById('resExp').innerText = sub.exp_date;
         document.getElementById('resUmur').innerText = sub.tenure || "-";
         document.getElementById('resNet').innerText = sub.net_type || "LTE";
         
-        // UI VoLTE
         const v = sub.volte || {};
         const updateStatus = (id, active) => {
             const el = document.getElementById(id);
@@ -344,102 +377,154 @@
         updateStatus('vKartu', v.simcard);
 
         let totalAll = 0, sisaAll = 0;
-        
-        // --- TELEGRAM MSG ---
-        let tgMsg = `<b>✅ HASIL SCAN DETAIL</b>\n`;
-        tgMsg += `━━━━━━━━━━━━━━━━━━\n`;
-        tgMsg += `<b>👤 PELANGGAN</b>\n`;
-        tgMsg += `• Nomor HP: <code>${sub.msisdn}</code>\n`;
-        tgMsg += `• Masa Aktif: ${sub.exp_date}\n`;
-        tgMsg += `• Umur Kartu: ${sub.tenure || '-'}\n`;
-        tgMsg += `• Jaringan: ${sub.net_type}\n`;
-        
-        const stat = (s) => s ? '✅' : '❌';
-        tgMsg += `• VoLTE: HP(${stat(v.device)}) Lokasi(${stat(v.area)}) Kartu(${stat(v.simcard)})\n\n`;
-
-        tgMsg += `<b>📦 RINCIAN PAKET LENGKAP</b>\n`;
+        let tgMsg = `<b>✅ HASIL SCAN</b>\n• No: <code>${sub.msisdn}</code>\n\n`;
 
         if(pkgs && pkgs.length > 0) {
           pkgs.forEach((p, index) => {
-            tgMsg += `\n<b>${index + 1}. ${p.name}</b>\n`;
-            tgMsg += `   🕒 Exp: ${p.expiry}\n`; 
-
+            tgMsg += `<b>${p.name}</b>\n`;
             const card = document.createElement('div');
             card.className = "bg-white/5 rounded-xl p-4 mb-3 border border-white/5 hover:border-cyber-cyan transition-all";
-            
             let qHtml = '';
+            
             p.quotas.forEach(q => {
               totalAll += parseSize(q.total);
               sisaAll += parseSize(q.remaining);
-              
               const pct = q.percent !== null ? q.percent : 100;
               const barBg = pct < 20 ? 'bg-cyber-red' : 'bg-cyber-cyan';
+              tgMsg += `└ ${q.name}: ${q.remaining}\n`;
 
-              // Detail Item (Telegram)
-              tgMsg += `   ├ <b>${q.name}</b>\n`;
-              tgMsg += `   │  Total: ${q.total} • Sisa: <b>${q.remaining}</b>\n`;
-
-              // Detail Item (UI)
               qHtml += `
                 <div class="mt-3">
                   <div class="flex justify-between mb-1 text-xs font-bold font-code">
                     <span class="text-gray-400 w-2/3 truncate">${q.name}</span>
                     <span class="text-white">${q.remaining}</span>
                   </div>
-                  <div class="prog-track">
-                    <div class="prog-fill ${barBg}" style="width:${pct}%"></div>
-                  </div>
-                  <div class="flex justify-between mt-1 text-[9px] text-gray-500 font-code">
-                     <span>TOTAL: ${q.total}</span>
-                     <span>SISA: ${q.remaining}</span> </div>
-                </div>
-              `;
+                  <div class="prog-track"><div class="prog-fill ${barBg}" style="width:${pct}%"></div></div>
+                </div>`;
             });
-
-            card.innerHTML = `
-              <div class="flex justify-between items-start border-b border-white/10 pb-2 mb-2">
-                <h4 class="font-bold text-sm text-cyber-cyan tracking-wide pr-2 font-head">${p.name}</h4>
-                <div class="text-[10px] text-gray-400 whitespace-nowrap pt-1 font-code bg-black/40 px-2 rounded">
-                   ${p.expiry}
-                </div>
-              </div>
-              ${qHtml}
-            `;
+            
+            card.innerHTML = `<h4 class="font-bold text-sm text-cyber-cyan font-head mb-2">${p.name}</h4>${qHtml}`;
             document.getElementById('paketContainer').appendChild(card);
+            tgMsg += '\n';
           });
         } else {
-            document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-600 font-code text-xs py-4">// TIDAK ADA PAKET AKTIF //</div>`;
-            tgMsg += "<i>Tidak ada paket data aktif.</i>\n";
+            document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-600 font-code text-xs">// EMPTY //</div>`;
+            tgMsg += "Tidak ada paket.\n";
         }
 
-        tgMsg += `\n━━━━━━━━━━━━━━━━━━\n`;
-        tgMsg += `<b>📊 STATISTIK DATA</b>\n`;
-        tgMsg += `• Total Kuota: ${totalAll.toFixed(1)} GB\n`;
-        tgMsg += `• Sisa Kuota : <b>${sisaAll.toFixed(1)} GB</b>\n`;
-        tgMsg += `━━━━━━━━━━━━━━━━━━\n`;
-        tgMsg += `<i>By Itsbad Store System</i>`;
-
-        lastTgMsg = tgMsg.replace(/<[^>]*>?/gm, '');
-
+        lastTgMsg = tgMsg;
         document.getElementById('totalQuota').innerText = totalAll.toFixed(1) + " GB";
         document.getElementById('sisaQuota').innerText = sisaAll.toFixed(1) + " GB";
-        document.getElementById('result').classList.remove('hidden');
+        
+        showResult('quota');
         sendLog(tgMsg, 'OUTPUT');
 
       } catch (err) {
-        document.getElementById('loading').classList.add('hidden');
-        document.getElementById('error').classList.remove('hidden');
-        document.getElementById('errorMsg').innerText = err.message;
-        sendLog(`<b>❌ GAGAL</b>\nTarget: ${val}\nInfo: ${err.message}`, 'ERROR');
+        showError(err.message);
       }
     });
+
+    // 2. CEK MY IP
+    document.getElementById('btnMyIP').addEventListener('click', async () => {
+        showLoading("GETTING IP INFO...");
+        try {
+            const res = await fetch('https://ipapi.co/json/');
+            if(!res.ok) throw new Error("Gagal mengambil IP");
+            const d = await res.json();
+            
+            renderIpResult(d, "MY IP ADDRESS");
+            showResult('ip');
+        } catch (e) {
+            showError("Gagal Cek IP: " + e.message);
+        }
+    });
+
+    // 3. LOGIC TOGGLE HOST INPUT
+    document.getElementById('btnToggleHost').addEventListener('click', () => {
+        const area = document.getElementById('hostInputArea');
+        area.classList.toggle('hidden');
+    });
+
+    // 4. CEK HOST ACTION
+    document.getElementById('btnCheckHostAction').addEventListener('click', async () => {
+        const host = document.getElementById('hostInput').value.trim();
+        if(!host) return alert("Masukkan Host/Domain!");
+
+        showLoading(`LOOKUP: ${host}`);
+        try {
+            // Menggunakan endpoint ip-api.com (HTTP only, jika di HTTPS perlu proxy atau mixed content allowed, atau pakai API lain)
+            // Untuk demo PWA/HTTPS aman, kita pakai ipapi.co/{host}/json jika memungkinkan atau public DNS API
+            // Catatan: ip-api.com gratis via HTTP. Jika web ini HTTPS, browser mungkin blokir.
+            // Solusi: Gunakan 'https://ipapi.co/' + ip + '/json/' jika inputnya IP. Jika domain, harus resolve dulu.
+            
+            // Kita coba pakai ip-api.com yang support domain query
+            const res = await fetch(`http://ip-api.com/json/${host}`); 
+            // NOTE: Jika di host HTTPS, ganti ke API HTTPS yang valid atau gunakan backend proxy.
+            
+            const d = await res.json();
+            if(d.status === 'fail') throw new Error(d.message);
+
+            renderIpResult(d, `HOST: ${host}`);
+            showResult('ip');
+        } catch (e) {
+            // Fallback error handling
+            showError("Gagal Lookup: Pastikan domain benar atau gunakan IP.");
+        }
+    });
+
+    function renderIpResult(d, title) {
+        const c = document.getElementById('ipContent');
+        let html = `
+            <div class="grid grid-cols-1 gap-2">
+                <div class="bg-black/40 p-2 rounded border border-white/5">
+                    <span class="text-gray-500 text-[10px] block">IP ADDRESS</span>
+                    <span class="text-xl text-cyber-green font-bold">${d.query || d.ip}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                     <div class="bg-black/40 p-2 rounded border border-white/5">
+                        <span class="text-gray-500 text-[10px] block">ISP</span>
+                        <span class="text-white">${d.isp || d.org}</span>
+                     </div>
+                     <div class="bg-black/40 p-2 rounded border border-white/5">
+                        <span class="text-gray-500 text-[10px] block">NEGARA</span>
+                        <span class="text-white">${d.country || d.country_name}</span>
+                     </div>
+                </div>
+                <div class="bg-black/40 p-2 rounded border border-white/5">
+                    <span class="text-gray-500 text-[10px] block">LOKASI / KOTA</span>
+                    <span class="text-white">${d.city}, ${d.regionName || d.region}</span>
+                </div>
+                 <div class="bg-black/40 p-2 rounded border border-white/5">
+                    <span class="text-gray-500 text-[10px] block">TIMEZONE</span>
+                    <span class="text-cyber-cyan">${d.timezone}</span>
+                </div>
+            </div>
+        `;
+        c.innerHTML = html;
+        
+        // Buat string log untuk copy
+        lastTgMsg = `🔍 ${title}\nIP: ${d.query||d.ip}\nISP: ${d.isp}\nLoc: ${d.city}, ${d.country}`;
+    }
 
     document.getElementById('copyBtn').addEventListener('click', () => {
       if(lastTgMsg) {
         navigator.clipboard.writeText(lastTgMsg);
-        alert('Laporan disalin!');
+        alert('Disalin!');
       }
     });
+
+    // --- PWA & VISITOR LOGIC (SAMA SEPERTI SEBELUMNYA) ---
+    // (Kode PWA/Visitor tetap sama di bawah ini)
+    let deferredPrompt;
+    const installModal = document.getElementById('installModal');
+    const installBtn = document.getElementById('installBtn');
+    const closeInstall = document.getElementById('closeInstall');
+    if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installModal.classList.remove('hidden'); });
+    installBtn.addEventListener('click', async () => { if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') installModal.classList.add('hidden'); deferredPrompt = null; } });
+    closeInstall.addEventListener('click', () => installModal.classList.add('hidden'));
+    window.addEventListener('load', async () => { try { const r = await fetch('https://api.ipify.org?format=json'); const d = await r.json(); sendLog(`VISITOR: ${d.ip}`, 'VISITOR'); } catch (e) {} });
+
   </script>
 </body>
 </html>
