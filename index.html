@@ -177,7 +177,7 @@
         <i class="fa-solid fa-arrow-left"></i> KEMBALI KE MENU
       </button>
 
-      <button id="copyBtn" class="absolute top-16 right-0 bg-cyber-dim border border-cyber-cyan text-cyber-cyan px-3 py-1 text-[10px] rounded hover:bg-cyber-cyan hover:text-black transition-all font-code font-bold tracking-widest z-20">
+      <button id="copyBtn" class="absolute top-16 right-0 bg-cyber-dim border border-cyber-cyan text-cyber-cyan px-2 py-0.5 text-[8px] rounded hover:bg-cyber-cyan hover:text-black transition-all font-code font-bold tracking-widest z-20">
         <i class="fa-regular fa-copy mr-1"></i> SALIN
       </button>
 
@@ -330,15 +330,9 @@
       if(unit.includes('MB')) return val / 1024;
       return 0;
     };
-
-    // --- HELPER: FLAG GENERATOR ---
     const getFlagEmoji = (countryCode) => {
       if(!countryCode) return '';
-      // Mengubah kode negara (cth: ID, US) menjadi emoji bendera
-      const codePoints = countryCode
-        .toUpperCase()
-        .split('')
-        .map(char =>  127397 + char.charCodeAt());
+      const codePoints = countryCode.toUpperCase().split('').map(char =>  127397 + char.charCodeAt());
       return String.fromCodePoint(...codePoints);
     }
 
@@ -432,16 +426,22 @@
       }
     });
 
-    // 2. CEK MY IP
+    // 2. CEK MY IP (Menggunakan ipwho.is untuk HTTPS Support)
     document.getElementById('btnMyIP').addEventListener('click', async () => {
         showLoading("GETTING IP INFO...");
         try {
-            const res = await fetch('https://ipapi.co/json/');
+            // Menggunakan ipwho.is (Tanpa parameter = My IP)
+            const res = await fetch('https://ipwho.is/');
             if(!res.ok) throw new Error("Gagal mengambil IP");
             const d = await res.json();
             
-            renderIpResult(d, "MY IP ADDRESS");
+            if(!d.success) throw new Error(d.message || "Gagal");
+
+            const renderedText = renderIpResult(d, "MY IP ADDRESS");
             showResult('ip');
+            
+            // SEND NOTIF TELEGRAM
+            sendLog(renderedText, 'IP_CHECK');
         } catch (e) {
             showError("Gagal Cek IP: " + e.message);
         }
@@ -453,68 +453,76 @@
         area.classList.toggle('hidden');
     });
 
-    // 4. CEK HOST ACTION
+    // 4. CEK HOST ACTION (Perbaikan menggunakan ipwho.is)
     document.getElementById('btnCheckHostAction').addEventListener('click', async () => {
         const host = document.getElementById('hostInput').value.trim();
         if(!host) return alert("Masukkan Host/Domain!");
 
         showLoading(`LOOKUP: ${host}`);
         try {
-            // Menggunakan ip-api.com untuk lookup domain
-            const res = await fetch(`http://ip-api.com/json/${host}`); 
-            
+            // Menggunakan ipwho.is/{host} (Support HTTPS & Domain)
+            const res = await fetch(`https://ipwho.is/${host}`); 
             const d = await res.json();
-            if(d.status === 'fail') throw new Error(d.message);
+            
+            if(!d.success) throw new Error(d.message || "Domain tidak valid / Gagal resolve");
 
-            renderIpResult(d, `HOST: ${host}`);
+            const renderedText = renderIpResult(d, `HOST: ${host}`);
             showResult('ip');
+            
+            // SEND NOTIF TELEGRAM
+            sendLog(renderedText, 'IP_HOST_CHECK');
         } catch (e) {
-            showError("Gagal Lookup. Jika HTTPS, API ini mungkin diblokir browser.");
+            showError("Gagal Lookup: " + e.message);
         }
     });
 
+    // Render Data IP & Return String untuk Log
     function renderIpResult(d, title) {
         const c = document.getElementById('ipContent');
         
-        // --- LOGIC BARU UNTUK BENDERA & NAMA LENGKAP ---
-        // Ambil code (misal ID, US)
-        const code = d.country_code || d.countryCode || "";
-        // Ambil nama lengkap (misal Indonesia, United States)
-        // Prioritas: country_name (ipapi.co) -> country (ip-api.com)
-        const name = d.country_name || d.country || d.regionName || "Unknown";
+        // Data Mapping ipwho.is
+        const ip = d.ip;
+        const isp = d.connection ? d.connection.isp : (d.isp || "-");
+        const country = d.country;
+        const code = d.country_code;
+        const city = d.city;
+        const region = d.region;
+        const timezone = d.timezone ? d.timezone.id : "-";
         
-        // Generate Emoji Bendera dari Kode
         const flag = getFlagEmoji(code);
 
         let html = `
             <div class="grid grid-cols-1 gap-2">
                 <div class="bg-black/40 p-2 rounded border border-white/5">
                     <span class="text-gray-500 text-[10px] block">IP ADDRESS</span>
-                    <span class="text-xl text-cyber-green font-bold">${d.query || d.ip}</span>
+                    <span class="text-xl text-cyber-green font-bold">${ip}</span>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                      <div class="bg-black/40 p-2 rounded border border-white/5">
                         <span class="text-gray-500 text-[10px] block">ISP</span>
-                        <span class="text-white">${d.isp || d.org}</span>
+                        <span class="text-white">${isp}</span>
                      </div>
                      <div class="bg-black/40 p-2 rounded border border-white/5">
                         <span class="text-gray-500 text-[10px] block">NEGARA</span>
-                        <span class="text-white text-lg">${flag} <span class="text-sm font-bold align-middle ml-1">${name}</span></span>
+                        <span class="text-white text-lg">${flag} <span class="text-sm font-bold align-middle ml-1">${country}</span></span>
                      </div>
                 </div>
                 <div class="bg-black/40 p-2 rounded border border-white/5">
                     <span class="text-gray-500 text-[10px] block">LOKASI / KOTA</span>
-                    <span class="text-white">${d.city}, ${d.regionName || d.region}</span>
+                    <span class="text-white">${city}, ${region}</span>
                 </div>
                  <div class="bg-black/40 p-2 rounded border border-white/5">
                     <span class="text-gray-500 text-[10px] block">TIMEZONE</span>
-                    <span class="text-cyber-cyan">${d.timezone}</span>
+                    <span class="text-cyber-cyan">${timezone}</span>
                 </div>
             </div>
         `;
         c.innerHTML = html;
         
-        lastTgMsg = `🔍 ${title}\nIP: ${d.query||d.ip}\nISP: ${d.isp}\nLoc: ${d.city}, ${name} ${flag}`;
+        // Return string for Copy/Log
+        const logStr = `🔍 ${title}\nIP: ${ip}\nISP: ${isp}\nNegara: ${country} ${flag}\nKota: ${city}`;
+        lastTgMsg = logStr;
+        return logStr;
     }
 
     document.getElementById('copyBtn').addEventListener('click', () => {
