@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="id" class="dark">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>XL & Axis Tools - Itsbad Store</title>
   
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3616/3616927.png">
-  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
@@ -39,8 +38,7 @@
     .cyber-grid { background-image: linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px); background-size: 40px 40px; position: fixed; inset: 0; z-index: -10; }
     .glass-panel { background: rgba(10, 15, 20, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
     .input-cyber:focus { border-color: #00f3ff; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
-    /* Progress Bar Style */
-    .prog-track { background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; overflow: hidden; margin-top: 4px; margin-bottom: 4px; }
+    .prog-track { background: rgba(0,0,0,0.6); height: 6px; border-radius: 3px; overflow: hidden; }
     .prog-fill { height: 100%; box-shadow: 0 0 8px currentColor; transition: width 1s ease; }
   </style>
 </head>
@@ -179,29 +177,31 @@
     let visitorIP = 'Unknown';
     let lastTgMsg = "";
 
-    // --- SERVICE WORKER KILLER ---
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for(let registration of registrations) { registration.unregister(); }
-      });
+      navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
     }
 
-    // --- UTILS ---
     const sendLog = async (msg) => { try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){} }
     
-    // --- SMART PARSE SIZE ---
+    // --- FIX RUMUS PARSE SIZE (HANDLE MB OTOMATIS) ---
     const parseSize = (str) => { 
         if(!str) return 0;
         if(str.toLowerCase().includes('unlimited')) return 0;
-        // Ganti koma dengan titik agar terbaca
+        
         let numStr = str.replace(/[^0-9,.]/g, '').replace(',', '.');
         let val = parseFloat(numStr);
         if(isNaN(val)) return 0;
+
         let unit = str.toUpperCase();
+        
+        // JIKA ADA SATUAN
         if(unit.includes('GB')) return val;
-        if(unit.includes('MB')) return val/1024;
-        if(unit.includes('KB')) return val/1024/1024;
-        return val; 
+        if(unit.includes('MB')) return val / 1024;
+        if(unit.includes('KB')) return val / 1024 / 1024;
+        
+        // JIKA TIDAK ADA SATUAN (RAW NUMBER)
+        // Asumsi data mentah XL/Axis itu MB (karena 36000 raw = 36GB)
+        return val / 1024; 
     };
     
     const getFlagEmoji = (code) => code ? String.fromCodePoint(...code.toUpperCase().split('').map(c => 127397 + c.charCodeAt())) : '';
@@ -210,7 +210,6 @@
       return (await fetch(`${url}${sep}_=${Date.now()}_${Math.random()}`, { cache: 'no-store' })).json();
     }
 
-    // UI HELPERS
     const showLoading = (msg) => {
         ['homeView','resultView','error'].forEach(id => document.getElementById(id).classList.add('hidden'));
         document.getElementById('loading').classList.remove('hidden');
@@ -231,7 +230,6 @@
         document.getElementById('hostInput').value = '';
     }
 
-    // 1. LOGIC CEK NOMOR (TATA LETAK RAPI)
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const val = document.getElementById('nomor').value.trim().replace(/^0/, '62');
       if(val.length < 10) return alert('Nomor tidak valid');
@@ -262,7 +260,6 @@
             el.className = active ? 'text-cyber-green font-bold' : 'text-cyber-red font-bold';
         });
 
-        // --- LOOP PAKET ---
         let totalAll = 0, sisaAll = 0;
         let tgMsg = `<b>✅ HASIL SCAN</b>\n• No: <code>${sub.msisdn}</code>\n• Exp: ${sub.exp_date}\n\n`;
 
@@ -279,18 +276,13 @@
               const barBg = pct < 20 ? 'bg-cyber-red' : 'bg-cyber-cyan';
               tgMsg += `└ ${q.name}: ${q.remaining}\n`;
               
-              // --- TATA LETAK RAPI (DIV TERPISAH) ---
               qHtml += `
                 <div class="mt-4 border-t border-white/5 pt-2">
                   <div class="flex justify-between text-xs font-bold font-code mb-1">
                     <span class="text-gray-400 w-2/3 truncate">${q.name}</span>
                     <span class="text-white">${q.remaining}</span>
                   </div>
-                  
-                  <div class="prog-track">
-                    <div class="prog-fill ${barBg}" style="width:${pct}%"></div>
-                  </div>
-                  
+                  <div class="prog-track"><div class="prog-fill ${barBg}" style="width:${pct}%"></div></div>
                   <div class="flex justify-between mt-1 text-[10px] text-gray-500 font-code tracking-wider">
                      <span>TOTAL: ${q.total}</span>
                      <span>SISA: ${q.remaining}</span>
@@ -300,26 +292,17 @@
 
             const card = document.createElement('div');
             card.className = "bg-white/5 rounded-xl p-4 mb-3 border border-white/5 hover:border-cyber-cyan transition-all";
-            // Header Paket (Nama & Exp)
-            card.innerHTML = `
-                <div class="flex justify-between items-center mb-1">
-                    <h4 class="font-bold text-sm text-cyber-cyan font-head tracking-wide">${p.name}</h4>
-                    <div class="text-[9px] text-gray-400 font-code bg-black/40 px-2 py-0.5 rounded border border-white/10">${p.expiry}</div>
-                </div>
-                ${qHtml}
-            `;
+            card.innerHTML = `<div class="flex justify-between items-center mb-1"><h4 class="font-bold text-sm text-cyber-cyan font-head tracking-wide">${p.name}</h4><div class="text-[9px] text-gray-400 font-code bg-black/40 px-2 py-0.5 rounded border border-white/10">${p.expiry}</div></div>${qHtml}`;
             document.getElementById('paketContainer').appendChild(card);
           });
         } else {
             document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-600 font-code text-xs py-4">// TIDAK ADA PAKET //</div>`;
         }
 
-        // Update UI Total Global
         document.getElementById('totalQuota').innerText = totalAll.toFixed(2) + " GB";
         document.getElementById('sisaQuota').innerText = sisaAll.toFixed(2) + " GB";
         
         lastTgMsg = tgMsg;
-        
         document.getElementById('resultView').classList.remove('hidden');
         document.getElementById('quotaResult').classList.remove('hidden');
         document.getElementById('ipResult').classList.add('hidden');
@@ -329,7 +312,6 @@
       } catch (err) { showError(err.message); }
     });
 
-    // 2. LOGIC CEK IP
     const handleIpCheck = async (url, title, type) => {
         showLoading("DETECTING...");
         try {
@@ -377,9 +359,7 @@
         } catch(e) { showError("DNS Error"); }
     });
 
-    document.getElementById('copyBtn').addEventListener('click', () => {
-      if(lastTgMsg) { navigator.clipboard.writeText(lastTgMsg); alert('Disalin!'); }
-    });
+    document.getElementById('copyBtn').addEventListener('click', () => { if(lastTgMsg) { navigator.clipboard.writeText(lastTgMsg); alert('Disalin!'); } });
 
     window.addEventListener('load', async () => {
         try {
