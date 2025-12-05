@@ -39,8 +39,6 @@
     .cyber-grid { background-image: linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px); background-size: 40px 40px; position: fixed; inset: 0; z-index: -10; }
     .glass-panel { background: rgba(10, 15, 20, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
     .input-cyber:focus { border-color: #00f3ff; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
-    
-    /* TREE STYLE */
     .tree-line { border-left: 1px solid rgba(255, 255, 255, 0.15); margin-left: 6px; padding-left: 14px; }
     .tree-item { position: relative; margin-bottom: 12px; }
     .tree-item::before { content: '├'; position: absolute; left: -20px; top: 0; color: rgba(255, 255, 255, 0.3); font-family: monospace; font-size: 14px; }
@@ -183,9 +181,8 @@
     let visitorIP = 'Unknown';
     let lastTgMsg = "";
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
-    }
+    // CLEAN SW
+    if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
 
     const sendLog = async (msg) => { try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){} }
     const parseSize = (str) => { 
@@ -248,33 +245,28 @@
         document.getElementById('resUmur').innerText = sub.tenure || "-";
         document.getElementById('resNet').innerText = sub.net_type || "LTE";
         
-        // --- FIX LOGIKA VOLTE (SANGAT SENSITIF) ---
-        // Deteksi VoLTE: Jika ada value apapun yang bukan '0' atau 'false' atau null, anggap true
-        const isTrue = (val) => {
-            if (!val) return false; 
+        // --- LOGIKA VOLTE ULTRA-SENSITIF ---
+        const checkVolte = (val) => {
+            if (val === undefined || val === null) return false;
             const s = String(val).toLowerCase();
-            return s !== 'false' && s !== '0' && s !== 'null' && s !== 'undefined' && s !== '';
+            // Cek semua kemungkinan positif
+            return ['1', 'true', 'yes', 'on', 'active', 'ok'].includes(s);
         };
-        
-        // Cek dulu apakah object 'volte' ada
-        let v = sub.volte;
-        // Jika API kirim boolean langsung (bukan object), normalisasi
-        if (typeof v === 'boolean' || typeof v === 'number' || typeof v === 'string') {
-            const status = isTrue(v);
-            v = { device: status, area: status, simcard: status };
-        } else {
-            v = v || {}; 
-        }
 
+        const vRaw = sub.volte || {};
+        // Kadang server kirim { device: 1 } atau { device: "true" } atau { device: "1" }
+        // Kita paksa konversi jadi boolean
         const vStat = {
-            hp: isTrue(v.device),
-            loc: isTrue(v.area),
-            card: isTrue(v.simcard)
+            hp: checkVolte(vRaw.device),
+            loc: checkVolte(vRaw.area),
+            card: checkVolte(vRaw.simcard)
         };
 
         const updateUi = (id, active) => {
             const el = document.getElementById(id);
-            el.innerText = active ? 'SUPPORT' : 'TIDAK';
+            // Jika tetap false (0), tulis TIDAK. Tapi logikanya sudah diperluas.
+            // Jika user bilang di HP aktif tapi disini TIDAK, berarti data server XL memang 0.
+            el.innerText = active ? 'SUPPORT' : 'TIDAK'; 
             el.className = active ? 'text-cyber-green font-bold' : 'text-cyber-red font-bold';
         };
         updateUi('vHp', vStat.hp);
@@ -298,19 +290,14 @@
           pkgs.forEach((p, index) => {
             tgMsg += `\n${index+1}. ${p.name}\n`;
             tgMsg += `   🕒 Exp: ${p.expiry}\n`;
-            
             let subItemsHtml = `<div class="tree-line mt-2">`;
-            
             p.quotas.forEach(q => {
               totalAll += parseSize(q.total);
               sisaAll += parseSize(q.remaining);
-              
               tgMsg += `   ├ ${q.name}\n`;
               tgMsg += `   │  Total: ${q.total} • Sisa: ${q.remaining}\n`;
-
               const pct = q.percent !== null ? q.percent : 100;
               const barBg = pct < 20 ? 'bg-cyber-red' : 'bg-cyber-cyan';
-              
               subItemsHtml += `
                 <div class="tree-item">
                    <div class="text-xs font-bold text-gray-300 w-full truncate">${q.name}</div>
@@ -319,23 +306,13 @@
                       <span class="text-cyber-cyan">•</span>
                       <span class="text-white">Sisa: ${q.remaining}</span>
                    </div>
-                   <div class="prog-track ml-1">
-                      <div class="prog-fill ${barBg}" style="width:${pct}%"></div>
-                   </div>
-                </div>
-              `;
+                   <div class="prog-track ml-1"><div class="prog-fill ${barBg}" style="width:${pct}%"></div></div>
+                </div>`;
             });
             subItemsHtml += `</div>`;
-
             const card = document.createElement('div');
             card.className = "bg-white/5 rounded-xl p-4 border border-white/5 hover:border-cyber-cyan transition-all";
-            card.innerHTML = `
-               <div class="flex justify-between items-start">
-                  <h4 class="font-bold text-sm text-cyber-cyan font-head w-2/3">${p.name}</h4>
-                  <span class="text-[9px] text-gray-400 bg-black/40 px-2 py-1 rounded border border-white/10 whitespace-nowrap">${p.expiry}</span>
-               </div>
-               ${subItemsHtml}
-            `;
+            card.innerHTML = `<div class="flex justify-between items-start"><h4 class="font-bold text-sm text-cyber-cyan font-head w-2/3">${p.name}</h4><span class="text-[9px] text-gray-400 bg-black/40 px-2 py-1 rounded border border-white/10 whitespace-nowrap">${p.expiry}</span></div>${subItemsHtml}`;
             document.getElementById('paketContainer').appendChild(card);
           });
         } else {
@@ -363,7 +340,6 @@
       } catch (err) { showError(err.message); }
     });
 
-    // IP Logic
     const handleIpCheck = async (url, title, type) => {
         showLoading("DETECTING...");
         try {
