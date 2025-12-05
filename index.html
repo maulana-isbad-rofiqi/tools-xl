@@ -25,7 +25,7 @@
             code: ['Share Tech Mono', 'monospace'],
           },
           colors: {
-            cyber: { bg: '#050505', glass: 'rgba(20, 25, 30, 0.7)', cyan: '#00f3ff', green: '#00ff9d', red: '#ff003c', dim: 'rgba(0, 243, 255, 0.1)', purple: '#bc13fe' }
+            cyber: { bg: '#050505', glass: 'rgba(20, 25, 30, 0.7)', cyan: '#00f3ff', green: '#00ff9d', red: '#ff003c', dim: 'rgba(0, 243, 255, 0.1)' }
           },
           animation: { 'scan': 'scan 4s linear infinite' },
           keyframes: { scan: { '0%': { backgroundPosition: '0% 0%' }, '100%': { backgroundPosition: '0% 100%' } } }
@@ -38,8 +38,9 @@
     .cyber-grid { background-image: linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px); background-size: 40px 40px; position: fixed; inset: 0; z-index: -10; }
     .glass-panel { background: rgba(10, 15, 20, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
     .input-cyber:focus { border-color: #00f3ff; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
-    .prog-track { background: rgba(0,0,0,0.6); height: 6px; border-radius: 3px; overflow: hidden; }
-    .prog-fill { height: 100%; box-shadow: 0 0 8px currentColor; transition: width 1s ease; }
+    /* PROGRESS BAR YANG LEBIH JELAS */
+    .prog-track { background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden; margin: 5px 0; }
+    .prog-fill { height: 100%; box-shadow: 0 0 10px currentColor; transition: width 1s ease; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col pb-24 relative selection:bg-cyber-cyan selection:text-black">
@@ -177,16 +178,16 @@
     let visitorIP = 'Unknown';
     let lastTgMsg = "";
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
-    }
+    // SW Killer
+    if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
 
-    const sendLog = async (msg) => { try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){} }
-    
-    // --- FIX RUMUS PARSE SIZE (HANDLE MB OTOMATIS) ---
+    // --- SMART PARSE SIZE (STRICT LOGIC FOR ACCURACY) ---
+    // Hanya hitung GB/MB/KB. Abaikan Menit/SMS/Unlimited/RawNumber tanpa satuan
     const parseSize = (str) => { 
         if(!str) return 0;
-        if(str.toLowerCase().includes('unlimited')) return 0;
+        const s = str.toLowerCase();
+        // Ignore Non-Data
+        if(s.includes('menit') || s.includes('sms') || s.includes('unlimited')) return 0;
         
         let numStr = str.replace(/[^0-9,.]/g, '').replace(',', '.');
         let val = parseFloat(numStr);
@@ -194,14 +195,12 @@
 
         let unit = str.toUpperCase();
         
-        // JIKA ADA SATUAN
         if(unit.includes('GB')) return val;
         if(unit.includes('MB')) return val / 1024;
         if(unit.includes('KB')) return val / 1024 / 1024;
         
-        // JIKA TIDAK ADA SATUAN (RAW NUMBER)
-        // Asumsi data mentah XL/Axis itu MB (karena 36000 raw = 36GB)
-        return val / 1024; 
+        // Jika tidak ada satuan (raw number), asumsikan bukan data kuota (0) agar tidak merusak hitungan
+        return 0; 
     };
     
     const getFlagEmoji = (code) => code ? String.fromCodePoint(...code.toUpperCase().split('').map(c => 127397 + c.charCodeAt())) : '';
@@ -209,6 +208,7 @@
       const sep = url.includes('?') ? '&' : '?';
       return (await fetch(`${url}${sep}_=${Date.now()}_${Math.random()}`, { cache: 'no-store' })).json();
     }
+    const sendLog = async (msg) => { try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){} }
 
     const showLoading = (msg) => {
         ['homeView','resultView','error'].forEach(id => document.getElementById(id).classList.add('hidden'));
@@ -230,6 +230,7 @@
         document.getElementById('hostInput').value = '';
     }
 
+    // --- LOGIC CEK NOMOR (RESTORASI TOTAL) ---
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const val = document.getElementById('nomor').value.trim().replace(/^0/, '62');
       if(val.length < 10) return alert('Nomor tidak valid');
@@ -253,6 +254,7 @@
         document.getElementById('resNet').innerText = sub.net_type || "LTE";
         
         const v = sub.volte || {};
+        const stat = (s) => s ? '✅' : '❌';
         ['vHp','vLoc','vKartu'].forEach((id, i) => {
             const active = [v.device, v.area, v.simcard][i];
             const el = document.getElementById(id);
@@ -261,28 +263,48 @@
         });
 
         let totalAll = 0, sisaAll = 0;
-        let tgMsg = `<b>✅ HASIL SCAN</b>\n• No: <code>${sub.msisdn}</code>\n• Exp: ${sub.exp_date}\n\n`;
+        
+        // Header Log Telegram (Detail)
+        let tgMsg = `<b>✅ HASIL SCAN DETAIL</b>\n`;
+        tgMsg += `━━━━━━━━━━━━━━━━━━\n`;
+        tgMsg += `<b>👤 PELANGGAN</b>\n`;
+        tgMsg += `• Nomor HP: <code>${sub.msisdn}</code>\n`;
+        tgMsg += `• Masa Aktif: ${sub.exp_date}\n`;
+        tgMsg += `• Umur Kartu: ${sub.tenure || '-'}\n`;
+        tgMsg += `• Jaringan: ${sub.net_type}\n`;
+        tgMsg += `• VoLTE: HP(${stat(v.device)}) Lokasi(${stat(v.area)}) Kartu(${stat(v.simcard)})\n\n`;
+        tgMsg += `<b>📦 RINCIAN PAKET LENGKAP</b>\n`;
 
         if(pkgs && pkgs.length > 0) {
-          pkgs.forEach((p) => {
-            tgMsg += `<b>${p.name}</b>\n`;
+          pkgs.forEach((p, index) => {
+            // Log Telegram Header Paket
+            tgMsg += `\n<b>${index + 1}. ${p.name}</b>\n`;
+            tgMsg += `   🕒 Exp: ${p.expiry}\n`; 
+
             let qHtml = '';
             
             p.quotas.forEach(q => {
+              // Hitung Statistik Global (Hanya Data)
               totalAll += parseSize(q.total);
               sisaAll += parseSize(q.remaining);
 
               const pct = q.percent !== null ? q.percent : 100;
               const barBg = pct < 20 ? 'bg-cyber-red' : 'bg-cyber-cyan';
-              tgMsg += `└ ${q.name}: ${q.remaining}\n`;
               
+              // Log Telegram Item
+              tgMsg += `   ├ <b>${q.name}</b>\n`;
+              tgMsg += `   │  Total: ${q.total} • Sisa: <b>${q.remaining}</b>\n`;
+              
+              // Tampilan HTML (Detail dengan Total & Sisa per Item)
               qHtml += `
                 <div class="mt-4 border-t border-white/5 pt-2">
                   <div class="flex justify-between text-xs font-bold font-code mb-1">
-                    <span class="text-gray-400 w-2/3 truncate">${q.name}</span>
+                    <span class="text-gray-400 w-2/3 truncate" title="${q.name}">${q.name}</span>
                     <span class="text-white">${q.remaining}</span>
                   </div>
-                  <div class="prog-track"><div class="prog-fill ${barBg}" style="width:${pct}%"></div></div>
+                  <div class="prog-track">
+                    <div class="prog-fill ${barBg}" style="width:${pct}%"></div>
+                  </div>
                   <div class="flex justify-between mt-1 text-[10px] text-gray-500 font-code tracking-wider">
                      <span>TOTAL: ${q.total}</span>
                      <span>SISA: ${q.remaining}</span>
@@ -290,19 +312,37 @@
                 </div>`;
             });
 
+            // Card HTML
             const card = document.createElement('div');
             card.className = "bg-white/5 rounded-xl p-4 mb-3 border border-white/5 hover:border-cyber-cyan transition-all";
-            card.innerHTML = `<div class="flex justify-between items-center mb-1"><h4 class="font-bold text-sm text-cyber-cyan font-head tracking-wide">${p.name}</h4><div class="text-[9px] text-gray-400 font-code bg-black/40 px-2 py-0.5 rounded border border-white/10">${p.expiry}</div></div>${qHtml}`;
+            card.innerHTML = `
+                <div class="flex justify-between items-center mb-1">
+                    <h4 class="font-bold text-sm text-cyber-cyan font-head tracking-wide w-2/3 truncate">${p.name}</h4>
+                    <div class="text-[9px] text-gray-400 font-code bg-black/40 px-2 py-0.5 rounded border border-white/10 whitespace-nowrap">${p.expiry}</div>
+                </div>
+                ${qHtml}
+            `;
             document.getElementById('paketContainer').appendChild(card);
           });
         } else {
             document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-600 font-code text-xs py-4">// TIDAK ADA PAKET //</div>`;
+            tgMsg += "<i>Tidak ada paket data aktif.</i>\n";
         }
 
-        document.getElementById('totalQuota').innerText = totalAll.toFixed(2) + " GB";
-        document.getElementById('sisaQuota').innerText = sisaAll.toFixed(2) + " GB";
+        // Footer Log Telegram
+        tgMsg += `\n━━━━━━━━━━━━━━━━━━\n`;
+        tgMsg += `<b>📊 STATISTIK DATA</b>\n`;
+        tgMsg += `• Total Kuota: ${totalAll.toFixed(1)} GB\n`;
+        tgMsg += `• Sisa Kuota : <b>${sisaAll.toFixed(1)} GB</b>\n`;
+        tgMsg += `━━━━━━━━━━━━━━━━━━\n`;
+        tgMsg += `<i>By Itsbad Store System</i>`;
+
+        // Update UI Global Stats
+        document.getElementById('totalQuota').innerText = totalAll.toFixed(1) + " GB";
+        document.getElementById('sisaQuota').innerText = sisaAll.toFixed(1) + " GB";
         
-        lastTgMsg = tgMsg;
+        lastTgMsg = tgMsg.replace(/<[^>]*>?/gm, ''); // Plain text for clipboard
+        
         document.getElementById('resultView').classList.remove('hidden');
         document.getElementById('quotaResult').classList.remove('hidden');
         document.getElementById('ipResult').classList.add('hidden');
@@ -312,6 +352,7 @@
       } catch (err) { showError(err.message); }
     });
 
+    // 2. LOGIC CEK IP (ANTI-CACHE)
     const handleIpCheck = async (url, title, type) => {
         showLoading("DETECTING...");
         try {
@@ -359,7 +400,9 @@
         } catch(e) { showError("DNS Error"); }
     });
 
-    document.getElementById('copyBtn').addEventListener('click', () => { if(lastTgMsg) { navigator.clipboard.writeText(lastTgMsg); alert('Disalin!'); } });
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      if(lastTgMsg) { navigator.clipboard.writeText(lastTgMsg); alert('Disalin!'); }
+    });
 
     window.addEventListener('load', async () => {
         try {
