@@ -7,10 +7,7 @@
   "dependencies": {
     "node-fetch": "^3.0.0"
   },
-  
-  // --- TAMBAHKAN BAGIAN INI ---
   "engines": {
     "node": "18.x"
   }
-  // ----------------------------
 }
