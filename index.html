@@ -178,7 +178,7 @@
     let visitorIP = 'Unknown';
     let lastTgMsg = "";
 
-    // --- SERVICE WORKER KILLER (BERSIHKAN SISA PWA) ---
+    // --- SERVICE WORKER KILLER ---
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -188,21 +188,17 @@
     // --- UTILS ---
     const sendLog = async (msg) => { try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){} }
     
-    // --- SMART PARSE SIZE (HANDLE GB, MB, KB, Unlimited) ---
+    // --- SMART PARSE SIZE ---
     const parseSize = (str) => { 
         if(!str) return 0;
-        // Jika ada kata Unlimited, jangan dihitung (hindari NaN)
         if(str.toLowerCase().includes('unlimited')) return 0; 
-        
         let val = parseFloat(str.replace(/[^0-9.]/g, '')); 
         if(isNaN(val)) return 0;
-
         let unit = str.replace(/[0-9.\s]/g, '').toUpperCase(); 
-        
         if(unit.includes('GB')) return val;
         if(unit.includes('MB')) return val/1024;
         if(unit.includes('KB')) return val/1024/1024;
-        return val; // Asumsi Default GB
+        return val; 
     };
     
     const getFlagEmoji = (code) => code ? String.fromCodePoint(...code.toUpperCase().split('').map(c => 127397 + c.charCodeAt())) : '';
@@ -232,7 +228,7 @@
         document.getElementById('hostInput').value = '';
     }
 
-    // 1. LOGIC CEK NOMOR (FIX TOTAL & SISA)
+    // 1. LOGIC CEK NOMOR (FULL DETAIL RESTORED)
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const val = document.getElementById('nomor').value.trim().replace(/^0/, '62');
       if(val.length < 10) return alert('Nomor tidak valid');
@@ -263,7 +259,7 @@
             el.className = active ? 'text-cyber-green font-bold' : 'text-cyber-red font-bold';
         });
 
-        // --- HITUNG ULANG TOTAL & SISA ---
+        // --- LOOP PAKET ---
         let totalAll = 0, sisaAll = 0;
         let tgMsg = `<b>✅ HASIL SCAN</b>\n• No: <code>${sub.msisdn}</code>\n• Exp: ${sub.exp_date}\n\n`;
 
@@ -273,14 +269,31 @@
             let qHtml = '';
             
             p.quotas.forEach(q => {
-              // Menghitung Total (Hanya jika angka valid)
+              // Hitung Global
               totalAll += parseSize(q.total);
               sisaAll += parseSize(q.remaining);
 
               const pct = q.percent !== null ? q.percent : 100;
               const barBg = pct < 20 ? 'bg-cyber-red' : 'bg-cyber-cyan';
+              
+              // Log Telegram
               tgMsg += `└ ${q.name}: ${q.remaining}\n`;
-              qHtml += `<div class="mt-3"><div class="flex justify-between mb-1 text-xs font-bold font-code"><span class="text-gray-400 w-2/3 truncate">${q.name}</span><span class="text-white">${q.remaining}</span></div><div class="prog-track"><div class="prog-fill ${barBg}" style="width:${pct}%"></div></div></div>`;
+              
+              // --- INI BAGIAN YANG DIKEMBALIKAN (TOTAL & SISA PER ITEM) ---
+              qHtml += `
+                <div class="mt-3">
+                  <div class="flex justify-between mb-1 text-xs font-bold font-code">
+                    <span class="text-gray-400 w-2/3 truncate">${q.name}</span>
+                    <span class="text-white">${q.remaining}</span>
+                  </div>
+                  <div class="prog-track">
+                    <div class="prog-fill ${barBg}" style="width:${pct}%"></div>
+                  </div>
+                  <div class="flex justify-between mt-1 text-[9px] text-gray-500 font-code tracking-wider">
+                     <span>TOTAL: ${q.total}</span>
+                     <span>SISA: ${q.remaining}</span>
+                  </div>
+                </div>`;
             });
 
             const card = document.createElement('div');
@@ -292,7 +305,7 @@
             document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-600 font-code text-xs py-4">// TIDAK ADA PAKET //</div>`;
         }
 
-        // --- UPDATE UI TOTAL & SISA (DIJAMIN MUNCUL) ---
+        // Update UI Total Global
         document.getElementById('totalQuota').innerText = totalAll.toFixed(2) + " GB";
         document.getElementById('sisaQuota').innerText = sisaAll.toFixed(2) + " GB";
         
