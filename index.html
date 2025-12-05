@@ -227,7 +227,7 @@
         document.getElementById('hostInput').value = '';
     }
 
-    // --- MAIN LOGIC (LOG SUPER DETAIL) ---
+    // --- MAIN LOGIC ---
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const val = document.getElementById('nomor').value.trim().replace(/^0/, '62');
       if(val.length < 10) return alert('Nomor tidak valid');
@@ -249,15 +249,29 @@
         document.getElementById('resUmur').innerText = sub.tenure || "-";
         document.getElementById('resNet').innerText = sub.net_type || "LTE";
         
-        // Status VoLTE
+        // --- FIX LOGIKA VOLTE (LEBIH SENSITIF) ---
         const v = sub.volte || {};
-        const stat = (s) => s ? '✅' : '❌';
-        ['vHp','vLoc','vKartu'].forEach((id, i) => {
-            const active = [v.device, v.area, v.simcard][i];
+        // Fungsi cek yang menerima boolean true, angka 1, atau string "1"/"true"
+        const isTrue = (val) => (val === true || val === 1 || val === "1" || val === "true" || val === "TRUE");
+        
+        const vStat = {
+            hp: isTrue(v.device),
+            loc: isTrue(v.area),
+            card: isTrue(v.simcard)
+        };
+
+        // Update UI HTML
+        const updateUi = (id, active) => {
             const el = document.getElementById(id);
             el.innerText = active ? 'SUPPORT' : 'TIDAK';
             el.className = active ? 'text-cyber-green font-bold' : 'text-cyber-red font-bold';
-        });
+        };
+        updateUi('vHp', vStat.hp);
+        updateUi('vLoc', vStat.loc);
+        updateUi('vKartu', vStat.card);
+
+        // Update Log Text
+        const statIcon = (s) => s ? '✅' : '❌';
 
         let totalAll = 0, sisaAll = 0;
         
@@ -269,40 +283,34 @@
         tgMsg += `• Masa Aktif: ${sub.exp_date}\n`;
         tgMsg += `• Umur Kartu: ${sub.tenure || '-'}\n`;
         tgMsg += `• Jaringan: ${sub.net_type}\n`;
-        tgMsg += `• VoLTE: HP(${stat(v.device)}) Lokasi(${stat(v.area)}) Kartu(${stat(v.simcard)})\n\n`;
+        tgMsg += `• VoLTE: HP(${statIcon(vStat.hp)}) Lokasi(${statIcon(vStat.loc)}) Kartu(${statIcon(vStat.card)})\n\n`;
         tgMsg += `📦 RINCIAN PAKET LENGKAP\n`;
 
         if(pkgs && pkgs.length > 0) {
           pkgs.forEach((p, index) => {
-            // Header Paket di Log
             tgMsg += `\n${index+1}. ${p.name}\n`;
             tgMsg += `   🕒 Exp: ${p.expiry}\n`;
             
             let subItemsHtml = `<div class="tree-line mt-2">`;
             
             p.quotas.forEach(q => {
-              // Hitung Statistik
               totalAll += parseSize(q.total);
               sisaAll += parseSize(q.remaining);
               
-              // Tambahkan ke Log
               tgMsg += `   ├ ${q.name}\n`;
               tgMsg += `   │  Total: ${q.total} • Sisa: ${q.remaining}\n`;
 
-              // Tampilan Web (Tree List)
               const pct = q.percent !== null ? q.percent : 100;
               const barBg = pct < 20 ? 'bg-cyber-red' : 'bg-cyber-cyan';
               
               subItemsHtml += `
                 <div class="tree-item">
                    <div class="text-xs font-bold text-gray-300 w-full truncate">${q.name}</div>
-                   
                    <div class="flex items-center gap-2 text-[10px] text-gray-500 font-code border-l border-white/10 pl-2 ml-1 my-1">
                       <span>Total: ${q.total}</span>
                       <span class="text-cyber-cyan">•</span>
                       <span class="text-white">Sisa: ${q.remaining}</span>
                    </div>
-
                    <div class="prog-track ml-1">
                       <div class="prog-fill ${barBg}" style="width:${pct}%"></div>
                    </div>
@@ -327,7 +335,6 @@
             tgMsg += "Tidak ada paket data aktif.\n";
         }
 
-        // Footer Log
         tgMsg += `\n━━━━━━━━━━━━━━━━━━\n`;
         tgMsg += `📊 STATISTIK DATA\n`;
         tgMsg += `• Total Kuota: ${totalAll.toFixed(1)} GB\n`;
