@@ -178,16 +178,15 @@
     let visitorIP = 'Unknown';
     let lastTgMsg = "";
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
-    }
+    // SW Killer
+    if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
 
     const sendLog = async (msg) => { try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){} }
     
     // --- SMART PARSE SIZE (FIXED FOR ACCURACY) ---
     const parseSize = (str) => { 
         if(!str) return 0;
-        if(str.toLowerCase().includes('unlimited')) return 0; // Abaikan unlimited
+        if(str.toLowerCase().includes('unlimited')) return 0;
         
         let numStr = str.replace(/[^0-9,.]/g, '').replace(',', '.');
         let val = parseFloat(numStr);
@@ -199,9 +198,7 @@
         if(unit.includes('MB')) return val / 1024;
         if(unit.includes('KB')) return val / 1024 / 1024;
         
-        // JIKA TIDAK ADA SATUAN: Asumsi data server adalah KB (Standard Telco)
-        // Ini memperbaiki masalah 36000 yang harusnya 35GB
-        return val / 1024 / 1024; 
+        return val; 
     };
     
     const getFlagEmoji = (code) => code ? String.fromCodePoint(...code.toUpperCase().split('').map(c => 127397 + c.charCodeAt())) : '';
@@ -230,6 +227,7 @@
         document.getElementById('hostInput').value = '';
     }
 
+    // 1. LOGIC CEK NOMOR
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const val = document.getElementById('nomor').value.trim().replace(/^0/, '62');
       if(val.length < 10) return alert('Nomor tidak valid');
@@ -274,6 +272,7 @@
 
               const pct = q.percent !== null ? q.percent : 100;
               const barBg = pct < 20 ? 'bg-cyber-red' : 'bg-cyber-cyan';
+              
               tgMsg += `└ ${q.name}: ${q.remaining}\n`;
               
               qHtml += `
@@ -292,14 +291,14 @@
 
             const card = document.createElement('div');
             card.className = "bg-white/5 rounded-xl p-4 mb-3 border border-white/5 hover:border-cyber-cyan transition-all";
-            card.innerHTML = `<div class="flex justify-between items-center mb-1"><h4 class="font-bold text-sm text-cyber-cyan font-head tracking-wide">${p.name}</h4><div class="text-[9px] text-gray-400 font-code bg-black/40 px-2 py-0.5 rounded border border-white/10">${p.expiry}</div></div>${qHtml}`;
+            card.innerHTML = `<div class="flex justify-between border-b border-white/10 pb-2 mb-2"><h4 class="font-bold text-sm text-cyber-cyan font-head tracking-wide">${p.name}</h4><div class="text-[9px] text-gray-400 font-code bg-black/40 px-2 py-0.5 rounded border border-white/10">${p.expiry}</div></div>${qHtml}`;
             document.getElementById('paketContainer').appendChild(card);
           });
         } else {
             document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-600 font-code text-xs py-4">// TIDAK ADA PAKET //</div>`;
         }
 
-        // --- PRESISI 2 ANGKA DESIMAL (Fix 13.09GB) ---
+        // --- UPDATE UI TOTAL (2 DECIMAL) ---
         document.getElementById('totalQuota').innerText = totalAll.toFixed(2) + " GB";
         document.getElementById('sisaQuota').innerText = sisaAll.toFixed(2) + " GB";
         
