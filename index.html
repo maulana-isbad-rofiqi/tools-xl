@@ -183,10 +183,10 @@
     let visitorIP = 'Unknown';
     let lastTgMsg = "";
 
-    // CLEAN SW
-    if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
+    }
 
-    // UTILS
     const sendLog = async (msg) => { try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){} }
     const parseSize = (str) => { 
         if(!str) return 0;
@@ -199,7 +199,7 @@
         if(unit.includes('GB')) return val;
         if(unit.includes('MB')) return val / 1024;
         if(unit.includes('KB')) return val / 1024 / 1024;
-        return val / 1024; // Default Raw = KB
+        return val / 1024; 
     };
     const getFlagEmoji = (code) => code ? String.fromCodePoint(...code.toUpperCase().split('').map(c => 127397 + c.charCodeAt())) : '';
     const fetchFresh = async (url) => {
@@ -227,7 +227,6 @@
         document.getElementById('hostInput').value = '';
     }
 
-    // --- MAIN LOGIC ---
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const val = document.getElementById('nomor').value.trim().replace(/^0/, '62');
       if(val.length < 10) return alert('Nomor tidak valid');
@@ -249,18 +248,30 @@
         document.getElementById('resUmur').innerText = sub.tenure || "-";
         document.getElementById('resNet').innerText = sub.net_type || "LTE";
         
-        // --- FIX LOGIKA VOLTE (LEBIH SENSITIF) ---
-        const v = sub.volte || {};
-        // Fungsi cek yang menerima boolean true, angka 1, atau string "1"/"true"
-        const isTrue = (val) => (val === true || val === 1 || val === "1" || val === "true" || val === "TRUE");
+        // --- FIX LOGIKA VOLTE (SANGAT SENSITIF) ---
+        // Deteksi VoLTE: Jika ada value apapun yang bukan '0' atau 'false' atau null, anggap true
+        const isTrue = (val) => {
+            if (!val) return false; 
+            const s = String(val).toLowerCase();
+            return s !== 'false' && s !== '0' && s !== 'null' && s !== 'undefined' && s !== '';
+        };
         
+        // Cek dulu apakah object 'volte' ada
+        let v = sub.volte;
+        // Jika API kirim boolean langsung (bukan object), normalisasi
+        if (typeof v === 'boolean' || typeof v === 'number' || typeof v === 'string') {
+            const status = isTrue(v);
+            v = { device: status, area: status, simcard: status };
+        } else {
+            v = v || {}; 
+        }
+
         const vStat = {
             hp: isTrue(v.device),
             loc: isTrue(v.area),
             card: isTrue(v.simcard)
         };
 
-        // Update UI HTML
         const updateUi = (id, active) => {
             const el = document.getElementById(id);
             el.innerText = active ? 'SUPPORT' : 'TIDAK';
@@ -270,12 +281,9 @@
         updateUi('vLoc', vStat.loc);
         updateUi('vKartu', vStat.card);
 
-        // Update Log Text
         const statIcon = (s) => s ? '✅' : '❌';
-
         let totalAll = 0, sisaAll = 0;
         
-        // --- BUAT LOG TELEGRAM/COPY (FORMAT DETAIL) ---
         let tgMsg = `✅ HASIL SCAN DETAIL\n`;
         tgMsg += `━━━━━━━━━━━━━━━━━━\n`;
         tgMsg += `👤 PELANGGAN\n`;
@@ -355,7 +363,7 @@
       } catch (err) { showError(err.message); }
     });
 
-    // 2. IP LOGIC
+    // IP Logic
     const handleIpCheck = async (url, title, type) => {
         showLoading("DETECTING...");
         try {
