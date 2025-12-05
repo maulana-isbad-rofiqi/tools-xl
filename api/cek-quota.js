@@ -1,118 +1,122 @@
+// api/cek-quota.js
+// MODE: HARDCODED MULTI-PROVIDER (Anti-Ribet)
+
 export default async function handler(req, res) {
-  // --- 1. SETUP CORS & HEADERS ---
+  // 1. SETUP HEADERS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // --- 2. FORMAT NOMOR ---
   const { number } = req.body;
   if (!number) return res.status(400).json({ error: 'Nomor wajib diisi' });
 
+  // 2. FORMAT NOMOR (Auto 62)
   let formattedNum = number.replace(/\D/g, '');
   if (formattedNum.startsWith('0')) formattedNum = '62' + formattedNum.substring(1);
   else if (formattedNum.startsWith('8')) formattedNum = '62' + formattedNum;
 
-  // --- 3. DAFTAR PROVIDER API (FAILOVER LIST) ---
-  // Kita siapkan beberapa sumber. Jika satu mati, pindah ke berikutnya.
+  // =================================================================
+  // 🔰 DAFTAR API (LANGSUNG DI SINI)
+  // Sistem akan mencoba urut dari atas ke bawah.
+  // =================================================================
   const PROVIDERS = [
     {
-      name: 'PRIMARY (Bendith)',
-      url: `https://bendith.my.id/end.php?check=package&number=${formattedNum}&version=2`,
-      method: 'GET',
-      // Parser khusus untuk format Bendith
-      parser: (json) => {
-        if (!json.data) return null;
-        return {
-          subs_info: json.data.subs_info || {},
-          packages: json.data.packages || json.data.package || []
-        };
-      }
+      name: 'PRIMARY (Nyxs)',
+      url: `https://api.nyxs.pw/tools/xl?no=${formattedNum}`
     },
     {
-      name: 'FALLBACK (Nyxs)',
-      // API alternatif populer (Gratis)
-      url: `https://api.nyxs.pw/tools/xl?no=${formattedNum}`,
-      method: 'GET',
-      // Parser khusus untuk format Nyxs
-      parser: (json) => {
-        if (!json.result) return null; // Nyxs pakai 'result' bukan 'data'
-        // Kita harus mapping manual agar cocok dengan Frontend
-        return {
-          subs_info: {
-            msisdn: formattedNum,
-            exp_date: json.result.masa_aktif || "Unknown", // Sesuaikan field jika beda
-            card_type: json.result.tipe_kartu || "XL/AXIS",
-            net_type: "LTE"
-          },
-          packages: json.result.kuota || json.result.packages || [] 
-        };
-      }
+      name: 'BACKUP (Wizz)',
+      url: `https://api.wizz.my.id/v1/xl/cek?no=${formattedNum}`
     }
   ];
 
-  // --- 4. ENGINE: REQUEST RUNNER ---
+  // 3. EKSEKUSI (LOOPING PROVIDER)
   let lastError = null;
 
   for (const provider of PROVIDERS) {
-    console.log(`[SYSTEM] Trying Provider: ${provider.name}...`);
+    console.log(`[SYSTEM] Mencoba API: ${provider.name}...`);
     
     try {
+      // Timeout 15 detik per provider
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik timeout per provider
+      const timeoutId = setTimeout(() => controller.abort(), 15000); 
 
       const response = await fetch(provider.url, {
-        method: provider.method,
+        method: 'GET',
         signal: controller.signal,
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'application/json'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json'
         }
       });
       
       clearTimeout(timeoutId);
 
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
       
-      const rawData = await response.json();
-      
-      // Cek apakah provider ini mengembalikan sukses (biasanya ada flag 'status' atau 'success')
-      // Bendith pakai .success, Nyxs pakai .status
-      const isSuccess = rawData.success === true || rawData.status === true || rawData.status === 'true';
+      const json = await response.json();
+
+      // Cek Indikator Sukses (Setiap API beda-beda flag-nya)
+      // Nyxs pakai .status (boolean/string), Wizz pakai .status (boolean)
+      const isSuccess = json.status === true || json.status === 'true' || json.success === true;
       
       if (!isSuccess) throw new Error("API merespon tapi status Gagal/False");
 
-      // NORMALIZE DATA
-      const cleanData = provider.parser(rawData);
+      // --- 4. UNIVERSAL PARSER (PENTING) ---
+      // Agar format output ke frontend SELALU SAMA, beda API beda struktur JSON.
       
-      if (!cleanData) throw new Error("Format data tidak dikenali");
+      let finalPackages = [];
+      let finalInfo = { msisdn: formattedNum, exp_date: "-", net_type: "LTE", card_type: "XL/AXIS" };
 
-      // JIKA BERHASIL, STOP LOOP DAN KIRIM RESPONSE
-      console.log(`[SYSTEM] Success with ${provider.name}`);
+      // Root data bisa ada di 'data', 'result', atau root langsung
+      const root = json.data || json.result || json;
+
+      if (root) {
+          // Cari Paket (Array)
+          // Nyxs -> root.kuota
+          // Wizz -> root.packages
+          // Umum -> root.list, root.detail
+          const possibleArrays = [root.packages, root.kuota, root.data, root.list];
+          for (const arr of possibleArrays) {
+              if (Array.isArray(arr) && arr.length > 0) {
+                  finalPackages = arr;
+                  break;
+              }
+          }
+
+          // Cari Info Kartu
+          finalInfo.exp_date = root.masa_aktif || root.exp_date || root.activeUntil || "Unknown";
+          finalInfo.net_type = root.network || root.tipe_kartu || "LTE";
+          finalInfo.card_type = root.tipe || "XL/AXIS";
+      }
+
+      // SUKSES! Kembalikan data ke Frontend
+      console.log(`[SUCCESS] Data didapat dari ${provider.name}`);
       
       return res.status(200).json({
         success: true,
-        provider: provider.name,
-        data: cleanData
+        provider: provider.name, // Info debug: kita pake provider mana
+        data: {
+            subs_info: finalInfo,
+            packages: finalPackages
+        }
       });
 
     } catch (err) {
-      console.error(`[FAIL] ${provider.name} failed: ${err.message}`);
+      console.error(`[FAIL] ${provider.name} gagal: ${err.message}`);
       lastError = err.message;
-      // Lanjut ke provider berikutnya di loop...
+      // LANJUT KE PROVIDER BERIKUTNYA...
     }
   }
 
-  // --- 5. FINAL ERROR (Jika semua provider gagal) ---
+  // Jika semua provider gagal
   return res.status(502).json({
     success: false,
-    message: 'Semua Server Pusat Down. Silakan coba lagi nanti.',
-    debug_error: lastError
+    message: 'Semua Server Pusat Sedang Sibuk/Down.',
+    error: lastError
   });
 }
