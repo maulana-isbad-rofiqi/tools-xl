@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="id" class="dark">
 <head>
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-  
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>XL & Axis Tools - Itsbad Store</title>
@@ -327,7 +323,7 @@
       return String.fromCodePoint(...codePoints);
     }
     
-    // --- FORCE FRESH FETCH (ANTI-CACHE) ---
+    // --- FORCE FRESH FETCH (ANTI-CACHE UNTUK IP) ---
     const fetchFresh = async (url) => {
       const separator = url.includes('?') ? '&' : '?';
       const randomUrl = `${url}${separator}nocache=${Date.now()}_${Math.random()}`;
@@ -346,7 +342,7 @@
     // --- APP LOGIC ---
     let lastTgMsg = "";
 
-    // 1. CEK KUOTA (RESTORED)
+    // 1. CEK KUOTA (MODIFIED: USE STANDARD FETCH TO AVOID SERVER BLOCK)
     const input = document.getElementById('nomor');
     input.addEventListener('input', (e) => {
       let val = e.target.value.replace(/[^0-9]/g, '');
@@ -365,8 +361,11 @@
       sendLog(`<b>🔍 SCAN NOMOR...</b>\nTarget: <code>${val}</code>`, 'INPUT');
 
       try {
+        // PERBAIKAN: Menggunakan fetch biasa tanpa parameter aneh-aneh agar diterima server
         const res = await fetch(API_CEK, {
-          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({number: val})
+          method: 'POST', 
+          headers: {'Content-Type':'application/json'}, 
+          body: JSON.stringify({number: val})
         });
         const data = await res.json();
         
