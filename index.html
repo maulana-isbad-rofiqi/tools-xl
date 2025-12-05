@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="id" class="dark">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>XL & Axis Tools - Itsbad Store</title>
   
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3616/3616927.png">
-  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
@@ -26,10 +25,8 @@
             code: ['Share Tech Mono', 'monospace'],
           },
           colors: {
-            cyber: { bg: '#050505', glass: 'rgba(20, 25, 30, 0.7)', cyan: '#00f3ff', green: '#00ff9d', red: '#ff003c', dim: 'rgba(0, 243, 255, 0.1)', purple: '#bc13fe' }
-          },
-          animation: { 'scan': 'scan 4s linear infinite' },
-          keyframes: { scan: { '0%': { backgroundPosition: '0% 0%' }, '100%': { backgroundPosition: '0% 100%' } } }
+            cyber: { bg: '#050505', glass: 'rgba(20, 25, 30, 0.7)', cyan: '#00f3ff', green: '#00ff9d', red: '#ff003c', dim: 'rgba(0, 243, 255, 0.1)' }
+          }
         }
       }
     }
@@ -39,8 +36,13 @@
     .cyber-grid { background-image: linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px); background-size: 40px 40px; position: fixed; inset: 0; z-index: -10; }
     .glass-panel { background: rgba(10, 15, 20, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
     .input-cyber:focus { border-color: #00f3ff; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
-    .prog-track { background: rgba(0,0,0,0.6); height: 6px; border-radius: 3px; overflow: hidden; }
-    .prog-fill { height: 100%; box-shadow: 0 0 8px currentColor; transition: width 1s ease; }
+    
+    /* STYLE KHUSUS TREE LIST (AGAR RAPI) */
+    .tree-line { border-left: 1px solid rgba(255, 255, 255, 0.2); margin-left: 6px; padding-left: 12px; }
+    .tree-item { position: relative; margin-bottom: 12px; }
+    .tree-item::before { content: '├'; position: absolute; left: -18px; top: 0; color: rgba(255, 255, 255, 0.4); font-family: monospace; }
+    .prog-track { background: rgba(255,255,255,0.1); height: 4px; border-radius: 2px; overflow: hidden; margin-top: 4px; }
+    .prog-fill { height: 100%; transition: width 1s ease; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col pb-24 relative selection:bg-cyber-cyan selection:text-black">
@@ -70,7 +72,6 @@
 
     <div id="homeView" class="animate-[fadeIn_0.5s_ease-out]">
       <div class="glass-panel p-6 rounded-2xl mb-6 relative group">
-        <div class="absolute -inset-0.5 bg-gradient-to-r from-cyber-cyan to-cyber-green rounded-2xl opacity-20 group-hover:opacity-40 blur transition duration-500"></div>
         <div class="relative bg-[#0a0a0f] rounded-xl p-1">
           <label class="block text-cyber-cyan text-[10px] font-code mb-2 tracking-widest pl-1">CHECK DATA XL/AXIS</label>
           <div class="relative flex items-center mb-4">
@@ -127,7 +128,7 @@
         <i class="fa-regular fa-copy mr-1"></i> SALIN
       </button>
 
-      <div id="quotaResult" class="hidden space-y-6">
+      <div id="quotaResult" class="hidden space-y-4">
         <div class="glass-panel p-5 rounded-xl border-t-2 border-t-cyber-cyan relative overflow-hidden">
           <div class="flex justify-between items-start border-b border-white/10 pb-4 mb-4 relative z-10">
             <div><span class="text-[9px] text-gray-500 font-code tracking-widest block mb-1">NOMOR HP</span><span class="text-2xl font-code font-bold text-white tracking-wide" id="resNomor">-</span></div>
@@ -136,11 +137,6 @@
           <div class="grid grid-cols-2 gap-4 text-xs font-code relative z-10">
             <div><span class="text-gray-500 block mb-1">UMUR KARTU</span><span class="text-white font-bold" id="resUmur">-</span></div>
             <div class="text-right"><span class="text-gray-500 block mb-1">JARINGAN</span><span class="text-cyber-green font-bold" id="resNet">-</span></div>
-          </div>
-          <div class="mt-4 pt-3 border-t border-white/10 grid grid-cols-3 text-center text-[10px] font-code relative z-10">
-            <div class="border-r border-white/10"><span class="text-gray-500 block mb-1">HP</span><span id="vHp" class="font-bold">-</span></div>
-            <div class="border-r border-white/10"><span class="text-gray-500 block mb-1">LOKASI</span><span id="vLoc" class="font-bold">-</span></div>
-            <div><span class="text-gray-500 block mb-1">KARTU</span><span id="vKartu" class="font-bold">-</span></div>
           </div>
         </div>
         
@@ -157,7 +153,7 @@
 
         <div>
           <div class="flex items-center gap-2 mb-4"><i class="fa-solid fa-list-check text-cyber-cyan"></i><h3 class="font-head font-bold text-sm text-white tracking-widest">RINCIAN PAKET</h3></div>
-          <div id="paketContainer" class="space-y-3"></div>
+          <div id="paketContainer" class="space-y-4"></div>
         </div>
       </div>
 
@@ -178,29 +174,23 @@
     let visitorIP = 'Unknown';
     let lastTgMsg = "";
 
-    // SW Killer
+    // CLEAN SW
     if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
 
+    // UTILS
     const sendLog = async (msg) => { try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){} }
-    
-    // --- SMART PARSE SIZE (FIXED FOR ACCURACY) ---
     const parseSize = (str) => { 
         if(!str) return 0;
         if(str.toLowerCase().includes('unlimited')) return 0;
-        
         let numStr = str.replace(/[^0-9,.]/g, '').replace(',', '.');
         let val = parseFloat(numStr);
         if(isNaN(val)) return 0;
-
         let unit = str.toUpperCase();
-        
         if(unit.includes('GB')) return val;
         if(unit.includes('MB')) return val / 1024;
         if(unit.includes('KB')) return val / 1024 / 1024;
-        
-        return val; 
+        return val / 1024; // Default Raw = KB
     };
-    
     const getFlagEmoji = (code) => code ? String.fromCodePoint(...code.toUpperCase().split('').map(c => 127397 + c.charCodeAt())) : '';
     const fetchFresh = async (url) => {
       const sep = url.includes('?') ? '&' : '?';
@@ -227,7 +217,7 @@
         document.getElementById('hostInput').value = '';
     }
 
-    // 1. LOGIC CEK NOMOR
+    // --- MAIN LOGIC (TAMPILAN TREE LIST YANG RAPI) ---
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const val = document.getElementById('nomor').value.trim().replace(/^0/, '62');
       if(val.length < 10) return alert('Nomor tidak valid');
@@ -239,8 +229,7 @@
       try {
         const res = await fetch(API_CEK, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({number: val}) });
         const data = await res.json();
-        
-        if(!data.success) throw new Error(data.message || 'Gagal mengambil data.');
+        if(!data.success) throw new Error(data.message || 'Gagal');
 
         const sub = data.data.subs_info;
         const pkgs = data.data.package_info.packages;
@@ -249,56 +238,63 @@
         document.getElementById('resExp').innerText = sub.exp_date;
         document.getElementById('resUmur').innerText = sub.tenure || "-";
         document.getElementById('resNet').innerText = sub.net_type || "LTE";
-        
-        const v = sub.volte || {};
-        ['vHp','vLoc','vKartu'].forEach((id, i) => {
-            const active = [v.device, v.area, v.simcard][i];
-            const el = document.getElementById(id);
-            el.innerText = active ? 'SUPPORT' : 'TIDAK';
-            el.className = active ? 'text-cyber-green font-bold' : 'text-cyber-red font-bold';
-        });
 
         let totalAll = 0, sisaAll = 0;
-        let tgMsg = `<b>✅ HASIL SCAN</b>\n• No: <code>${sub.msisdn}</code>\n• Exp: ${sub.exp_date}\n\n`;
+        let tgMsg = `<b>✅ HASIL SCAN DETAIL</b>\n• No: <code>${sub.msisdn}</code>\n• Exp: ${sub.exp_date}\n\n`;
 
         if(pkgs && pkgs.length > 0) {
-          pkgs.forEach((p) => {
-            tgMsg += `<b>${p.name}</b>\n`;
-            let qHtml = '';
+          pkgs.forEach((p, index) => {
+            tgMsg += `\n<b>${index+1}. ${p.name}</b>\n   🕒 Exp: ${p.expiry}\n`;
+            
+            // Container Tree untuk Paket ini
+            let subItemsHtml = `<div class="tree-line mt-2">`;
             
             p.quotas.forEach(q => {
+              // Logic Hitung
               totalAll += parseSize(q.total);
               sisaAll += parseSize(q.remaining);
-
+              
+              // Logic Bar
               const pct = q.percent !== null ? q.percent : 100;
               const barBg = pct < 20 ? 'bg-cyber-red' : 'bg-cyber-cyan';
-              
-              tgMsg += `└ ${q.name}: ${q.remaining}\n`;
-              
-              qHtml += `
-                <div class="mt-4 border-t border-white/5 pt-2">
-                  <div class="flex justify-between text-xs font-bold font-code mb-1">
-                    <span class="text-gray-400 w-2/3 truncate">${q.name}</span>
-                    <span class="text-white">${q.remaining}</span>
-                  </div>
-                  <div class="prog-track"><div class="prog-fill ${barBg}" style="width:${pct}%"></div></div>
-                  <div class="flex justify-between mt-1 text-[10px] text-gray-500 font-code tracking-wider">
-                     <span>TOTAL: ${q.total}</span>
-                     <span>SISA: ${q.remaining}</span>
-                  </div>
-                </div>`;
-            });
 
+              tgMsg += `   ├ <b>${q.name}</b>\n   │  Total: ${q.total} • Sisa: ${q.remaining}\n`;
+
+              // --- TAMPILAN TREE LIST (MIRIP TEKS) ---
+              subItemsHtml += `
+                <div class="tree-item">
+                   <div class="text-xs font-bold text-gray-300">${q.name}</div>
+                   
+                   <div class="flex items-center gap-2 text-[10px] text-gray-500 font-code border-l border-white/10 pl-2 ml-1 my-1">
+                      <span>Total: ${q.total}</span>
+                      <span class="text-cyber-cyan">•</span>
+                      <span class="text-white">Sisa: ${q.remaining}</span>
+                   </div>
+
+                   <div class="prog-track ml-1">
+                      <div class="prog-fill ${barBg}" style="width:${pct}%"></div>
+                   </div>
+                </div>
+              `;
+            });
+            subItemsHtml += `</div>`;
+
+            // CARD UTAMA
             const card = document.createElement('div');
-            card.className = "bg-white/5 rounded-xl p-4 mb-3 border border-white/5 hover:border-cyber-cyan transition-all";
-            card.innerHTML = `<div class="flex justify-between border-b border-white/10 pb-2 mb-2"><h4 class="font-bold text-sm text-cyber-cyan font-head tracking-wide">${p.name}</h4><div class="text-[9px] text-gray-400 font-code bg-black/40 px-2 py-0.5 rounded border border-white/10">${p.expiry}</div></div>${qHtml}`;
+            card.className = "bg-white/5 rounded-xl p-4 border border-white/5 hover:border-cyber-cyan transition-all";
+            card.innerHTML = `
+               <div class="flex justify-between items-start">
+                  <h4 class="font-bold text-sm text-cyber-cyan font-head w-2/3">${p.name}</h4>
+                  <span class="text-[9px] text-gray-400 bg-black/40 px-2 py-1 rounded border border-white/10">${p.expiry}</span>
+               </div>
+               ${subItemsHtml}
+            `;
             document.getElementById('paketContainer').appendChild(card);
           });
         } else {
             document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-600 font-code text-xs py-4">// TIDAK ADA PAKET //</div>`;
         }
 
-        // --- UPDATE UI TOTAL (2 DECIMAL) ---
         document.getElementById('totalQuota').innerText = totalAll.toFixed(2) + " GB";
         document.getElementById('sisaQuota').innerText = sisaAll.toFixed(2) + " GB";
         
@@ -312,12 +308,12 @@
       } catch (err) { showError(err.message); }
     });
 
+    // 2. IP LOGIC
     const handleIpCheck = async (url, title, type) => {
         showLoading("DETECTING...");
         try {
             const d = await fetchFresh(url); 
-            if(!d.success) throw new Error(d.message || "Gagal");
-            
+            if(!d.success) throw new Error("Gagal");
             const c = document.getElementById('ipContent');
             const flag = getFlagEmoji(d.country_code);
             const isp = d.connection?.isp || "-";
