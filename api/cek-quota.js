@@ -1,133 +1,120 @@
 // api/cek-quota.js
-// MODE: SIDOMPUL OFFICIAL (SAFE GUARDED)
+// MODE: DETECTIVE & DEBUGGER (Cari paket sampai dapat)
 
 export default async function handler(req, res) {
-  // --- A. SETUP CORS & ERROR HANDLING ---
+  // 1. HEADERS & SETUP
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
+  
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  // 2. CEK TOKEN
+  const ACCESS_TOKEN = process.env.XL_SIDOMPUL_TOKEN;
+  if (!ACCESS_TOKEN) return res.status(500).json({ success: false, message: 'Token Vercel Kosong' });
+
+  const { number } = req.body;
+  if (!number) return res.status(400).json({ error: 'Nomor wajib' });
+
+  let formattedNum = number.replace(/\D/g, '').replace(/^0/, '62');
+  if (formattedNum.startsWith('8')) formattedNum = '62' + formattedNum;
+
   try {
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') return res.status(200).end();
-    
-    // Validasi Method
-    if (req.method !== 'POST') {
-        throw new Error("Method not allowed (Gunakan POST)");
-    }
-
-    // --- B. CEK TOKEN VERCEL ---
-    // Pastikan Variable Environment terbaca
-    const ACCESS_TOKEN = process.env.XL_SIDOMPUL_TOKEN;
-    if (!ACCESS_TOKEN) {
-        throw new Error("SERVER CONFIG ERROR: Token Sidompul (XL_SIDOMPUL_TOKEN) belum disetting di Vercel.");
-    }
-
-    // --- C. CEK INPUT ---
-    const { number } = req.body || {};
-    if (!number) {
-        throw new Error("Nomor HP wajib diisi");
-    }
-
-    // Format Nomor
-    let formattedNum = number.replace(/\D/g, '');
-    if (formattedNum.startsWith('0')) formattedNum = '62' + formattedNum.substring(1);
-    else if (formattedNum.startsWith('8')) formattedNum = '62' + formattedNum;
-
-    console.log(`[SIDOMPUL] Processing: ${formattedNum}`);
-
-    // --- D. CEK KOMPATIBILITAS NODE.JS ---
-    if (typeof fetch === 'undefined') {
-        throw new Error("SERVER ERROR: Node.js Version terlalu lama. Mohon update ke Node 18.x di Settings Vercel.");
-    }
-
-    // --- E. REQUEST KE SIDOMPUL ---
-    const targetUrl = `https://srg-txl-utility-service.ext.dp.xl.co.id/v2/package/check/${formattedNum}`;
-
-    const response = await fetch(targetUrl, {
+    // 3. FETCH SIDOMPUL
+    const response = await fetch(`https://srg-txl-utility-service.ext.dp.xl.co.id/v2/package/check/${formattedNum}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${ACCESS_TOKEN}`,
             'language': 'en',
             'version': '4.1.2', 
-            'user-agent': 'okhttp/3.12.1', 
-            'accept': 'application/json',
-            'x-dynatrace': 'MT_3_1_763403741_16-0_a5734da2-0ecb-4c8d-8d21-b008aeec4733_0_396_167'
+            'content-type': 'application/json',
+            'accept': 'application/json'
         }
     });
 
-    // Cek Status HTTP
-    if (response.status === 401) {
-        throw new Error("Token Sidompul EXPIRED/SALAH. Ambil token baru di Termux & update di Vercel.");
-    }
-    
-    // Cek Content-Type Response (Mencegah Error < HTML)
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-        const text = await response.text();
-        console.error("Non-JSON Response from XL:", text);
-        throw new Error(`Server XL Error (Bukan JSON): ${response.status} ${response.statusText}`);
-    }
-
     const json = await response.json();
 
-    // Validasi Isi Data
-    if (!json.result || !json.result.data) {
-        throw new Error(json.statusDescription || "Gagal mengambil data (Nomor tidak ditemukan/salah).");
-    }
-
-    // --- F. PARSING DATA ---
+    // 4. LOGIKA PENCARIAN PAKET (REVISI BESAR)
     let finalPackages = [];
-    const rawData = json.result.data; 
-    let cardExp = "-";
+    let rawData = [];
 
-    if (Array.isArray(rawData)) {
-        if(rawData.length > 0) cardExp = rawData[0].expDate; 
+    // Cek berbagai kemungkinan posisi data
+    if (json.result && json.result.data) rawData = json.result.data;
+    else if (json.data) rawData = json.data;
+    
+    // Pastikan rawData adalah Array
+    if (!Array.isArray(rawData)) rawData = [rawData];
 
-        rawData.forEach(pkg => {
-            if (pkg.benefits && Array.isArray(pkg.benefits)) {
-                pkg.benefits.forEach(benefit => {
-                    finalPackages.push({
-                        name: `${pkg.name} - ${benefit.bname || benefit.name || 'DATA'}`, 
-                        total: benefit.quota,
-                        remaining: benefit.remaining, 
-                        exp_date: pkg.expDate,
-                        type: benefit.type
-                    });
-                });
-            } else {
+    // LOOPING DATA
+    rawData.forEach(pkg => {
+        // Cek 1: Ada di dalam 'benefits' (Standard Baru)
+        if (pkg.benefits && Array.isArray(pkg.benefits) && pkg.benefits.length > 0) {
+            pkg.benefits.forEach(b => {
                 finalPackages.push({
-                    name: pkg.name,
-                    total: "Unknown",
-                    remaining: "Active",
-                    exp_date: pkg.expDate
+                    name: `${pkg.name} - ${b.bname || b.name || 'DATA'}`,
+                    total: b.quota,
+                    remaining: b.remaining,
+                    exp_date: pkg.expDate,
+                    type: "DATA"
                 });
-            }
+            });
+        } 
+        // Cek 2: Ada di dalam 'detail' (Standard Lama)
+        else if (pkg.detail && Array.isArray(pkg.detail) && pkg.detail.length > 0) {
+             pkg.detail.forEach(d => {
+                finalPackages.push({
+                    name: `${pkg.name} - ${d.name || 'DATA'}`,
+                    total: d.quota || d.total,
+                    remaining: d.remaining,
+                    exp_date: pkg.expDate,
+                    type: "DATA"
+                });
+            });
+        }
+        // Cek 3: Paket Level Atas (Tanpa sub-detail)
+        else {
+             finalPackages.push({
+                name: pkg.name || "Unknown Package",
+                total: pkg.quota || pkg.total || "Unlimited",
+                remaining: pkg.remaining || "Active",
+                exp_date: pkg.expDate || "-",
+                type: "DATA"
+            });
+        }
+    });
+
+    // --- DEBUGGING CARD (JIKA PAKET TETAP KOSONG) ---
+    // Jika sistem gagal menemukan paket, kita akan paksa tampilkan data mentah
+    // agar kita bisa baca strukturnya lewat screenshot HP Anda.
+    if (finalPackages.length === 0 || (finalPackages.length === 1 && !finalPackages[0].name)) {
+        console.log("DEBUG RAW:", JSON.stringify(rawData)); // Log ke Vercel
+        
+        finalPackages.push({
+            name: "⚠️ DEBUG MODE (Screenshot Ini)",
+            total: "CEK",
+            // Kita ambil cuplikan JSON biar tahu nama variabelnya
+            remaining: JSON.stringify(rawData).slice(0, 150), 
+            exp_date: "DEBUG",
+            type: "INFO"
         });
     }
 
-    // SUCCESS
     return res.status(200).json({
         success: true,
-        source: 'OFFICIAL_SIDOMPUL',
+        source: 'SIDOMPUL_DEBUG',
         data: {
             subs_info: {
                 msisdn: formattedNum,
-                exp_date: cardExp,
-                card_type: "XL/AXIS (Official)",
-                net_type: "4G/LTE"
+                exp_date: rawData[0]?.expDate || "-",
+                card_type: "XL/AXIS",
+                net_type: "4G"
             },
             packages: finalPackages
         }
     });
 
   } catch (error) {
-    console.error("[CRITICAL ERROR]", error);
-    // Mengembalikan JSON Error agar tidak muncul "< Unexpected Token"
-    return res.status(500).json({ 
-        success: false, 
-        message: error.message || 'Internal Server Error',
-        debug: error.toString() 
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
 }
