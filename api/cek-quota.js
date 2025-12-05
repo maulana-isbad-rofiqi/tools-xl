@@ -1,38 +1,47 @@
 // api/cek-quota.js
-// MODE: SIDOMPUL OFFICIAL API (Direct Access)
+// MODE: SIDOMPUL OFFICIAL (SAFE GUARDED)
 
 export default async function handler(req, res) {
-  // 1. SETUP HEADERS (Agar bisa diakses dari web mana saja)
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-  // 2. AMBIL TOKEN RAHASIA DARI VERCEL
-  const ACCESS_TOKEN = process.env.XL_SIDOMPUL_TOKEN;
-  
-  if (!ACCESS_TOKEN) {
-      return res.status(500).json({ 
-          success: false, 
-          message: 'Token Sidompul belum dipasang di Settings Vercel (Variable: XL_SIDOMPUL_TOKEN).' 
-      });
-  }
-
-  const { number } = req.body;
-  if (!number) return res.status(400).json({ error: 'Nomor wajib diisi' });
-
-  // 3. FORMAT NOMOR (Auto 62)
-  let formattedNum = number.replace(/\D/g, '');
-  if (formattedNum.startsWith('0')) formattedNum = '62' + formattedNum.substring(1);
-  else if (formattedNum.startsWith('8')) formattedNum = '62' + formattedNum;
-
+  // --- A. SETUP CORS & ERROR HANDLING ---
   try {
-    console.log(`[SIDOMPUL] Mengecek Nomor: ${formattedNum}`);
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // 4. TEMBAK API RESMI SIDOMPUL
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    
+    // Validasi Method
+    if (req.method !== 'POST') {
+        throw new Error("Method not allowed (Gunakan POST)");
+    }
+
+    // --- B. CEK TOKEN VERCEL ---
+    // Pastikan Variable Environment terbaca
+    const ACCESS_TOKEN = process.env.XL_SIDOMPUL_TOKEN;
+    if (!ACCESS_TOKEN) {
+        throw new Error("SERVER CONFIG ERROR: Token Sidompul (XL_SIDOMPUL_TOKEN) belum disetting di Vercel.");
+    }
+
+    // --- C. CEK INPUT ---
+    const { number } = req.body || {};
+    if (!number) {
+        throw new Error("Nomor HP wajib diisi");
+    }
+
+    // Format Nomor
+    let formattedNum = number.replace(/\D/g, '');
+    if (formattedNum.startsWith('0')) formattedNum = '62' + formattedNum.substring(1);
+    else if (formattedNum.startsWith('8')) formattedNum = '62' + formattedNum;
+
+    console.log(`[SIDOMPUL] Processing: ${formattedNum}`);
+
+    // --- D. CEK KOMPATIBILITAS NODE.JS ---
+    if (typeof fetch === 'undefined') {
+        throw new Error("SERVER ERROR: Node.js Version terlalu lama. Mohon update ke Node 18.x di Settings Vercel.");
+    }
+
+    // --- E. REQUEST KE SIDOMPUL ---
     const targetUrl = `https://srg-txl-utility-service.ext.dp.xl.co.id/v2/package/check/${formattedNum}`;
 
     const response = await fetch(targetUrl, {
@@ -47,55 +56,57 @@ export default async function handler(req, res) {
         }
     });
 
+    // Cek Status HTTP
+    if (response.status === 401) {
+        throw new Error("Token Sidompul EXPIRED/SALAH. Ambil token baru di Termux & update di Vercel.");
+    }
+    
+    // Cek Content-Type Response (Mencegah Error < HTML)
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Non-JSON Response from XL:", text);
+        throw new Error(`Server XL Error (Bukan JSON): ${response.status} ${response.statusText}`);
+    }
+
     const json = await response.json();
 
-    // Cek jika Token Expired (Kode 401)
-    if (response.status === 401) {
-        throw new Error("Token Sidompul Kadaluarsa. Silakan ambil token baru lagi lewat Termux.");
+    // Validasi Isi Data
+    if (!json.result || !json.result.data) {
+        throw new Error(json.statusDescription || "Gagal mengambil data (Nomor tidak ditemukan/salah).");
     }
 
-    if (json.statusCode !== "200" || !json.result || !json.result.data) {
-        throw new Error(json.statusDescription || "Gagal mengambil data dari Sidompul (Mungkin nomor salah/hangus).");
-    }
-
-    // 5. PARSING DATA (Agar Rapi di Web)
+    // --- F. PARSING DATA ---
     let finalPackages = [];
     const rawData = json.result.data; 
-    
-    // Looping Paket Sidompul
+    let cardExp = "-";
+
     if (Array.isArray(rawData)) {
+        if(rawData.length > 0) cardExp = rawData[0].expDate; 
+
         rawData.forEach(pkg => {
-            const pkgName = pkg.name; 
-            const expDate = pkg.expDate;
-            
-            // Cek detail benefits (Kuota Utama vs Youtube/FB dll)
             if (pkg.benefits && Array.isArray(pkg.benefits)) {
                 pkg.benefits.forEach(benefit => {
                     finalPackages.push({
-                        name: `${pkgName} - ${benefit.bname || benefit.name || 'DATA'}`, 
-                        total: benefit.quota, // Asli dari server (misal "12 GB")
-                        remaining: benefit.remaining, // Asli dari server (misal "10.5 GB")
-                        exp_date: expDate,
+                        name: `${pkg.name} - ${benefit.bname || benefit.name || 'DATA'}`, 
+                        total: benefit.quota,
+                        remaining: benefit.remaining, 
+                        exp_date: pkg.expDate,
                         type: benefit.type
                     });
                 });
             } else {
-                // Jika paket simple tanpa detail
                 finalPackages.push({
-                    name: pkgName,
+                    name: pkg.name,
                     total: "Unknown",
                     remaining: "Active",
-                    exp_date: expDate
+                    exp_date: pkg.expDate
                 });
             }
         });
     }
 
-    // Info Kartu
-    let cardExp = "-";
-    // Sidompul kadang taruh info masa aktif di paket pertama
-    if(rawData.length > 0) cardExp = rawData[0].expDate; 
-
+    // SUCCESS
     return res.status(200).json({
         success: true,
         source: 'OFFICIAL_SIDOMPUL',
@@ -111,11 +122,12 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error("[SIDOMPUL ERROR]", error);
+    console.error("[CRITICAL ERROR]", error);
+    // Mengembalikan JSON Error agar tidak muncul "< Unexpected Token"
     return res.status(500).json({ 
         success: false, 
-        message: error.message || 'Terjadi kesalahan sistem.',
-        error: error.message 
+        message: error.message || 'Internal Server Error',
+        debug: error.toString() 
     });
   }
 }
