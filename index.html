@@ -39,6 +39,8 @@
     .cyber-grid { background-image: linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px); background-size: 40px 40px; position: fixed; inset: 0; z-index: -10; }
     .glass-panel { background: rgba(10, 15, 20, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
     .input-cyber:focus { border-color: #00f3ff; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
+    
+    /* TREE STYLE */
     .tree-line { border-left: 1px solid rgba(255, 255, 255, 0.15); margin-left: 6px; padding-left: 14px; }
     .tree-item { position: relative; margin-bottom: 12px; }
     .tree-item::before { content: '├'; position: absolute; left: -20px; top: 0; color: rgba(255, 255, 255, 0.3); font-family: monospace; font-size: 14px; }
@@ -199,9 +201,24 @@
         return val / 1024; 
     };
     const getFlagEmoji = (code) => code ? String.fromCodePoint(...code.toUpperCase().split('').map(c => 127397 + c.charCodeAt())) : '';
-    const fetchFresh = async (url) => {
-      const sep = url.includes('?') ? '&' : '?';
-      return (await fetch(`${url}${sep}_=${Date.now()}_${Math.random()}`, { cache: 'no-store' })).json();
+    
+    // --- MULTI-API IP CHECKER (SOLUSI DETEKSI VPN) ---
+    const getIpData = async () => {
+        // Coba API 1 (ipapi.co) - Paling Akurat untuk VPN
+        try {
+            const res = await fetch('https://ipapi.co/json/');
+            const d = await res.json();
+            return d;
+        } catch(e) { console.log('Fail API 1'); }
+
+        // Coba API 2 (ipwho.is) - Cadangan
+        try {
+            const res = await fetch('https://ipwho.is/');
+            const d = await res.json();
+            if(d.success) return d;
+        } catch(e) { console.log('Fail API 2'); }
+
+        throw new Error("Gagal deteksi IP. Matikan AdBlock.");
     }
 
     const showLoading = (msg) => {
@@ -249,24 +266,19 @@
         const checkVolte = (val) => {
             if (val === undefined || val === null) return false;
             const s = String(val).toLowerCase();
-            // Cek semua kemungkinan positif
             return ['1', 'true', 'yes', 'on', 'active', 'ok'].includes(s);
         };
 
         const vRaw = sub.volte || {};
-        // Kadang server kirim { device: 1 } atau { device: "true" } atau { device: "1" }
-        // Kita paksa konversi jadi boolean
         const vStat = {
-            hp: checkVolte(vRaw.device),
-            loc: checkVolte(vRaw.area),
-            card: checkVolte(vRaw.simcard)
+            hp: checkVolte(vRaw.device) || checkVolte(vRaw),
+            loc: checkVolte(vRaw.area) || checkVolte(vRaw),
+            card: checkVolte(vRaw.simcard) || checkVolte(vRaw)
         };
 
         const updateUi = (id, active) => {
             const el = document.getElementById(id);
-            // Jika tetap false (0), tulis TIDAK. Tapi logikanya sudah diperluas.
-            // Jika user bilang di HP aktif tapi disini TIDAK, berarti data server XL memang 0.
-            el.innerText = active ? 'SUPPORT' : 'TIDAK'; 
+            el.innerText = active ? 'SUPPORT' : 'TIDAK';
             el.className = active ? 'text-cyber-green font-bold' : 'text-cyber-red font-bold';
         };
         updateUi('vHp', vStat.hp);
@@ -340,11 +352,54 @@
       } catch (err) { showError(err.message); }
     });
 
+    // 2. IP LOGIC (MULTI-API)
     const handleIpCheck = async (url, title, type) => {
-        showLoading("DETECTING...");
+        showLoading("MENCARI LOKASI...");
         try {
-            const d = await fetchFresh(url); 
-            if(!d.success) throw new Error("Gagal");
+            // Gunakan fungsi getIpData untuk multi-api check
+            const d = await getIpData(); 
+            
+            const c = document.getElementById('ipContent');
+            const flag = getFlagEmoji(d.country_code);
+            const isp = d.org || d.connection?.isp || "-";
+            const mapUrl = `https://www.google.com/maps?q=${d.latitude},${d.longitude}`;
+            
+            c.innerHTML = `
+                <div class="bg-black/40 p-2 rounded border border-white/5 mb-2"><span class="text-gray-500 text-[10px] block">IP</span><span class="text-xl text-cyber-green font-bold">${d.ip}</span></div>
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                    <div class="bg-black/40 p-2 rounded border border-white/5"><span class="text-gray-500 text-[10px] block">ISP</span><span class="text-white text-xs">${isp}</span></div>
+                    <div class="bg-black/40 p-2 rounded border border-white/5"><span class="text-gray-500 text-[10px] block">NEGARA</span><span class="text-white text-lg">${flag} ${d.country_name || d.country}</span></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-black/40 p-2 rounded border border-white/5"><span class="text-gray-500 text-[10px] block">KOTA</span><span class="text-white text-xs">${d.city}</span></div>
+                    <div class="bg-black/40 p-2 rounded border border-white/5 flex items-center justify-center"><a href="${mapUrl}" target="_blank" class="text-cyber-cyan text-xs border border-cyber-cyan px-2 py-1 rounded">BUKA PETA</a></div>
+                </div>`;
+
+            lastTgMsg = `🔍 ${title}\nIP: ${d.ip}\nISP: ${isp}\nLoc: ${d.city}, ${d.country_name || d.country} ${flag}`;
+            const logMsg = `<b>🕵️‍♂️ AKTIVITAS PENGGUNA</b>\n• IP: <code>${visitorIP}</code>\n• Action: <b>${title}</b>\n• Result: <code>${d.ip}</code> (${d.country_name || d.country})`;
+            
+            document.getElementById('resultView').classList.remove('hidden');
+            document.getElementById('quotaResult').classList.add('hidden');
+            document.getElementById('ipResult').classList.remove('hidden');
+            document.getElementById('loading').classList.add('hidden');
+            sendLog(logMsg);
+        } catch(e) { showError("Gagal: " + e.message); }
+    }
+
+    document.getElementById('btnMyIP').addEventListener('click', () => handleIpCheck('', 'CEK MY IP', 'IP_CHECK'));
+    document.getElementById('btnToggleHost').addEventListener('click', () => document.getElementById('hostInputArea').classList.toggle('hidden'));
+    document.getElementById('btnCheckHostAction').addEventListener('click', async () => {
+        let host = document.getElementById('hostInput').value.trim().replace(/^https?:\/\//,'').split('/')[0];
+        if(!host) return alert('Masukkan Host');
+        try {
+            if(!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(host)) {
+                const dns = await (await fetch(`https://dns.google/resolve?name=${host}`)).json();
+                if(dns.Answer) host = dns.Answer.find(a=>a.type===1)?.data || host;
+            }
+            // Untuk host check, kita tetap pakai ipwho.is karena support parameter IP
+            const res = await fetch(`https://ipwho.is/${host}`);
+            const d = await res.json();
+            
             const c = document.getElementById('ipContent');
             const flag = getFlagEmoji(d.country_code);
             const isp = d.connection?.isp || "-";
@@ -360,29 +415,12 @@
                     <div class="bg-black/40 p-2 rounded border border-white/5"><span class="text-gray-500 text-[10px] block">KOTA</span><span class="text-white text-xs">${d.city}</span></div>
                     <div class="bg-black/40 p-2 rounded border border-white/5 flex items-center justify-center"><a href="${mapUrl}" target="_blank" class="text-cyber-cyan text-xs border border-cyber-cyan px-2 py-1 rounded">BUKA PETA</a></div>
                 </div>`;
-
-            lastTgMsg = `🔍 ${title}\nIP: ${d.ip}\nISP: ${isp}\nLoc: ${d.city}, ${d.country} ${flag}`;
-            const logMsg = `<b>🕵️‍♂️ AKTIVITAS PENGGUNA</b>\n• IP: <code>${visitorIP}</code>\n• Action: <b>${title}</b>\n• Result: <code>${d.ip}</code> (${d.country})`;
             
             document.getElementById('resultView').classList.remove('hidden');
             document.getElementById('quotaResult').classList.add('hidden');
             document.getElementById('ipResult').classList.remove('hidden');
             document.getElementById('loading').classList.add('hidden');
-            sendLog(logMsg);
-        } catch(e) { showError("Gagal: " + e.message); }
-    }
-
-    document.getElementById('btnMyIP').addEventListener('click', () => handleIpCheck('https://ipwho.is/', 'CEK MY IP', 'IP_CHECK'));
-    document.getElementById('btnToggleHost').addEventListener('click', () => document.getElementById('hostInputArea').classList.toggle('hidden'));
-    document.getElementById('btnCheckHostAction').addEventListener('click', async () => {
-        let host = document.getElementById('hostInput').value.trim().replace(/^https?:\/\//,'').split('/')[0];
-        if(!host) return alert('Masukkan Host');
-        try {
-            if(!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(host)) {
-                const dns = await (await fetch(`https://dns.google/resolve?name=${host}`)).json();
-                if(dns.Answer) host = dns.Answer.find(a=>a.type===1)?.data || host;
-            }
-            handleIpCheck(`https://ipwho.is/${host}`, `HOST: ${host}`, 'IP_HOST');
+            
         } catch(e) { showError("DNS Error"); }
     });
 
@@ -390,9 +428,9 @@
 
     window.addEventListener('load', async () => {
         try {
-            const d = await fetchFresh('https://ipwho.is/');
+            const d = await getIpData();
             visitorIP = d.ip;
-            sendLog(`<b>👤 PENGUNJUNG BARU</b>\n• IP: <code>${d.ip}</code>\n• ${d.city}, ${d.country} ${getFlagEmoji(d.country_code)}`);
+            sendLog(`<b>👤 PENGUNJUNG BARU</b>\n• IP: <code>${d.ip}</code>\n• ${d.city}, ${d.country_name || d.country} ${getFlagEmoji(d.country_code)}`);
         } catch(e){}
     });
   </script>
