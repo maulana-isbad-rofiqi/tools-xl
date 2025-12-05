@@ -1,3 +1,16 @@
 {
-  "type": "module"
+  "name": "xl-axis-tools",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node api/index.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.0.0"
+  },
+  
+  // --- TAMBAHKAN BAGIAN INI ---
+  "engines": {
+    "node": "18.x"
+  }
+  // ----------------------------
 }
