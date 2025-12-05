@@ -1,8 +1,8 @@
 // api/cek-quota.js
-// MODE: SIDOMPUL OFFICIAL (ANTI-403 & DEBUGGER)
+// MODE: QUADRUPLE FAILOVER (4 Server Pertahanan)
 
 export default async function handler(req, res) {
-  // 1. SETUP CORS
+  // 1. SETUP HEADERS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
@@ -11,137 +11,126 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // 2. AMBIL TOKEN & BERSIHKAN
-  let ACCESS_TOKEN = process.env.XL_SIDOMPUL_TOKEN || "";
-  // Hapus spasi/enter yang tidak sengaja ikut ter-copy
-  ACCESS_TOKEN = ACCESS_TOKEN.trim();
-
-  if (!ACCESS_TOKEN) {
-      return res.status(500).json({ success: false, message: 'Token Kosong di Vercel' });
-  }
-
   const { number } = req.body;
   if (!number) return res.status(400).json({ error: 'Nomor wajib diisi' });
 
-  // Format Nomor
+  // 2. FORMAT NOMOR
   let formattedNum = number.replace(/\D/g, '');
   if (formattedNum.startsWith('0')) formattedNum = '62' + formattedNum.substring(1);
   else if (formattedNum.startsWith('8')) formattedNum = '62' + formattedNum;
 
-  try {
-    // 3. LOG TOKEN (Untuk Cek di Vercel Logs)
-    // Kita log 5 huruf awal & akhir token untuk memastikan tokennya benar
-    const tokenPreview = `${ACCESS_TOKEN.substring(0, 5)}...${ACCESS_TOKEN.substring(ACCESS_TOKEN.length - 5)}`;
-    console.log(`[REQ] Nomor: ${formattedNum} | Token: ${tokenPreview}`);
-
-    // 4. REQUEST KE XL (HEADERS DIPERBAIKI)
-    const response = await fetch(`https://srg-txl-utility-service.ext.dp.xl.co.id/v2/package/check/${formattedNum}`, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${ACCESS_TOKEN}`,
-            'language': 'en',
-            'version': '4.1.2', 
-            'accept': 'application/json',
-            'user-agent': 'okhttp/3.12.1',
-            // Header x-dynatrace dihapus dulu karena kadang bikin 403 jika token beda sesi
-        }
-    });
-
-    // Cek Status
-    if (response.status === 403) {
-        throw new Error(`Akses Ditolak (403). Token mungkin kadaluarsa atau salah. Coba ambil token baru.`);
+  // 3. DAFTAR 4 SERVER JALUR TIKUS
+  // Sistem akan mencoba urut dari atas ke bawah.
+  const PROVIDERS = [
+    {
+      name: 'SERVER 1 (Nyxs)',
+      url: `https://api.nyxs.pw/tools/xl?no=${formattedNum}`
+    },
+    {
+      name: 'SERVER 2 (Wizz)',
+      url: `https://api.wizz.my.id/v1/xl/cek?no=${formattedNum}`
+    },
+    {
+      name: 'SERVER 3 (Star)',
+      url: `https://api.star-dev.my.id/api/xl-axis?no=${formattedNum}`
+    },
+    {
+      name: 'SERVER 4 (Bendith)',
+      url: `https://bendith.my.id/end.php?check=package&number=${formattedNum}&version=2`
     }
-    if (response.status === 401) {
-        throw new Error(`Token Salah/Expired (401). Silakan update token di Vercel.`);
-    }
+  ];
 
-    const json = await response.json();
+  // 4. EKSEKUSI (Coba satu per satu)
+  let lastError = null;
 
-    // 5. PARSING DATA (SUPER DETECTIVE)
-    let finalPackages = [];
-    let rawData = [];
-    let cardExp = "-";
-
-    // Cari data di berbagai posisi
-    if (json.result && json.result.data) rawData = json.result.data;
-    else if (json.data) rawData = json.data;
+  for (const provider of PROVIDERS) {
+    console.log(`[SYSTEM] Mencoba Jalur: ${provider.name}...`);
     
-    // Pastikan array
-    if (!Array.isArray(rawData)) rawData = (rawData ? [rawData] : []);
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 detik timeout
 
-    // Ambil masa aktif dari item pertama (jika ada)
-    if (rawData.length > 0 && rawData[0].expDate) cardExp = rawData[0].expDate;
-
-    rawData.forEach(pkg => {
-        // Cek Benefits (Format Baru)
-        if (pkg.benefits && Array.isArray(pkg.benefits) && pkg.benefits.length > 0) {
-            pkg.benefits.forEach(b => {
-                finalPackages.push({
-                    name: `${pkg.name} - ${b.bname || b.name || 'Kuota'}`,
-                    total: b.quota,
-                    remaining: b.remaining,
-                    exp_date: pkg.expDate,
-                    type: "DATA"
-                });
-            });
-        } 
-        // Cek Detail (Format Lama)
-        else if (pkg.detail && Array.isArray(pkg.detail) && pkg.detail.length > 0) {
-             pkg.detail.forEach(d => {
-                finalPackages.push({
-                    name: `${pkg.name} - ${d.name || 'Kuota'}`,
-                    total: d.quota || d.total,
-                    remaining: d.remaining,
-                    exp_date: pkg.expDate,
-                    type: "DATA"
-                });
-            });
+      const response = await fetch(provider.url, {
+        method: 'GET',
+        signal: controller.signal,
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36'
         }
-        // Paket Simple
-        else {
-             finalPackages.push({
-                name: pkg.name || "Unknown",
-                total: pkg.quota || pkg.total || "-",
-                remaining: pkg.remaining || "-",
-                exp_date: pkg.expDate || "-",
-                type: "DATA"
-            });
-        }
-    });
+      });
+      
+      clearTimeout(timeoutId);
 
-    // --- DEBUGGER: JIKA HASIL KOSONG ---
-    // Jika tidak nemu paket, kita kirim data mentahnya agar bisa dibaca di frontend
-    if (finalPackages.length === 0 && rawData.length > 0) {
-        finalPackages.push({
-            name: "⚠️ DEBUG DATA (Screenshot Ini)",
-            total: "RAW",
-            remaining: JSON.stringify(rawData).substring(0, 100), // Potong biar ga kepanjangan
-            exp_date: "DEBUG",
-            type: "INFO"
-        });
-    }
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      
+      const json = await response.json();
 
-    return res.status(200).json({
+      // Cek apakah sukses (Tiap API punya gaya beda-beda)
+      // Bendith/Nyxs pake .success atau .status
+      const isSuccess = json.success === true || json.status === true || json.status === 'true';
+      if (!isSuccess) throw new Error("Status API: Gagal/False");
+
+      // --- 5. UNIVERSAL PARSER (Cerdas Membaca Semua Format) ---
+      let finalPackages = [];
+      let finalInfo = { 
+          msisdn: formattedNum, 
+          exp_date: "Unknown", 
+          net_type: "4G/LTE",
+          card_type: "XL/AXIS"
+      };
+
+      // Cari Root Data (Bisa di .data, .result, atau root langsung)
+      const root = json.data || json.result || json;
+
+      if (root) {
+          // A. CARI PAKET (Mencoba menebak nama variabel array)
+          // Bendith -> data.packages / data.package
+          // Nyxs -> result.kuota
+          // Wizz -> data.packages
+          const possibleArrays = [root.packages, root.package, root.kuota, root.data, root.list, root.detail];
+          
+          for (const arr of possibleArrays) {
+              if (Array.isArray(arr) && arr.length > 0) {
+                  finalPackages = arr;
+                  break;
+              }
+          }
+
+          // B. CARI INFO KARTU
+          // Bendith punya sub-object 'subs_info'
+          if (root.subs_info) {
+              finalInfo.exp_date = root.subs_info.exp_date || "-";
+              finalInfo.msisdn = root.subs_info.msisdn || formattedNum;
+              finalInfo.card_type = root.subs_info.card_type || "XL/AXIS";
+          } 
+          // Nyxs/Wizz biasanya datar
+          else {
+              finalInfo.exp_date = root.masa_aktif || root.exp_date || root.activeUntil || "-";
+              finalInfo.net_type = root.network || root.tipe_kartu || "LTE";
+          }
+      }
+
+      console.log(`[BERHASIL] Data didapat dari ${provider.name}`);
+      
+      return res.status(200).json({
         success: true,
-        source: 'SIDOMPUL_FIX',
+        provider: provider.name,
         data: {
-            subs_info: {
-                msisdn: formattedNum,
-                exp_date: cardExp,
-                card_type: "XL/AXIS",
-                net_type: "4G"
-            },
+            subs_info: finalInfo,
             packages: finalPackages
         }
-    });
+      });
 
-  } catch (error) {
-    console.error("[API ERROR]", error);
-    // Kirim JSON Error (Jangan HTML)
-    return res.status(500).json({ 
-        success: false, 
-        message: error.message || 'Server Error',
-        debug_token: ACCESS_TOKEN ? "Token Ada" : "Token Kosong"
-    });
+    } catch (err) {
+      console.error(`[GAGAL] ${provider.name}: ${err.message}`);
+      lastError = err.message;
+      // Otomatis lanjut ke provider berikutnya...
+    }
   }
+
+  // Jika SEMUA (4 SERVER) MATI
+  return res.status(502).json({
+    success: false,
+    message: 'Semua Server (Nyxs, Wizz, Star, Bendith) Sedang Sibuk. Coba lagi nanti.',
+    debug_error: lastError
+  });
 }
