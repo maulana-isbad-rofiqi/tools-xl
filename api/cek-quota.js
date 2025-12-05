@@ -1,5 +1,5 @@
 // api/cek-quota.js
-// MODE: HARDCODED MULTI-PROVIDER (Anti-Ribet)
+// MODE: TRIPLE FAILOVER SYSTEM (Bendith -> Nyxs -> Wizz)
 
 export default async function handler(req, res) {
   // 1. SETUP HEADERS
@@ -14,27 +14,30 @@ export default async function handler(req, res) {
   const { number } = req.body;
   if (!number) return res.status(400).json({ error: 'Nomor wajib diisi' });
 
-  // 2. FORMAT NOMOR (Auto 62)
+  // 2. FORMAT NOMOR
   let formattedNum = number.replace(/\D/g, '');
   if (formattedNum.startsWith('0')) formattedNum = '62' + formattedNum.substring(1);
   else if (formattedNum.startsWith('8')) formattedNum = '62' + formattedNum;
 
   // =================================================================
-  // 🔰 DAFTAR API (LANGSUNG DI SINI)
-  // Sistem akan mencoba urut dari atas ke bawah.
+  // 🔰 3 LAPIS PERTAHANAN API
   // =================================================================
   const PROVIDERS = [
     {
-      name: 'PRIMARY (Nyxs)',
+      name: 'PRIMARY (Bendith)', 
+      url: `https://bendith.my.id/end.php?check=package&number=${formattedNum}&version=2`
+    },
+    {
+      name: 'BACKUP 1 (Nyxs)',
       url: `https://api.nyxs.pw/tools/xl?no=${formattedNum}`
     },
     {
-      name: 'BACKUP (Wizz)',
+      name: 'BACKUP 2 (Wizz)',
       url: `https://api.wizz.my.id/v1/xl/cek?no=${formattedNum}`
     }
   ];
 
-  // 3. EKSEKUSI (LOOPING PROVIDER)
+  // 3. EKSEKUSI LOOPING
   let lastError = null;
 
   for (const provider of PROVIDERS) {
@@ -60,15 +63,12 @@ export default async function handler(req, res) {
       
       const json = await response.json();
 
-      // Cek Indikator Sukses (Setiap API beda-beda flag-nya)
-      // Nyxs pakai .status (boolean/string), Wizz pakai .status (boolean)
-      const isSuccess = json.status === true || json.status === 'true' || json.success === true;
+      // Cek Indikator Sukses (Logic gabungan untuk semua jenis API)
+      const isSuccess = json.success === true || json.status === true || json.status === 'true';
       
       if (!isSuccess) throw new Error("API merespon tapi status Gagal/False");
 
-      // --- 4. UNIVERSAL PARSER (PENTING) ---
-      // Agar format output ke frontend SELALU SAMA, beda API beda struktur JSON.
-      
+      // --- 4. UNIVERSAL PARSER (Mencari paket di segala posisi) ---
       let finalPackages = [];
       let finalInfo = { msisdn: formattedNum, exp_date: "-", net_type: "LTE", card_type: "XL/AXIS" };
 
@@ -76,11 +76,12 @@ export default async function handler(req, res) {
       const root = json.data || json.result || json;
 
       if (root) {
-          // Cari Paket (Array)
-          // Nyxs -> root.kuota
-          // Wizz -> root.packages
-          // Umum -> root.list, root.detail
-          const possibleArrays = [root.packages, root.kuota, root.data, root.list];
+          // Cari Array Paket
+          // Bendith: root.packages / root.package
+          // Nyxs: root.kuota
+          // Wizz: root.packages
+          const possibleArrays = [root.packages, root.package, root.kuota, root.data, root.list, root.detail];
+          
           for (const arr of possibleArrays) {
               if (Array.isArray(arr) && arr.length > 0) {
                   finalPackages = arr;
@@ -89,17 +90,24 @@ export default async function handler(req, res) {
           }
 
           // Cari Info Kartu
-          finalInfo.exp_date = root.masa_aktif || root.exp_date || root.activeUntil || "Unknown";
-          finalInfo.net_type = root.network || root.tipe_kartu || "LTE";
-          finalInfo.card_type = root.tipe || "XL/AXIS";
+          // Bendith: root.subs_info
+          if (root.subs_info) {
+              finalInfo.exp_date = root.subs_info.exp_date || "-";
+              finalInfo.msisdn = root.subs_info.msisdn || formattedNum;
+              finalInfo.net_type = root.subs_info.net_type || "LTE";
+          } else {
+              // Nyxs/Wizz flat structure
+              finalInfo.exp_date = root.masa_aktif || root.exp_date || root.activeUntil || "-";
+              finalInfo.net_type = root.network || root.tipe_kartu || "LTE";
+          }
       }
 
-      // SUKSES! Kembalikan data ke Frontend
+      // SUKSES
       console.log(`[SUCCESS] Data didapat dari ${provider.name}`);
       
       return res.status(200).json({
         success: true,
-        provider: provider.name, // Info debug: kita pake provider mana
+        provider: provider.name,
         data: {
             subs_info: finalInfo,
             packages: finalPackages
@@ -113,10 +121,10 @@ export default async function handler(req, res) {
     }
   }
 
-  // Jika semua provider gagal
+  // Jika semua mati
   return res.status(502).json({
     success: false,
-    message: 'Semua Server Pusat Sedang Sibuk/Down.',
+    message: 'Semua Server (Bendith, Nyxs, Wizz) Sedang Sibuk.',
     error: lastError
   });
 }
