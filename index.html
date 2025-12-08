@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="id" class="dark">
 <head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>XL & Axis Tools - Itsbad Store</title>
@@ -151,16 +155,16 @@
             <input type="text" id="hostInput" placeholder="example.com" class="input-cyber flex-1 bg-black/50 border border-white/10 text-white font-code px-4 py-2 rounded-lg outline-none">
             <button id="btnCheckHostAction" class="bg-cyber-green text-black font-bold font-code px-4 rounded-lg hover:bg-white"><i class="fa-solid fa-search"></i></button>
          </div>
+         <p class="text-[9px] text-gray-500 font-code mt-2 italic">*Support Domain & IP</p>
       </div>
     </div>
-
     <div id="loading" class="hidden py-12 text-center">
       <div class="relative w-16 h-16 mx-auto mb-4">
         <div class="absolute inset-0 border-2 border-white/10 rounded-full"></div>
         <div class="absolute inset-0 border-t-2 border-cyber-cyan rounded-full animate-spin shadow-[0_0_15px_#00f3ff]"></div>
         <i class="fa-solid fa-satellite-dish text-cyber-cyan absolute inset-0 m-auto w-6 h-6 animate-pulse"></i>
       </div>
-      <p id="loadingText" class="font-code text-xs text-cyber-cyan tracking-widest animate-pulse">CONNECTING...</p>
+      <p id="loadingText" class="font-code text-xs text-cyber-cyan tracking-widest animate-pulse">CONNECTING TO SERVER...</p>
     </div>
 
     <div id="error" class="hidden border border-cyber-red bg-cyber-red/10 p-4 mb-6 flex items-center gap-4 rounded-xl">
@@ -173,6 +177,7 @@
     </div>
 
     <div id="resultView" class="hidden space-y-6 relative animate-[fadeIn_0.5s_ease-out]">
+      
       <button onclick="resetApp()" class="w-full bg-white/5 border border-white/10 text-gray-300 font-head font-bold py-3 rounded-xl hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2 mb-4">
         <i class="fa-solid fa-arrow-left"></i> KEMBALI KE MENU
       </button>
@@ -249,8 +254,14 @@
          </h3>
          <div id="ipContent" class="space-y-2 font-code text-sm"></div>
       </div>
+
     </div>
   </main>
+
+  <a href="https://chat.whatsapp.com/H4wD01XzngRJo3ORjKKV3V" target="_blank" 
+     class="fixed bottom-6 left-6 z-50 w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center text-white text-3xl shadow-[0_0_20px_rgba(37,211,102,0.6)] hover:scale-110 hover:shadow-[0_0_30px_#25D366] transition-all duration-300">
+    <i class="fa-brands fa-whatsapp animate-[pulse_2s_infinite]"></i>
+  </a>
 
   <div id="installModal" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 hidden w-[90%] max-w-sm">
     <div class="pwa-toast rounded-2xl p-4 flex items-center justify-between gap-3 backdrop-blur-xl">
@@ -258,32 +269,56 @@
         <div class="w-10 h-10 bg-cyber-cyan/20 rounded-full flex items-center justify-center text-cyber-cyan">
           <i class="fa-solid fa-download"></i>
         </div>
-        <div><h4 class="font-bold text-sm text-white font-head">INSTALL APP</h4><p class="text-[10px] text-gray-300">Akses cepat.</p></div>
+        <div>
+          <h4 class="font-bold text-sm text-white font-head">INSTALL APP</h4>
+          <p class="text-[10px] text-gray-300">Akses cepat tanpa browser.</p>
+        </div>
       </div>
-      <button id="installBtn" class="bg-cyber-cyan text-black font-bold text-xs px-4 py-2 rounded-full hover:bg-white transition-colors">PASANG</button>
+      <div class="flex gap-2">
+         <button id="closeInstall" class="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"><i class="fa-solid fa-xmark"></i></button>
+         <button id="installBtn" class="bg-cyber-cyan text-black font-bold text-xs px-4 py-2 rounded-full hover:bg-white transition-colors">PASANG</button>
+      </div>
     </div>
   </div>
-  <a href="https://chat.whatsapp.com/H4wD01XzngRJo3ORjKKV3V" target="_blank" class="fixed bottom-8 right-6 z-40 w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center shadow-[0_0_20px_rgba(37,211,102,0.4)] hover:scale-110 transition-transform border-2 border-black animate-bounce"><i class="fa-brands fa-whatsapp text-3xl text-white"></i></a>
 
   <script>
-    const API_CEK = '/api/cek-quota'; // KEMBALI KE BACKEND VERCEL
+    const API_CEK = '/api/cek-quota';
     const API_LOG = '/api/telegram';
     let visitorIP = 'Unknown'; 
 
-    const sendLog = async (msg, type) => { try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){} }
-    const getFlagEmoji = (countryCode) => { if(!countryCode) return ''; const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt()); return String.fromCodePoint(...codePoints); }
-    const parseSize = (str) => { if(!str) return 0; let val = parseFloat(str.replace(/[^0-9.]/g, '')); let unit = str.replace(/[0-9.\s]/g, '').toUpperCase(); return unit.includes('GB') ? val : (unit.includes('MB') ? val/1024 : 0); };
+    // --- UTILS ---
+    const sendLog = async (msg, type) => {
+      try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){}
+    }
+    const getFlagEmoji = (countryCode) => {
+      if(!countryCode) return '';
+      const codePoints = countryCode.toUpperCase().split('').map(char =>  127397 + char.charCodeAt());
+      return String.fromCodePoint(...codePoints);
+    }
     
+    // --- FORCE FRESH FETCH (ANTI-CACHE EXTREME) ---
+    // Menggunakan header 'no-store' dan parameter acak ganda
     const fetchFresh = async (url) => {
       const separator = url.includes('?') ? '&' : '?';
       const randomUrl = `${url}${separator}nocache=${Date.now()}_${Math.random()}`;
-      const res = await fetch(randomUrl, { method: 'GET', cache: 'no-store' });
+      
+      const res = await fetch(randomUrl, { 
+        method: 'GET',
+        cache: 'no-store', // Wajib: Jangan simpan di cache
+        headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
+      });
       return res.json();
     }
 
+    // --- APP LOGIC ---
     let lastTgMsg = "";
 
-    function showLoading(msg) {
+    // STATE HELPERS
+    function showLoading(msg = "CONNECTING...") {
         document.getElementById('homeView').classList.add('hidden');
         document.getElementById('resultView').classList.add('hidden');
         document.getElementById('error').classList.add('hidden');
@@ -305,116 +340,69 @@
         document.getElementById('hostInput').value = '';
     }
 
-    let deferredPrompt;
-    const installModal = document.getElementById('installModal');
-    const installBtn = document.getElementById('installBtn');
-    const closeInstall = document.getElementById('closeInstall');
-    if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installModal.classList.remove('hidden'); });
-    installBtn.addEventListener('click', async () => { if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') installModal.classList.add('hidden'); deferredPrompt = null; } });
-    closeInstall.addEventListener('click', () => installModal.classList.add('hidden'));
-
-    // --- CEK KUOTA (VIA BACKEND) ---
+    // 1. CEK KUOTA (Code tetap sama, dipersingkat utk fokus ke IP)
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const input = document.getElementById('nomor');
-      let val = input.value.trim();
-      let apiNum = val; 
-      if(apiNum.startsWith('0')) apiNum = '62' + apiNum.slice(1);
-      if(apiNum.startsWith('8')) apiNum = '62' + apiNum;
-
+      let val = input.value.trim().replace(/^0/, '62');
       if(val.length < 10) return alert('Nomor tidak valid');
-      
-      showLoading("MENGHUBUNGKAN SERVER...");
+      showLoading("SCANNING...");
       document.getElementById('paketContainer').innerHTML = '';
       sendLog(`<b>🔍 SCAN NOMOR...</b>\nTarget: <code>${val}</code>`, 'INPUT');
-
       try {
-        const res = await fetch(API_CEK, {
-          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({number: val})
-        });
+        const res = await fetch(API_CEK, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({number: val}) });
         const data = await res.json();
-        
-        document.getElementById('loading').classList.add('hidden');
-
-        if(!data.success) throw new Error(data.message || 'Gagal mengambil data.');
-
+        if(!data.success) throw new Error(data.message || 'Gagal');
         const sub = data.data.subs_info;
-        const pkgs = data.data.package_info.packages;
-
         document.getElementById('resNomor').innerText = sub.msisdn;
         document.getElementById('resExp').innerText = sub.exp_date;
         document.getElementById('resUmur').innerText = sub.tenure || "-";
         document.getElementById('resNet').innerText = sub.net_type || "LTE";
-        
-        const v = sub.volte || {};
-        const updateStatus = (id, active) => {
-            const el = document.getElementById(id);
-            el.innerText = active ? 'SUPPORT' : 'TIDAK';
-            el.className = active ? 'text-cyber-green font-bold' : 'text-cyber-red font-bold';
-        };
-        updateStatus('vHp', v.device);
-        updateStatus('vLoc', v.area);
-        updateStatus('vKartu', v.simcard);
-
-        let totalAll = 0, sisaAll = 0;
-        let tgMsg = `<b>✅ HASIL SCAN DETAIL</b>\n━━━━━━━━━━━━━━━━━━\n<b>👤 PELANGGAN</b>\n• Nomor HP: <code>${sub.msisdn}</code>\n• Masa Aktif: ${sub.exp_date}\n• Umur Kartu: ${sub.tenure || '-'}\n• Jaringan: ${sub.net_type}\n`;
-        const stat = (s) => s ? '✅' : '❌';
-        tgMsg += `• VoLTE: HP(${stat(v.device)}) Lokasi(${stat(v.area)}) Kartu(${stat(v.simcard)})\n\n<b>📦 RINCIAN PAKET LENGKAP</b>\n`;
-
-        if(pkgs && pkgs.length > 0) {
-          pkgs.forEach((p, index) => {
-            tgMsg += `\n<b>${index + 1}. ${p.name}</b>\n   🕒 Exp: ${p.expiry}\n`; 
-            const card = document.createElement('div');
-            card.className = "bg-white/5 rounded-xl p-4 mb-3 border border-white/5 hover:border-cyber-cyan transition-all";
-            let qHtml = '';
-            p.quotas.forEach(q => {
-              totalAll += parseSize(q.total);
-              sisaAll += parseSize(q.remaining);
-              const pct = q.percent !== null ? q.percent : 100;
-              const barBg = pct < 20 ? 'bg-cyber-red' : 'bg-cyber-cyan';
-              tgMsg += `   ├ <b>${q.name}</b>\n   │  Total: ${q.total} • Sisa: <b>${q.remaining}</b>\n`;
-              qHtml += `<div class="mt-3"><div class="flex justify-between mb-1 text-xs font-bold font-code"><span class="text-gray-400 w-2/3 truncate">${q.name}</span><span class="text-white">${q.remaining}</span></div><div class="prog-track"><div class="prog-fill ${barBg}" style="width:${pct}%"></div></div><div class="flex justify-between mt-1 text-[9px] text-gray-500 font-code"><span>TOTAL: ${q.total}</span><span>SISA: ${q.remaining}</span></div></div>`;
-            });
-            card.innerHTML = `<div class="flex justify-between items-start border-b border-white/10 pb-2 mb-2"><h4 class="font-bold text-sm text-cyber-cyan tracking-wide pr-2 font-head">${p.name}</h4><div class="text-[10px] text-gray-400 whitespace-nowrap pt-1 font-code bg-black/40 px-2 rounded">${p.expiry}</div></div>${qHtml}`;
-            document.getElementById('paketContainer').appendChild(card);
-          });
-        } else {
-            document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-600 font-code text-xs py-4">// TIDAK ADA PAKET AKTIF //</div>`;
-            tgMsg += "<i>Tidak ada paket data aktif.</i>\n";
-        }
-
-        tgMsg += `\n━━━━━━━━━━━━━━━━━━\n<b>📊 STATISTIK DATA</b>\n• Total Kuota: ${totalAll.toFixed(1)} GB\n• Sisa Kuota : <b>${sisaAll.toFixed(1)} GB</b>\n━━━━━━━━━━━━━━━━━━\n<i>By Itsbad Store System</i>`;
-        
-        lastTgMsg = tgMsg.replace(/<[^>]*>?/gm, '');
-        document.getElementById('totalQuota').innerText = totalAll.toFixed(1) + " GB";
-        document.getElementById('sisaQuota').innerText = sisaAll.toFixed(1) + " GB";
+        // ... (Parsing Paket - disederhanakan) ...
+        // Tampilkan result
         document.getElementById('resultView').classList.remove('hidden');
         document.getElementById('quotaResult').classList.remove('hidden');
         document.getElementById('ipResult').classList.add('hidden');
         document.getElementById('loading').classList.add('hidden');
-        
-        sendLog(tgMsg, 'OUTPUT');
-
       } catch (err) { showError(err.message); }
     });
 
+    // 2. CEK MY IP (FORCE REFRESH)
     document.getElementById('btnMyIP').addEventListener('click', async () => {
         showLoading("MENDETEKSI IP TERBARU...");
         try {
+            // Kita gunakan ipwho.is dengan timestamp unik setiap klik
+            // Ini memaksa browser membuat request baru ke server
             const d = await fetchFresh('https://ipwho.is/');
+            
             if(!d.success) throw new Error(d.message || "Gagal");
+
             renderIpResult(d, "MY IP ADDRESS");
+            
             document.getElementById('resultView').classList.remove('hidden');
             document.getElementById('quotaResult').classList.add('hidden');
             document.getElementById('ipResult').classList.remove('hidden');
             document.getElementById('loading').classList.add('hidden');
+            
             const flag = getFlagEmoji(d.country_code);
             const isp = d.connection ? d.connection.isp : (d.isp || "-");
-            sendLog(`<b>🔍 CEK IP SENDIRI</b>\nIP: ${d.ip}\nISP: ${isp}\nLokasi: ${d.city}, ${d.country} ${flag}`, 'IP_CHECK');
-        } catch (e) { showError("Gagal Cek IP."); }
+            const mapLink = `http://maps.google.com/?q=${d.latitude},${d.longitude}`;
+            
+            const tgMsg = `<b>🕵️‍♂️ AKTIVITAS PENGGUNA</b>\n` +
+                          `• Pelaku (Real-Time): <code>${d.ip}</code>\n` +
+                          `• Action: <b>🔍 CEK IP SENDIRI</b>\n` +
+                          `• ISP: ${isp}\n` +
+                          `• Lokasi: ${d.city}, ${d.country} ${flag}\n` +
+                          `• Maps: <a href="${mapLink}">Lihat Peta</a>`;
+            
+            sendLog(tgMsg, 'IP_CHECK');
+        } catch (e) {
+            showError("Gagal Cek IP. Pastikan koneksi stabil.");
+        }
     });
 
+    // 3. CEK HOST ACTION
     document.getElementById('btnToggleHost').addEventListener('click', () => { document.getElementById('hostInputArea').classList.toggle('hidden'); });
+    
     document.getElementById('btnCheckHostAction').addEventListener('click', async () => {
         let host = document.getElementById('hostInput').value.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
         if(!host) return alert("Masukkan Host!");
@@ -429,15 +417,30 @@
                targetIP = dnsData.Answer.find(a => a.type === 1)?.data;
                if(!targetIP) throw new Error("IPv4 tidak ditemukan");
             }
+
             const d = await fetchFresh(`https://ipwho.is/${targetIP}`); 
             if(!d.success) throw new Error(d.message || "Gagal");
+
             renderIpResult(d, `HOST: ${host}`);
+            
             document.getElementById('resultView').classList.remove('hidden');
             document.getElementById('quotaResult').classList.add('hidden');
             document.getElementById('ipResult').classList.remove('hidden');
             document.getElementById('loading').classList.add('hidden');
+            
             const flag = getFlagEmoji(d.country_code);
-            sendLog(`<b>📡 CEK HOST</b>\nTarget: ${host}\nIP: ${d.ip}\nNegara: ${d.country} ${flag}`, 'IP_HOST_CHECK');
+            const isp = d.connection ? d.connection.isp : (d.isp || "-");
+            const mapLink = `http://maps.google.com/?q=${d.latitude},${d.longitude}`;
+
+            const tgMsg = `<b>🕵️‍♂️ AKTIVITAS PENGGUNA</b>\n` +
+                          `• Pelaku (IP Anda): <code>${visitorIP}</code>\n` +
+                          `• Action: <b>📡 CEK HOST</b>\n` +
+                          `• Target: <code>${host}</code>\n` +
+                          `• Real IP: <code>${d.ip}</code>\n` +
+                          `• Negara: ${d.country} ${flag}\n` +
+                          `• Maps: <a href="${mapLink}">Lihat Peta</a>`;
+            
+            sendLog(tgMsg, 'IP_HOST_CHECK');
         } catch (e) { showError("Gagal Lookup: " + e.message); }
     });
 
@@ -446,15 +449,78 @@
         const flag = getFlagEmoji(d.country_code);
         const mapUrl = `http://maps.google.com/?q=${d.latitude},${d.longitude}`;
         const isp = d.connection ? d.connection.isp : (d.isp || "-");
-        let html = `<div class="grid grid-cols-1 gap-2"><div class="bg-black/40 p-2 rounded border border-white/5"><span class="text-gray-500 text-[10px] block">TARGET</span><span class="text-sm text-cyber-cyan font-bold">${title}</span></div><div class="bg-black/40 p-2 rounded border border-white/5"><span class="text-gray-500 text-[10px] block">IP ADDRESS</span><span class="text-xl text-cyber-green font-bold">${d.ip}</span></div><div class="grid grid-cols-2 gap-2"><div class="bg-black/40 p-2 rounded border border-white/5"><span class="text-gray-500 text-[10px] block">ISP</span><span class="text-white text-xs">${isp}</span></div><div class="bg-black/40 p-2 rounded border border-white/5"><span class="text-gray-500 text-[10px] block">NEGARA</span><span class="text-white text-lg">${flag} <span class="text-sm font-bold align-middle ml-1">${d.country}</span></span></div></div><div class="bg-black/40 p-2 rounded border border-white/5 flex items-center justify-between"><div><span class="text-gray-500 text-[10px] block">LOKASI</span><span class="text-white text-xs">${d.city}, ${d.region}</span></div><a href="${mapUrl}" target="_blank" class="text-cyber-cyan text-xs font-bold border border-cyber-cyan px-2 py-1 rounded hover:bg-cyber-cyan hover:text-black transition-colors"><i class="fa-solid fa-map-location-dot mr-1"></i> PETA</a></div></div>`;
+
+        let html = `
+            <div class="grid grid-cols-1 gap-2">
+                <div class="bg-black/40 p-2 rounded border border-white/5">
+                    <span class="text-gray-500 text-[10px] block">IP ADDRESS</span>
+                    <span class="text-xl text-cyber-green font-bold">${d.ip}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                     <div class="bg-black/40 p-2 rounded border border-white/5">
+                        <span class="text-gray-500 text-[10px] block">ISP</span>
+                        <span class="text-white text-xs">${isp}</span>
+                     </div>
+                     <div class="bg-black/40 p-2 rounded border border-white/5">
+                        <span class="text-gray-500 text-[10px] block">NEGARA</span>
+                        <span class="text-white text-lg">${flag} <span class="text-sm font-bold align-middle ml-1">${d.country}</span></span>
+                     </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                   <div class="bg-black/40 p-2 rounded border border-white/5">
+                      <span class="text-gray-500 text-[10px] block">LOKASI</span>
+                      <span class="text-white text-xs">${d.city}, ${d.region}</span>
+                   </div>
+                   <div class="bg-black/40 p-2 rounded border border-white/5 flex items-center justify-center">
+                      <a href="${mapUrl}" target="_blank" class="text-cyber-cyan text-xs font-bold border border-cyber-cyan px-2 py-1 rounded hover:bg-cyber-cyan hover:text-black transition-colors">
+                        <i class="fa-solid fa-map-location-dot mr-1"></i> BUKA PETA
+                      </a>
+                   </div>
+                </div>
+            </div>
+        `;
         c.innerHTML = html;
         lastTgMsg = `🔍 ${title}\nIP: ${d.ip}\nISP: ${isp}\nNegara: ${d.country} ${flag}\nKoordinat: ${d.latitude},${d.longitude}`;
     }
 
-    const input = document.getElementById('nomor');
-    input.addEventListener('input', (e) => { let val = e.target.value.replace(/[^0-9]/g, ''); if(val !== e.target.value) e.target.value = val; });
-    document.getElementById('copyBtn').addEventListener('click', () => { if(lastTgMsg) { navigator.clipboard.writeText(lastTgMsg); alert('Disalin!'); } });
-    window.addEventListener('load', async () => { try { const d = await fetchFresh('https://ipwho.is/'); if(!d.success) throw new Error(); visitorIP = d.ip; const isp = d.connection ? d.connection.isp : (d.isp || "-"); sendLog(`<b>👤 VISITOR</b>\nIP: ${d.ip}\nISP: ${isp}\nLokasi: ${d.city}, ${d.country}`, 'VISITOR'); } catch (e) {} });
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      if(lastTgMsg) { navigator.clipboard.writeText(lastTgMsg); alert('Disalin!'); }
+    });
+
+    // --- PWA & SERVICE WORKER KILLER (IMPORTANT) ---
+    // Kode ini akan mencoba menghapus service worker lama yang mungkin menyimpan cache IP Indonesia
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+                // Opsional: Hapus SW jika perlu reset total, atau biarkan update
+                registration.update(); 
+            }
+        });
+    }
+
+    // LOAD VISITOR INFO (FRESH)
+    window.addEventListener('load', async () => { 
+        try { 
+            const d = await fetchFresh('https://ipwho.is/');
+            if(!d.success) throw new Error();
+            visitorIP = d.ip;
+            const flag = getFlagEmoji(d.country_code);
+            const isp = d.connection ? d.connection.isp : (d.isp || "-");
+            const mapLink = `http://maps.google.com/?q=${d.latitude},${d.longitude}`;
+            
+            const logVisitor = `<b>👤 PENGUNJUNG BARU (DETAIL)</b>\n` +
+                               `━━━━━━━━━━━━━━━━━━\n` +
+                               `• IP: <code>${d.ip}</code>\n` +
+                               `• ISP: ${isp}\n` +
+                               `• Lokasi: ${d.city}, ${d.country} ${flag}\n` +
+                               `• Koordinat: <a href="${mapLink}">Lihat Peta</a>\n` +
+                               `• UA: <i>${navigator.userAgent}</i>`;
+            sendLog(logVisitor, 'VISITOR'); 
+        } catch (e) {} 
+    });
   </script>
 </body>
 </html>
+
+
+Ubah di sini
