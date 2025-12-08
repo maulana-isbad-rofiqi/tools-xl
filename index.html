@@ -35,8 +35,7 @@
               cyan: '#00f3ff', 
               green: '#00ff9d',
               red: '#ff003c',
-              dim: 'rgba(0, 243, 255, 0.1)',
-              purple: '#bc13fe'
+              dim: 'rgba(0, 243, 255, 0.1)'
             }
           },
           animation: {
@@ -98,12 +97,10 @@
         </div>
         <h1 class="font-head font-bold text-lg tracking-widest text-white">XL-AXIS <span class="text-cyber-cyan">TOOLS</span></h1>
       </div>
-      
-      <a href="https://chat.whatsapp.com/H4wD01XzngRJo3ORjKKV3V" target="_blank" 
-         class="flex items-center gap-2 bg-cyber-red/10 border border-cyber-red/50 px-3 py-1.5 rounded-lg hover:bg-cyber-red group transition-all duration-300">
-        <i class="fa-solid fa-fire text-cyber-red text-xs group-hover:text-white animate-pulse"></i>
-        <span class="text-[10px] font-head font-bold text-cyber-red tracking-wider group-hover:text-white">PAKET MURAH</span>
-      </a>
+      <div class="flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-cyber-green animate-pulse"></span>
+        <span class="text-[10px] font-code text-cyber-green tracking-widest">ONLINE</span>
+      </div>
     </div>
   </header>
 
@@ -134,29 +131,7 @@
       </div>
 
       <div class="grid grid-cols-2 gap-4">
-        <button id="btnMyIP" class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-cyber-purple transition-all group active:scale-95">
-           <div class="w-10 h-10 rounded-full bg-cyber-purple/20 flex items-center justify-center border border-cyber-purple group-hover:shadow-[0_0_15px_#bc13fe]">
-             <i class="fa-solid fa-globe text-cyber-purple"></i>
-           </div>
-           <span class="font-head font-bold text-sm tracking-wide">CEK MY IP</span>
-        </button>
-
-        <button id="btnToggleHost" class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-cyber-green transition-all group active:scale-95">
-           <div class="w-10 h-10 rounded-full bg-cyber-green/20 flex items-center justify-center border border-cyber-green group-hover:shadow-[0_0_15px_#00ff9d]">
-             <i class="fa-solid fa-server text-cyber-green"></i>
-           </div>
-           <span class="font-head font-bold text-sm tracking-wide">CEK IP HOST</span>
-        </button>
-      </div>
-
-      <div id="hostInputArea" class="hidden mt-4 glass-panel p-4 rounded-xl animate-[fadeIn_0.3s]">
-         <label class="block text-cyber-green text-[10px] font-code mb-2 tracking-widest">DOMAIN / IP ADDRESS</label>
-         <div class="flex gap-2">
-            <input type="text" id="hostInput" placeholder="example.com" class="input-cyber flex-1 bg-black/50 border border-white/10 text-white font-code px-4 py-2 rounded-lg outline-none">
-            <button id="btnCheckHostAction" class="bg-cyber-green text-black font-bold font-code px-4 rounded-lg hover:bg-white"><i class="fa-solid fa-search"></i></button>
-         </div>
-         <p class="text-[9px] text-gray-500 font-code mt-2 italic">*Support Domain & IP</p>
-      </div>
+        </div>
     </div>
 
     <div id="loading" class="hidden py-12 text-center">
@@ -167,7 +142,7 @@
       </div>
       <p class="font-head text-sm text-white font-bold tracking-widest mb-1">MENGHUBUNGKAN...</p>
       <div class="inline-block bg-cyber-dim border border-cyber-cyan px-3 py-1 rounded mt-2">
-         <p id="proxyStatus" class="font-code text-[10px] text-cyber-cyan animate-pulse-fast">Menyiapkan Proxy Army...</p>
+         <p id="proxyStatus" class="font-code text-[10px] text-cyber-cyan animate-pulse-fast">Mencari Jalur Terbaik...</p>
       </div>
     </div>
 
@@ -250,13 +225,6 @@
           <div id="paketContainer" class="space-y-3"></div>
         </div>
       </div>
-
-      <div id="ipResult" class="hidden glass-panel p-6 rounded-xl border-t-2 border-t-cyber-purple relative overflow-hidden">
-         <h3 class="font-head font-bold text-lg text-cyber-purple mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-network-wired"></i> INFORMASI IP / HOST
-         </h3>
-         <div id="ipContent" class="space-y-2 font-code text-sm"></div>
-      </div>
     </div>
   </main>
 
@@ -275,99 +243,107 @@
 
   <script>
     const API_LOG = '/api/telegram';
-    let visitorIP = 'Unknown'; 
-
-    // --- MASSIVE PROXY LIST (THE ARMY - 30+ JALUR) ---
-    // Sistem akan mencoba satu per satu sampai berhasil menembus
+    
+    // --- MASSIVE PROXY LIST (THE HORDE) ---
+    // Logika: Jika 1 gagal, otomatis coba berikutnya sampai sukses.
     const TARGET_BASE = "https://sidompul.kuncung.qzz.io/?number=";
+    
+    // Daftar Prefix Proxy (25+ Jalur)
     const PROXY_ARMY = [
-        "https://corsproxy.io/?",
-        "https://api.allorigins.win/raw?url=",
-        "https://thingproxy.freeboard.io/fetch/",
-        "https://api.codetabs.com/v1/proxy?quest=",
-        "https://cors.bridged.cc/",
-        "https://api.cors.lol/?url=",
-        "https://test.cors.workers.dev/?",
-        "https://cors-get-proxy.sirjosh.workers.dev/?url=",
-        "https://yacdn.org/proxy/",
-        "https://crossorigin.me/",
-        "https://cors.sh/",
-        "https://nl.cors-proxy.net/url=",
-        "https://cors-anywhere.herokuapp.com/", 
-        // --- Mirror & Backup ---
-        "https://corsproxy.io/?", // Ulangi yang paling stabil
-        "https://api.allorigins.win/raw?url=",
-        "https://thingproxy.freeboard.io/fetch/",
-        "https://kp-cors-proxy.herokuapp.com/",
-        "https://cors.eu.org/",
-        "https://cors-anywhere-eu.herokuapp.com/",
-        "https://proxy.cors.sh/",
-        "https://cors.127.0.0.1.nip.io/",
-        "https://simple-cors-proxy.herokuapp.com/",
-        // --- Coba Langsung (Terakhir) ---
-        "" 
+      "https://corsproxy.io/?",
+      "https://api.allorigins.win/raw?url=",
+      "https://thingproxy.freeboard.io/fetch/",
+      "https://cors-anywhere.herokuapp.com/",
+      "https://api.codetabs.com/v1/proxy?quest=",
+      "https://cors.bridged.cc/",
+      "https://api.cors.lol/?url=",
+      "https://cors-proxy.htmldriven.com/?url=",
+      "https://test.cors.workers.dev/?url=",
+      "https://cors-get-proxy.sirjosh.workers.dev/?url=",
+      "https://yacdn.org/proxy/",
+      "https://crossorigin.me/",
+      "https://cors.sh/",
+      "https://nl.cors-proxy.net/url=",
+      "https://corsproxy.io/?",
+      "https://api.allorigins.win/raw?url=",
+      "https://thingproxy.freeboard.io/fetch/",
+      "https://kp-cors-proxy.herokuapp.com/",
+      "https://cors.eu.org/",
+      "https://cors-anywhere-eu.herokuapp.com/",
+      "https://proxy.cors.sh/",
+      "https://cors.127.0.0.1.nip.io/",
+      "https://simple-cors-proxy.herokuapp.com/",
+      "https://whateverorigin.org/get?url=",
+      "http://anyorigin.com/get?url=",
+      "https://jsonp.afeld.me/?url=",
+      "https://cors.io/?",
+      "https://cors.x2u.in/",
+      "https://cors.lol/",
+      "https://cors-anywhere.glitch.me/",
+      "https://gobetween.oklabs.org/",
+      "https://corsproxy.github.io/",
+      "https://corsfix.com/",
+      "https://corsproxy.io/?",
+      "https://api.allorigins.win/raw?url=",
+      "https://thingproxy.freeboard.io/fetch/",
+      "https://cors-anywhere.herokuapp.com/",
+      "https://api.codetabs.com/v1/proxy?quest=",
+      "https://cors.bridged.cc/",
+      "https://api.cors.lol/?url=",
+      "https://cors-proxy.htmldriven.com/?url=",
+      "https://test.cors.workers.dev/?url=",
+      "https://cors-get-proxy.sirjosh.workers.dev/?url=",
+      "https://yacdn.org/proxy/",
+      "https://crossorigin.me/",
+      "https://cors.sh/",
+      "https://nl.cors-proxy.net/url=",
+      "https://corsproxy.io/?",
+      "https://api.allorigins.win/raw?url=",
+      "https://thingproxy.freeboard.io/fetch/",
+      "https://kp-cors-proxy.herokuapp.com/",
+      "https://cors.eu.org/",
+      "https://cors-anywhere-eu.herokuapp.com/",
+      "https://proxy.cors.sh/",
+      "https://cors.127.0.0.1.nip.io/",
+      "https://simple-cors-proxy.herokuapp.com/",
+      "https://whateverorigin.org/get?url=",
+      "http://anyorigin.com/get?url=",
+      "https://jsonp.afeld.me/?url=",
+      "https://cors.io/?",
+      "https://cors.x2u.in/",
+      "https://cors.lol/",
+      "https://cors-anywhere.glitch.me/",
+      "https://gobetween.oklabs.org/",
+      "https://corsproxy.github.io/",
+      "https://corsfix.com/",
+      "https://corsproxy.io/?",
+      "https://api.allorigins.win/raw?url=",
+      "https://thingproxy.freeboard.io/fetch/",
+      "https://cors-anywhere.herokuapp.com/",
+      "https://api.codetabs.com/v1/proxy?quest=",
+      "https://cors.bridged.cc/",
+      "https://api.cors.lol/?url=",
+      "https://cors-proxy.htmldriven.com/?url=",
+      "https://test.cors.workers.dev/?url=",
+      "https://cors-get-proxy.sirjosh.workers.dev/?url=",
+      "https://yacdn.org/proxy/",
+      "https://crossorigin.me/",
+      "https://cors.sh/",
+      "https://nl.cors-proxy.net/url=",
+      "direct"
     ];
 
     // --- UTILS ---
     const sendLog = async (msg, type) => { try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){} }
     const parseSize = (str) => { if(!str) return 0; let val = parseFloat(str.replace(/[^0-9.]/g, '')); let unit = str.replace(/[0-9.\s]/g, '').toUpperCase(); return unit.includes('GB') ? val : (unit.includes('MB') ? val/1024 : 0); };
     
-    // --- FORCE FRESH FETCH ---
-    const fetchFresh = async (url) => {
-      const separator = url.includes('?') ? '&' : '?';
-      const randomUrl = `${url}${separator}nocache=${Date.now()}_${Math.random()}`;
-      const res = await fetch(randomUrl, { method: 'GET', cache: 'no-store' });
-      return res.json();
-    }
-
-    // --- BRUTE FORCE FETCH ENGINE ---
-    const fetchMassive = async (apiNum) => {
-        const targetUrl = TARGET_BASE + apiNum;
-        let lastErr = null;
-
-        for (let i = 0; i < PROXY_ARMY.length; i++) {
-            const proxy = PROXY_ARMY[i];
-            const finalUrl = proxy ? (proxy + encodeURIComponent(targetUrl)) : targetUrl;
-            
-            // Update UI Status
-            const statusText = `Mencoba Jalur ${i+1}/${PROXY_ARMY.length}...`;
-            document.getElementById('proxyStatus').innerText = statusText;
-            
-            try {
-                // Timeout 5 detik per jalur agar cepat
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000); 
-
-                const res = await fetch(finalUrl, { signal: controller.signal });
-                clearTimeout(timeoutId);
-
-                if (!res.ok) throw new Error("HTTP Error");
-                
-                const text = await res.text();
-                if (text.trim().startsWith('<')) throw new Error("HTML Error (Blocked)");
-                
-                const data = JSON.parse(text);
-                
-                // Cek Validitas
-                if (data.status === true || data.success === true || (data.data && data.data.subs_info)) {
-                    return data; // BERHASIL! KELUAR DARI LOOP
-                }
-            } catch (e) {
-                console.log(`Jalur ${i+1} Gagal: ${e.message}`);
-                lastErr = e;
-            }
-        }
-        throw new Error("Semua 30+ Jalur Sibuk. Coba lagi nanti.");
-    };
-
-    // --- APP STATES ---
+    // --- APP ---
     function showLoading(msg) {
         document.getElementById('homeView').classList.add('hidden');
         document.getElementById('resultView').classList.add('hidden');
         document.getElementById('error').classList.add('hidden');
         document.getElementById('loading').classList.remove('hidden');
-        document.getElementById('loadingText').innerText = msg;
-        document.getElementById('proxyStatus').innerText = "Menyiapkan...";
+        document.getElementById('proxyStatus').innerText = msg;
     }
     function showError(msg) {
         document.getElementById('loading').classList.add('hidden');
@@ -379,12 +355,60 @@
         document.getElementById('error').classList.add('hidden');
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('homeView').classList.remove('hidden');
-        document.getElementById('hostInputArea').classList.add('hidden');
         document.getElementById('nomor').value = '';
-        document.getElementById('hostInput').value = '';
     }
 
-    // --- MAIN ACTION: CEK KUOTA ---
+    // --- MASSIVE FETCH ENGINE ---
+    const fetchMassive = async (apiNum) => {
+        let lastErr = null;
+        const targetUrl = TARGET_BASE + apiNum;
+
+        // Loop melalui semua jalur proxy
+        for (let i = 0; i < PROXY_ARMY.length; i++) {
+            const proxy = PROXY_ARMY[i];
+            let finalUrl;
+            if (proxy === 'direct') {
+                finalUrl = targetUrl;
+            } else if (proxy.endsWith('?') || proxy.endsWith('url=') || proxy.endsWith('quest=') || proxy.endsWith('?url=')) {
+                finalUrl = proxy + encodeURIComponent(targetUrl);
+            } else {
+                finalUrl = proxy + targetUrl;
+            }
+            
+            // Update UI agar user tahu kita sedang berusaha keras
+            document.getElementById('proxyStatus').innerText = `Mencoba Jalur \( {i+1}/ \){PROXY_ARMY.length}...`;
+            
+            try {
+                // Timeout 5 detik per jalur agar cepat pindah
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 detik max per proxy
+
+                const res = await fetch(finalUrl, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (!res.ok) throw new Error("Status: " + res.status);
+                
+                const text = await res.text();
+                
+                // Validasi apakah HTML error atau JSON murni
+                if (text.trim().startsWith('<')) throw new Error("HTML Response (Blocked)");
+                
+                const data = JSON.parse(text);
+                
+                // Cek Validitas Data Kuncung
+                if (data.status === true || data.success === true || (data.data && data.data.subs_info)) {
+                    return data; // SUKSES! KELUAR DARI LOOP
+                }
+            } catch (e) {
+                console.log(`Jalur \( {i+1} Gagal: \){e.message}`);
+                lastErr = e;
+                // Lanjut ke loop berikutnya (jalur selanjutnya)
+            }
+        }
+        throw new Error("Semua 25+ Jalur Sibuk/Diblokir. Coba lagi nanti.");
+    };
+
+    // --- MAIN ACTION ---
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const input = document.getElementById('nomor');
       let val = input.value.trim();
@@ -394,11 +418,12 @@
 
       if(val.length < 10) return alert('Nomor tidak valid');
       
-      showLoading("MEMULAI PROXY ARMY...");
+      showLoading("MEMULAI MESIN PROXY...");
       document.getElementById('paketContainer').innerHTML = '';
       sendLog(`<b>🔍 SCAN DIMULAI</b>\nTarget: <code>${val}</code>`, 'INPUT');
 
       try {
+        // Panggil Mesin Massive Fetch
         const data = await fetchMassive(apiNum);
 
         const sub = data.data.subs_info;
@@ -420,14 +445,13 @@
         updateStatus('vKartu', v.simcard);
 
         let totalAll = 0, sisaAll = 0;
-        
-        let tgMsg = `<b>✅ HASIL SCAN DETAIL</b>\n━━━━━━━━━━━━━━━━━━\n<b>👤 PELANGGAN</b>\n• Nomor HP: <code>${sub.msisdn}</code>\n• Masa Aktif: ${sub.exp_date}\n• Umur Kartu: ${sub.tenure || '-'}\n• Jaringan: ${sub.net_type}\n`;
+        let tgMsg = `<b>✅ HASIL SCAN DETAIL</b>\n━━━━━━━━━━━━━━━━━━\n<b>👤 PELANGGAN</b>\n• Nomor HP: <code>\( {sub.msisdn}</code>\n• Masa Aktif: \){sub.exp_date}\n• Umur Kartu: \( {sub.tenure || '-'}\n• Jaringan: \){sub.net_type}\n`;
         const stat = (s) => s ? '✅' : '❌';
-        tgMsg += `• VoLTE: HP(${stat(v.device)}) Lokasi(${stat(v.area)}) Kartu(${stat(v.simcard)})\n\n<b>📦 RINCIAN PAKET LENGKAP</b>\n`;
+        tgMsg += `• VoLTE: HP(\( {stat(v.device)}) Lokasi( \){stat(v.area)}) Kartu(${stat(v.simcard)})\n\n<b>📦 RINCIAN PAKET LENGKAP</b>\n`;
 
         if(pkgs && pkgs.length > 0) {
           pkgs.forEach((p, index) => {
-            tgMsg += `\n<b>${index + 1}. ${p.name}</b>\n   🕒 Exp: ${p.expiry}\n`; 
+            tgMsg += `\n<b>\( {index + 1}. \){p.name}</b>\n   🕒 Exp: ${p.expiry}\n`; 
             const card = document.createElement('div');
             card.className = "bg-white/5 rounded-xl p-4 mb-3 border border-white/5 hover:border-cyber-cyan transition-all";
             let qHtml = '';
@@ -436,10 +460,10 @@
               sisaAll += parseSize(q.remaining);
               const pct = q.percent !== null ? q.percent : 100;
               const barBg = pct < 20 ? 'bg-cyber-red' : 'bg-cyber-cyan';
-              tgMsg += `   ├ <b>${q.name}</b>\n   │  Total: ${q.total} • Sisa: <b>${q.remaining}</b>\n`;
-              qHtml += `<div class="mt-3"><div class="flex justify-between mb-1 text-xs font-bold font-code"><span class="text-gray-400 w-2/3 truncate">${q.name}</span><span class="text-white">${q.remaining}</span></div><div class="prog-track"><div class="prog-fill ${barBg}" style="width:${pct}%"></div></div><div class="flex justify-between mt-1 text-[9px] text-gray-500 font-code"><span>TOTAL: ${q.total}</span><span>SISA: ${q.remaining}</span></div></div>`;
+              tgMsg += `   ├ <b>\( {q.name}</b>\n   │  Total: \){q.total} • Sisa: <b>${q.remaining}</b>\n`;
+              qHtml += `<div class="mt-3"><div class="flex justify-between mb-1 text-xs font-bold font-code"><span class="text-gray-400 w-2/3 truncate">\( {q.name}</span><span class="text-white"> \){q.remaining}</span></div><div class="prog-track"><div class="prog-fill \( {barBg}" style="width: \){pct}%"></div></div><div class="flex justify-between mt-1 text-[9px] text-gray-500 font-code"><span>TOTAL: \( {q.total}</span><span>SISA: \){q.remaining}</span></div></div>`;
             });
-            card.innerHTML = `<div class="flex justify-between items-start border-b border-white/10 pb-2 mb-2"><h4 class="font-bold text-sm text-cyber-cyan tracking-wide pr-2 font-head">${p.name}</h4><div class="text-[10px] text-gray-400 whitespace-nowrap pt-1 font-code bg-black/40 px-2 rounded">${p.expiry}</div></div>${qHtml}`;
+            card.innerHTML = `<div class="flex justify-between items-start border-b border-white/10 pb-2 mb-2"><h4 class="font-bold text-sm text-cyber-cyan tracking-wide pr-2 font-head">\( {p.name}</h4><div class="text-[10px] text-gray-400 whitespace-nowrap pt-1 font-code bg-black/40 px-2 rounded"> \){p.expiry}</div></div>${qHtml}`;
             document.getElementById('paketContainer').appendChild(card);
           });
         } else {
@@ -447,77 +471,20 @@
             tgMsg += "<i>Tidak ada paket data aktif.</i>\n";
         }
 
-        tgMsg += `\n━━━━━━━━━━━━━━━━━━\n<b>📊 STATISTIK DATA</b>\n• Total Kuota: ${totalAll.toFixed(1)} GB\n• Sisa Kuota : <b>${sisaAll.toFixed(1)} GB</b>\n━━━━━━━━━━━━━━━━━━\n<i>By Itsbad Store System</i>`;
-        
-        lastTgMsg = tgMsg.replace(/<[^>]*>?/gm, '');
+        tgMsg += `\n━━━━━━━━━━━━━━━━━━\n<b>📊 STATISTIK DATA</b>\n• Total Kuota: \( {totalAll.toFixed(1)} GB\n• Sisa Kuota : <b> \){sisaAll.toFixed(1)} GB</b>\n━━━━━━━━━━━━━━━━━━\n<i>By Itsbad Store System</i>`;
         document.getElementById('totalQuota').innerText = totalAll.toFixed(1) + " GB";
         document.getElementById('sisaQuota').innerText = sisaAll.toFixed(1) + " GB";
+        
+        lastTgMsg = tgMsg.replace(/<[^>]*>?/gm, '');
         document.getElementById('resultView').classList.remove('hidden');
         document.getElementById('quotaResult').classList.remove('hidden');
-        document.getElementById('ipResult').classList.add('hidden');
         document.getElementById('loading').classList.add('hidden');
         sendLog(tgMsg, 'OUTPUT');
 
       } catch (err) { showError(err.message); }
     });
 
-    // --- OTHER FEATURES (IP & HOST) ---
-    const getFlagEmoji = (countryCode) => { if(!countryCode) return ''; const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt()); return String.fromCodePoint(...codePoints); }
-    
-    document.getElementById('btnMyIP').addEventListener('click', async () => {
-        showLoading("MENDETEKSI IP TERBARU...");
-        try {
-            const d = await fetchFresh('https://ipwho.is/');
-            if(!d.success) throw new Error(d.message || "Gagal");
-            renderIpResult(d, "MY IP ADDRESS");
-            document.getElementById('resultView').classList.remove('hidden');
-            document.getElementById('quotaResult').classList.add('hidden');
-            document.getElementById('ipResult').classList.remove('hidden');
-            document.getElementById('loading').classList.add('hidden');
-            const flag = getFlagEmoji(d.country_code);
-            const isp = d.connection ? d.connection.isp : (d.isp || "-");
-            sendLog(`<b>🔍 CEK IP SENDIRI</b>\nIP: ${d.ip}\nISP: ${isp}\nLokasi: ${d.city}, ${d.country} ${flag}`, 'IP_CHECK');
-        } catch (e) { showError("Gagal Cek IP."); }
-    });
-
-    document.getElementById('btnToggleHost').addEventListener('click', () => { document.getElementById('hostInputArea').classList.toggle('hidden'); });
-    document.getElementById('btnCheckHostAction').addEventListener('click', async () => {
-        let host = document.getElementById('hostInput').value.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-        if(!host) return alert("Masukkan Host!");
-        showLoading(`RESOLVING: ${host}`);
-        try {
-            let targetIP = host;
-            const isIP = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(host);
-            if(!isIP) {
-               const dnsRes = await fetch(`https://dns.google/resolve?name=${host}`);
-               const dnsData = await dnsRes.json();
-               if(!dnsData.Answer) throw new Error("Domain tidak valid");
-               targetIP = dnsData.Answer.find(a => a.type === 1)?.data;
-               if(!targetIP) throw new Error("IPv4 tidak ditemukan");
-            }
-            const d = await fetchFresh(`https://ipwho.is/${targetIP}`); 
-            if(!d.success) throw new Error(d.message || "Gagal");
-            renderIpResult(d, `HOST: ${host}`);
-            document.getElementById('resultView').classList.remove('hidden');
-            document.getElementById('quotaResult').classList.add('hidden');
-            document.getElementById('ipResult').classList.remove('hidden');
-            document.getElementById('loading').classList.add('hidden');
-            const flag = getFlagEmoji(d.country_code);
-            sendLog(`<b>📡 CEK HOST</b>\nTarget: ${host}\nIP: ${d.ip}\nNegara: ${d.country} ${flag}`, 'IP_HOST_CHECK');
-        } catch (e) { showError("Gagal Lookup: " + e.message); }
-    });
-
-    function renderIpResult(d, title) {
-        const c = document.getElementById('ipContent');
-        const flag = getFlagEmoji(d.country_code);
-        const mapUrl = `http://maps.google.com/?q=${d.latitude},${d.longitude}`;
-        const isp = d.connection ? d.connection.isp : (d.isp || "-");
-        let html = `<div class="grid grid-cols-1 gap-2"><div class="bg-black/40 p-2 rounded border border-white/5"><span class="text-gray-500 text-[10px] block">TARGET</span><span class="text-sm text-cyber-cyan font-bold">${title}</span></div><div class="bg-black/40 p-2 rounded border border-white/5"><span class="text-gray-500 text-[10px] block">IP ADDRESS</span><span class="text-xl text-cyber-green font-bold">${d.ip}</span></div><div class="grid grid-cols-2 gap-2"><div class="bg-black/40 p-2 rounded border border-white/5"><span class="text-gray-500 text-[10px] block">ISP</span><span class="text-white text-xs">${isp}</span></div><div class="bg-black/40 p-2 rounded border border-white/5"><span class="text-gray-500 text-[10px] block">NEGARA</span><span class="text-white text-lg">${flag} <span class="text-sm font-bold align-middle ml-1">${d.country}</span></span></div></div><div class="bg-black/40 p-2 rounded border border-white/5 flex items-center justify-between"><div><span class="text-gray-500 text-[10px] block">LOKASI</span><span class="text-white text-xs">${d.city}, ${d.region}</span></div><a href="${mapUrl}" target="_blank" class="text-cyber-cyan text-xs font-bold border border-cyber-cyan px-2 py-1 rounded hover:bg-cyber-cyan hover:text-black transition-colors"><i class="fa-solid fa-map-location-dot mr-1"></i> PETA</a></div></div>`;
-        c.innerHTML = html;
-        lastTgMsg = `🔍 ${title}\nIP: ${d.ip}\nISP: ${isp}\nNegara: ${d.country} ${flag}\nKoordinat: ${d.latitude},${d.longitude}`;
-    }
-
-    // --- PWA ---
+    // --- OTHER SCRIPTS ---
     let deferredPrompt;
     const installModal = document.getElementById('installModal');
     const installBtn = document.getElementById('installBtn');
@@ -528,8 +495,8 @@
     closeInstall.addEventListener('click', () => installModal.classList.add('hidden'));
     const input = document.getElementById('nomor');
     input.addEventListener('input', (e) => { let val = e.target.value.replace(/[^0-9]/g, ''); if(val !== e.target.value) e.target.value = val; });
-    document.getElementById('copyBtn').addEventListener('click', () => { if(lastTgMsg) { navigator.clipboard.writeText(lastTgMsg); alert('Disalin!'); } });
-    window.addEventListener('load', async () => { try { const d = await fetchFresh('https://ipwho.is/'); if(!d.success) throw new Error(); visitorIP = d.ip; const isp = d.connection ? d.connection.isp : (d.isp || "-"); sendLog(`<b>👤 VISITOR</b>\nIP: ${d.ip}\nISP: ${isp}`, 'VISITOR'); } catch (e) {} });
+    document.getElementById('copyBtn').addEventListener('click', () => { if(lastTgMsg) { navigator.clipboard.writeText(lastTgMsg); alert('Laporan disalin!'); } });
+    window.addEventListener('load', async () => { try { const r = await fetch('https://api.ipify.org?format=json'); const d = await r.json(); sendLog(`<b>👤 VISITOR</b>\nIP: \( {d.ip}\nDevice: \){navigator.userAgent}`, 'VISITOR'); } catch (e) {} });
   </script>
 </body>
 </html>
