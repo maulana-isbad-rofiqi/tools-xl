@@ -1,6 +1,5 @@
-// api/cek-quota.js
 export default async function handler(req, res) {
-  // --- CONFIG HEADER CORS (Agar bisa diakses dari mana saja) ---
+  // 1. SETUP HEADER (Agar tidak CORS di frontend)
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -19,48 +18,84 @@ export default async function handler(req, res) {
   }
 
   const { number } = req.body;
+  if (!number) return res.status(400).json({ error: 'Nomor wajib diisi' });
 
-  if (!number) {
-    return res.status(400).json({ error: 'Nomor tidak boleh kosong' });
-  }
-
-  // --- FORMAT NOMOR (08xxx -> 628xxx) ---
+  // 2. FORMAT NOMOR (Wajib 628xxx)
   let formattedNum = number.replace(/\D/g, '');
   if (formattedNum.startsWith('0')) formattedNum = '62' + formattedNum.substring(1);
   else if (formattedNum.startsWith('8')) formattedNum = '62' + formattedNum;
 
-  // --- DAFTAR SERVER API ---
-  // Bendith sudah dihapus, sekarang pakai Kuncung saja
-  const apiSources = [
-    `https://sidompul.kuncung.qzz.io/?number=${formattedNum}`
+  // 3. TARGET URL (HANYA KUNCUNG)
+  const targetUrl = `https://sidompul.kuncung.qzz.io/?number=${formattedNum}`;
+
+  // 4. DAFTAR JALUR TIKUS (PROXY LIST)
+  // Sistem akan mencoba satu per satu sampai berhasil
+  const strategies = [
+    // STRATEGI 1: Tembak Langsung (Siapa tahu tidak diblokir)
+    { 
+      url: targetUrl, 
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+        'Referer': 'https://sidompul.kuncung.qzz.io/'
+      } 
+    },
+    // STRATEGI 2: Lewat Jalur Tikus A (CorsProxy.io)
+    { 
+      url: `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`, 
+      headers: {} 
+    },
+    // STRATEGI 3: Lewat Jalur Tikus B (AllOrigins)
+    { 
+      url: `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`, 
+      headers: {} 
+    },
+    // STRATEGI 4: Lewat Jalur Tikus C (ThingProxy)
+    { 
+      url: `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(targetUrl)}`, 
+      headers: {} 
+    }
   ];
 
-  // --- LOGIKA FETCHING ---
-  for (const apiUrl of apiSources) {
+  // 5. EKSEKUSI (BRUTE FORCE CONNECTION)
+  let lastError = null;
+
+  for (const strategy of strategies) {
     try {
-      const response = await fetch(apiUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
+      console.log(`Mencoba jalur: ${strategy.url.substring(0, 50)}...`);
+
+      const response = await fetch(strategy.url, {
+        headers: strategy.headers,
+        method: 'GET' // Pastikan method GET untuk request ke Kuncung
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const text = await response.text();
+        
+        // Coba parsing JSON
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          // Jika bukan JSON, berarti error HTML dari Cloudflare/Proxy
+          continue; 
+        }
 
-        // Cek validitas data (API Kuncung)
-        if (data.success || data.status === true || (data.data && data.data.subs_info)) {
-          return res.status(200).json(data); // SUKSES
+        // Cek apakah data Kuncung Valid (Ada success:true atau status:true)
+        if (data.status === true || data.success === true || (data.data && data.data.subs_info)) {
+          return res.status(200).json(data); // SUKSES! BERHENTI DISINI
         }
       }
     } catch (error) {
-      console.error(`Gagal koneksi ke ${apiUrl}`);
+      console.error("Jalur gagal, mencoba jalur berikutnya...");
+      lastError = error;
       continue;
     }
   }
 
-  // Jika gagal
+  // 6. JIKA SEMUA JALUR GAGAL
   return res.status(500).json({ 
     success: false, 
-    message: 'Server sedang sibuk atau nomor tidak ditemukan.' 
+    message: 'Gagal menembus keamanan server Kuncung. Silakan coba lagi nanti.',
+    debug: lastError ? lastError.message : 'Unknown error'
   });
 }
