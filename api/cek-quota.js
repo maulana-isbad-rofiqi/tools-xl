@@ -29,47 +29,38 @@ export default async function handler(req, res) {
   if (formattedNum.startsWith('0')) formattedNum = '62' + formattedNum.substring(1);
   else if (formattedNum.startsWith('8')) formattedNum = '62' + formattedNum;
 
-  // --- DAFTAR SERVER API (Multi-Source) ---
-  // Sistem akan mencoba urut dari atas ke bawah
+  // --- DAFTAR SERVER API ---
+  // Bendith sudah dihapus, sekarang pakai Kuncung saja
   const apiSources = [
-    // Server Utama (Bendith)
-    `https://bendith.my.id/end.php?check=package&number=${formattedNum}&version=2`,
-    
-    // Server Cadangan (Kuncung - Yang baru Anda berikan)
     `https://sidompul.kuncung.qzz.io/?number=${formattedNum}`
   ];
 
-  // --- LOGIKA FETCHING (Looping Server) ---
+  // --- LOGIKA FETCHING ---
   for (const apiUrl of apiSources) {
     try {
-      console.log(`Mencoba request ke: ${apiUrl}`); // Log untuk debug di Vercel
-
       const response = await fetch(apiUrl, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
       });
 
-      // Jika server merespon (tidak timeout/down)
       if (response.ok) {
         const data = await response.json();
 
-        // Cek apakah data valid (biasanya ada flag 'success': true)
-        // Jika API kuncung strukturnya beda, kita anggap sukses asalkan ada datanya
+        // Cek validitas data (API Kuncung)
         if (data.success || data.status === true || (data.data && data.data.subs_info)) {
-          return res.status(200).json(data); // BERHASIL! Kirim data ke frontend dan stop loop
+          return res.status(200).json(data); // SUKSES
         }
       }
     } catch (error) {
-      console.error(`Gagal koneksi ke ${apiUrl}, mencoba server berikutnya...`);
-      // Lanjut ke server berikutnya di list 'apiSources'
+      console.error(`Gagal koneksi ke ${apiUrl}`);
       continue;
     }
   }
 
-  // Jika semua server gagal
+  // Jika gagal
   return res.status(500).json({ 
     success: false, 
-    message: 'Semua server sibuk atau nomor salah. Silakan coba lagi nanti.' 
+    message: 'Server sedang sibuk atau nomor tidak ditemukan.' 
   });
 }
