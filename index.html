@@ -4,14 +4,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>XL-AXIS INTELLIGENCE | Itsbad Store</title>
+  <title>XL & Axis Intelligence System</title>
   
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3616/3616927.png">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3616/3616927.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#050505">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -19,306 +22,798 @@
       theme: {
         extend: {
           fontFamily: {
-            display: ['Orbitron', 'sans-serif'],
+            head: ['Orbitron', 'sans-serif'],
             body: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
+            code: ['Share Tech Mono', 'monospace'],
+            display: ['Rajdhani', 'sans-serif'],
           },
           colors: {
-            bg: {
-              DEFAULT: '#050507',
-              paper: '#0F1115',
-            },
-            primary: {
-              DEFAULT: '#00f2ff',
-              dim: 'rgba(0, 242, 255, 0.1)',
-              glow: 'rgba(0, 242, 255, 0.5)',
-            },
-            accent: {
-              purple: '#7b2cbf',
+            cyber: {
+              bg: '#050505',
+              glass: 'rgba(20, 25, 30, 0.85)',
+              cyan: '#00f3ff', 
               green: '#00ff9d',
-              red: '#ff3366',
+              red: '#ff375f',
+              dim: 'rgba(0, 243, 255, 0.1)',
+              purple: '#8a2be2',
+              orange: '#ff6b35',
+              yellow: '#ffd166'
             }
           },
-          backgroundImage: {
-            'cyber-gradient': 'linear-gradient(180deg, rgba(5,5,7,0) 0%, rgba(0, 242, 255, 0.03) 100%)',
-            'glass': 'linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%)',
-          },
           animation: {
-            'fade-up': 'fadeUp 0.6s ease-out forwards',
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'scan': 'scan 4s linear infinite',
+            'pulse-fast': 'pulse 0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 6s ease-in-out infinite',
+            'glow': 'glow 2s ease-in-out infinite alternate',
+            'slide-up': 'slideUp 0.3s ease-out',
+            'slide-down': 'slideDown 0.3s ease-out',
           },
           keyframes: {
-            fadeUp: {
-              '0%': { opacity: '0', transform: 'translateY(20px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' },
+            scan: {
+              '0%': { backgroundPosition: '0% 0%' },
+              '100%': { backgroundPosition: '0% 100%' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            glow: {
+              '0%': { boxShadow: '0 0 5px rgba(0, 243, 255, 0.2)' },
+              '100%': { boxShadow: '0 0 20px rgba(0, 243, 255, 0.6)' },
+            },
+            slideUp: {
+              '0%': { opacity: 0, transform: 'translateY(20px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' },
+            },
+            slideDown: {
+              '0%': { opacity: 0, transform: 'translateY(-20px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' },
             }
           }
         }
       }
     }
   </script>
-
   <style>
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #050507; }
-    ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #00f2ff; }
-
-    body {
-      background-color: #050507;
-      background-image: radial-gradient(circle at 50% 0%, rgba(0, 242, 255, 0.08) 0%, transparent 50%);
-      background-attachment: fixed;
-      -webkit-tap-highlight-color: transparent;
+    body { 
+      background: linear-gradient(135deg, #050505 0%, #0a0a1a 50%, #051a25 100%);
+      color: #fff; 
+      font-family: 'Inter', sans-serif; 
+      overflow-x: hidden; 
+      min-height: 100vh;
+    }
+    
+    .cyber-grid {
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(0, 243, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(138, 43, 226, 0.05) 0%, transparent 50%),
+        linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+      background-size: 400px 400px, 400px 400px, 40px 40px, 40px 40px;
+      position: fixed; 
+      inset: 0; 
+      z-index: -10;
+      opacity: 0.6;
     }
 
-    /* Glass Effect Utility */
     .glass-panel {
-      background: rgba(15, 17, 21, 0.7);
+      background: linear-gradient(135deg, rgba(15, 20, 30, 0.9) 0%, rgba(10, 15, 25, 0.8) 100%);
+      backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .input-cyber {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: all 0.3s ease;
+    }
+
+    .input-cyber:focus {
+      border-color: #00f3ff;
+      box-shadow: 
+        0 0 0 3px rgba(0, 243, 255, 0.15),
+        0 0 30px rgba(0, 243, 255, 0.2);
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .prog-track { 
+      background: rgba(255, 255, 255, 0.08); 
+      height: 8px; 
+      border-radius: 4px; 
+      overflow: hidden; 
+    }
+    
+    .prog-fill { 
+      height: 100%; 
+      background: linear-gradient(90deg, #00f3ff, #00ff9d);
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); 
+    }
+    
+    .pwa-toast {
+      background: linear-gradient(135deg, rgba(10, 15, 25, 0.95) 0%, rgba(5, 10, 20, 0.95) 100%);
       backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 243, 255, 0.3);
+      box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(0, 243, 255, 0.2);
     }
 
-    .input-focus-ring:focus-within {
-      border-color: #00f2ff;
-      box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
-    }
-
-    /* Tech Borders */
-    .tech-border-b {
+    .neon-border {
       position: relative;
+      border: 1px solid transparent;
+      background: linear-gradient(rgba(15, 20, 30, 0.9), rgba(15, 20, 30, 0.9)) padding-box,
+                  linear-gradient(135deg, #00f3ff, #8a2be2, #ff375f) border-box;
     }
-    .tech-border-b::after {
-      content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+
+    .status-indicator {
+      position: relative;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00ff9d;
+      box-shadow: 0 0 10px #00ff9d;
+      animation: pulse-fast 1.5s infinite;
+    }
+
+    .network-bar {
+      background: linear-gradient(90deg, 
+        rgba(0, 243, 255, 0.2) 0%, 
+        rgba(0, 255, 157, 0.2) 50%, 
+        rgba(138, 43, 226, 0.2) 100%);
+      height: 3px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+
+    .card-hover:hover {
+      transform: translateY(-5px);
+      border-color: rgba(0, 243, 255, 0.3);
+      box-shadow: 
+        0 15px 40px rgba(0, 0, 0, 0.4),
+        0 0 30px rgba(0, 243, 255, 0.15);
+    }
+
+    .scan-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, 
+        transparent 0%, 
+        #00f3ff 50%, 
+        transparent 100%);
+      animation: scan 3s linear infinite;
+      pointer-events: none;
+    }
+
+    ::selection {
+      background: rgba(0, 243, 255, 0.3);
+      color: white;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #00f3ff, #00ff9d, #8a2be2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tab-active {
+      background: rgba(0, 243, 255, 0.15);
+      border-color: #00f3ff;
+      color: #00f3ff;
     }
   </style>
 </head>
-<body class="text-gray-300 font-body min-h-screen flex flex-col antialiased selection:bg-primary selection:text-black">
+<body class="min-h-screen flex flex-col pb-24 relative">
 
-  <nav class="fixed top-0 w-full z-50 glass-panel border-b-0 border-white/5 h-16 flex items-center justify-center">
-    <div class="w-full max-w-lg px-6 flex justify-between items-center">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center shadow-[0_0_10px_rgba(0,242,255,0.2)]">
-          <i class="fa-solid fa-layer-group text-primary text-sm"></i>
+  <div class="cyber-grid"></div>
+  <div class="network-bar"></div>
+  
+  <!-- Header -->
+  <header class="fixed top-0 w-full z-40 bg-gradient-to-b from-black/90 via-black/70 to-transparent backdrop-blur-xl border-b border-white/5">
+    <div class="max-w-4xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyber-cyan to-cyber-purple p-0.5">
+            <div class="w-full h-full bg-black/80 rounded-[10px] flex items-center justify-center">
+              <i class="fa-solid fa-satellite-dish text-xl text-cyber-cyan"></i>
+            </div>
+          </div>
+          <div class="status-indicator absolute -top-1 -right-1"></div>
         </div>
         <div>
-          <h1 class="font-display font-bold text-base text-white tracking-wider leading-tight">XL-AXIS <span class="text-primary">TOOLS</span></h1>
-          <p class="text-[9px] text-gray-500 font-mono tracking-widest">ITSBAD SYSTEM v2.0</p>
+          <h1 class="font-head font-bold text-xl tracking-wider text-white">INTELLIGENCE <span class="gradient-text">SYSTEM</span></h1>
+          <p class="text-[10px] font-code text-gray-400 tracking-[0.3em]">XL & AXIS ANALYTICS</p>
         </div>
       </div>
-      <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-accent-green/10 border border-accent-green/20">
-        <div class="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse"></div>
-        <span class="text-[10px] font-mono font-bold text-accent-green">READY</span>
+      <div class="flex items-center gap-3">
+        <div class="hidden md:flex items-center gap-4">
+          <div class="text-right">
+            <p class="text-xs font-code text-cyber-green">STATUS: <span class="font-bold">ONLINE</span></p>
+            <p class="text-[10px] text-gray-400 font-mono" id="realTime">00:00:00</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyber-cyan/20 to-cyber-purple/20 border border-white/10 flex items-center justify-center">
+            <i class="fa-solid fa-shield-alt text-cyber-cyan"></i>
+          </div>
+        </div>
       </div>
     </div>
-  </nav>
+  </header>
 
-  <main class="flex-1 w-full max-w-lg mx-auto pt-28 px-5 pb-24 relative z-10">
+  <!-- Main Content -->
+  <main class="flex-1 w-full max-w-4xl mx-auto pt-24 px-4 md:px-6 relative z-10">
     
-    <div id="homeView" class="animate-fade-up">
-      <div class="text-center mb-10">
-        <h2 class="text-3xl md:text-4xl font-display font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 drop-shadow-sm">
-          COMMAND CENTER
-        </h2>
-        <p class="text-sm text-gray-500 mt-2 font-light">Advanced Network Analysis & Package Inspection</p>
+    <!-- Hero Section -->
+    <div class="text-center mb-10 animate-slide-down">
+      <div class="inline-block mb-4">
+        <div class="glass-panel px-6 py-2 rounded-full inline-flex items-center gap-2 mb-2">
+          <i class="fa-solid fa-bolt text-cyber-yellow"></i>
+          <span class="text-xs font-code text-cyber-yellow tracking-widest">SISTEM ANALISIS CEPAT</span>
+        </div>
       </div>
+      <h2 class="text-4xl md:text-5xl font-head font-black mb-4">
+        <span class="text-white">INTELLIGENCE</span> 
+        <span class="gradient-text">ANALYTICS</span>
+      </h2>
+      <p class="text-gray-400 max-w-2xl mx-auto text-sm md:text-base font-body">
+        Sistem analisis canggih untuk memeriksa data, alamat IP, dan informasi jaringan dengan presisi tinggi.
+      </p>
+    </div>
 
-      <div class="glass-panel p-1 rounded-2xl mb-6 relative group transition-all duration-300 hover:border-primary/30">
-        <div class="bg-[#0a0c10] rounded-xl p-5 relative overflow-hidden">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl pointer-events-none -mr-10 -mt-10"></div>
+    <!-- Tabs Navigation -->
+    <div class="flex items-center justify-center gap-2 mb-8">
+      <button id="tabQuota" class="glass-panel px-6 py-3 rounded-xl font-head font-bold text-sm tracking-wide flex items-center gap-2 tab-active hover:bg-white/5 transition-all">
+        <i class="fa-solid fa-mobile-screen"></i>
+        CEK DATA XL/AXIS
+      </button>
+      <button id="tabNetwork" class="glass-panel px-6 py-3 rounded-xl font-head font-bold text-sm tracking-wide flex items-center gap-2 hover:bg-white/5 transition-all text-gray-400 hover:text-white">
+        <i class="fa-solid fa-network-wired"></i>
+        ANALISIS JARINGAN
+      </button>
+    </div>
+
+    <!-- Views Container -->
+    <div class="relative">
+      <div class="scan-line"></div>
+      
+      <!-- Quota Check View -->
+      <div id="viewQuota" class="space-y-6 animate-slide-up">
+        <div class="glass-panel p-6 md:p-8 rounded-2xl relative overflow-hidden card-hover">
+          <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-cyber-cyan/10 to-transparent rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
           
-          <label class="block text-primary text-[10px] font-mono mb-3 tracking-[0.2em] flex items-center gap-2">
-            <i class="fa-solid fa-terminal text-xs"></i> ENTER MSISDN / NUMBER
-          </label>
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyber-cyan/20 to-cyber-green/20 flex items-center justify-center">
+                <i class="fa-solid fa-sim-card text-2xl text-cyber-cyan"></i>
+              </div>
+              <div>
+                <h3 class="font-head font-bold text-xl text-white">Analisis Data Kartu</h3>
+                <p class="text-sm text-gray-400 font-body">Masukkan nomor untuk memeriksa kuota & informasi kartu</p>
+              </div>
+            </div>
 
-          <div class="relative flex items-center mb-5 input-focus-ring rounded-xl border border-white/10 bg-black/50 transition-all duration-300">
-            <span class="pl-4 text-gray-500 text-lg select-none"><i class="fa-solid fa-phone-volume"></i></span>
-            <input type="tel" id="nomor" placeholder="08xxx / 628xxx" 
-              class="w-full bg-transparent text-white font-mono text-lg py-4 px-3 outline-none placeholder-gray-700 tracking-wider">
-            <button id="clearInput" class="hidden absolute right-3 text-gray-600 hover:text-white transition-colors">
-              <i class="fa-solid fa-circle-xmark"></i>
-            </button>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-semibold text-cyber-cyan mb-2 font-display tracking-wider">
+                  <i class="fa-solid fa-phone-volume mr-2"></i>
+                  NOMOR TELEPON
+                </label>
+                <div class="relative">
+                  <input 
+                    type="tel" 
+                    id="nomor" 
+                    placeholder="Contoh: 081234567890 atau 6281234567890" 
+                    class="input-cyber w-full text-white font-display text-lg py-4 pl-14 pr-4 rounded-xl outline-none placeholder-gray-500 tracking-wide"
+                  >
+                  <div class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-cyber-cyan/10 flex items-center justify-center">
+                      <i class="fa-solid fa-hashtag text-cyber-cyan"></i>
+                    </div>
+                    <span class="text-gray-400 font-code">+62</span>
+                  </div>
+                  <button onclick="document.getElementById('nomor').value = ''" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
+                    <i class="fa-solid fa-times-circle"></i>
+                  </button>
+                </div>
+                <p class="text-xs text-gray-500 mt-2 font-body">Masukkan nomor dengan atau tanpa kode negara (+62)</p>
+              </div>
+
+              <button id="cekBtn" class="w-full bg-gradient-to-r from-cyber-cyan to-cyber-green text-black font-head font-bold text-lg py-4 rounded-xl hover:shadow-[0_0_30px_rgba(0,243,255,0.3)] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-3 group">
+                <i class="fa-solid fa-magnifying-glass-chart group-hover:rotate-12 transition-transform"></i>
+                ANALISIS DATA SECARA DETAIL
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="glass-panel p-5 rounded-xl border-l-4 border-l-cyber-cyan card-hover">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-lg bg-cyber-cyan/10 flex items-center justify-center">
+                <i class="fa-solid fa-database text-xl text-cyber-cyan"></i>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400 font-code mb-1">KUOTA DIANALISIS</p>
+                <p class="text-2xl font-head font-bold text-white">1,248</p>
+              </div>
+            </div>
           </div>
           
-          <button id="cekBtn" class="w-full bg-white text-black font-display font-bold text-sm py-4 rounded-xl hover:bg-primary hover:shadow-[0_0_20px_rgba(0,242,255,0.4)] transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-wide">
-            <span>Scan Network</span> <i class="fa-solid fa-arrow-right"></i>
+          <div class="glass-panel p-5 rounded-xl border-l-4 border-l-cyber-green card-hover">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-lg bg-cyber-green/10 flex items-center justify-center">
+                <i class="fa-solid fa-bolt text-xl text-cyber-green"></i>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400 font-code mb-1">RESPON RATA-RATA</p>
+                <p class="text-2xl font-head font-bold text-white">0.8s</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="glass-panel p-5 rounded-xl border-l-4 border-l-cyber-purple card-hover">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-lg bg-cyber-purple/10 flex items-center justify-center">
+                <i class="fa-solid fa-shield-check text-xl text-cyber-purple"></i>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400 font-code mb-1">AKURASI SISTEM</p>
+                <p class="text-2xl font-head font-bold text-white">99.7%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Network Analysis View -->
+      <div id="viewNetwork" class="hidden space-y-6">
+        <div class="glass-panel p-6 md:p-8 rounded-2xl relative overflow-hidden card-hover">
+          <div class="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-cyber-purple/10 to-transparent rounded-full blur-3xl -ml-32 -mt-32 pointer-events-none"></div>
+          
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyber-purple/20 to-cyber-orange/20 flex items-center justify-center">
+                <i class="fa-solid fa-globe-americas text-2xl text-cyber-purple"></i>
+              </div>
+              <div>
+                <h3 class="font-head font-bold text-xl text-white">Analisis Jaringan & IP</h3>
+                <p class="text-sm text-gray-400 font-body">Periksa alamat IP, informasi host, dan data jaringan</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- My IP Card -->
+              <div class="glass-panel p-5 rounded-xl border border-white/5 hover:border-cyber-cyan/30 transition-all group cursor-pointer" id="btnMyIP">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="w-10 h-10 rounded-lg bg-cyber-cyan/10 flex items-center justify-center group-hover:bg-cyber-cyan/20 transition-colors">
+                    <i class="fa-solid fa-user-shield text-lg text-cyber-cyan"></i>
+                  </div>
+                  <i class="fa-solid fa-arrow-right text-gray-500 group-hover:text-cyber-cyan transition-colors"></i>
+                </div>
+                <h4 class="font-head font-bold text-lg text-white mb-2">IP Saya</h4>
+                <p class="text-sm text-gray-400 font-body mb-4">Periksa alamat IP publik dan informasi lokasi Anda</p>
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 rounded-full bg-cyber-green animate-pulse"></div>
+                  <span class="text-xs font-code text-cyber-green">DETEKSI REAL-TIME</span>
+                </div>
+              </div>
+
+              <!-- Host Analysis Card -->
+              <div class="glass-panel p-5 rounded-xl border border-white/5 hover:border-cyber-green/30 transition-all group cursor-pointer" id="btnHostAnalysis">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="w-10 h-10 rounded-lg bg-cyber-green/10 flex items-center justify-center group-hover:bg-cyber-green/20 transition-colors">
+                    <i class="fa-solid fa-server text-lg text-cyber-green"></i>
+                  </div>
+                  <i class="fa-solid fa-arrow-right text-gray-500 group-hover:text-cyber-green transition-colors"></i>
+                </div>
+                <h4 class="font-head font-bold text-lg text-white mb-2">Analisis Host</h4>
+                <p class="text-sm text-gray-400 font-body mb-4">Periksa informasi domain atau alamat IP tertentu</p>
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 rounded-full bg-cyber-cyan animate-pulse"></div>
+                  <span class="text-xs font-code text-cyber-cyan">MULTI-SOURCE CHECK</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Host Input Area -->
+            <div id="hostInputArea" class="hidden mt-6 glass-panel p-5 rounded-xl border border-cyber-green/20 animate-slide-up">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 rounded-lg bg-cyber-green/10 flex items-center justify-center">
+                  <i class="fa-solid fa-search text-cyber-green"></i>
+                </div>
+                <div>
+                  <h4 class="font-head font-bold text-white">Analisis Host Target</h4>
+                  <p class="text-xs text-gray-400 font-body">Masukkan domain atau alamat IP untuk dianalisis</p>
+                </div>
+              </div>
+              
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-sm font-semibold text-cyber-green mb-2 font-display">
+                    <i class="fa-solid fa-location-dot mr-2"></i>
+                    DOMAIN / ALAMAT IP
+                  </label>
+                  <div class="flex gap-3">
+                    <input 
+                      type="text" 
+                      id="hostInput" 
+                      placeholder="example.com atau 192.168.1.1" 
+                      class="input-cyber flex-1 text-white font-display px-4 py-3 rounded-lg outline-none"
+                    >
+                    <button id="btnCheckHostAction" class="bg-gradient-to-r from-cyber-green to-cyber-cyan text-black font-bold font-head px-6 rounded-lg hover:shadow-[0_0_20px_rgba(0,255,157,0.3)] transition-all flex items-center gap-2">
+                      <i class="fa-solid fa-radar"></i>
+                      ANALISIS
+                    </button>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-2 font-body">Contoh: google.com, 8.8.8.8, atau cloudflare.com</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Network Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="glass-panel p-5 rounded-xl card-hover">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-head font-bold text-white">Statistik Jaringan</h4>
+              <div class="w-8 h-8 rounded-lg bg-cyber-purple/10 flex items-center justify-center">
+                <i class="fa-solid fa-chart-network text-cyber-purple"></i>
+              </div>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="text-gray-400">Kecepatan Deteksi</span>
+                  <span class="text-cyber-green font-bold">98%</span>
+                </div>
+                <div class="prog-track">
+                  <div class="prog-fill" style="width: 98%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="text-gray-400">Akurasi Geolokasi</span>
+                  <span class="text-cyber-cyan font-bold">95%</span>
+                </div>
+                <div class="prog-track">
+                  <div class="prog-fill" style="width: 95%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="glass-panel p-5 rounded-xl card-hover">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-head font-bold text-white">Informasi Sistem</h4>
+              <div class="w-8 h-8 rounded-lg bg-cyber-orange/10 flex items-center justify-center">
+                <i class="fa-solid fa-microchip text-cyber-orange"></i>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-400">Proxy Aktif</span>
+                <span class="text-xs font-code text-cyber-green bg-cyber-green/10 px-2 py-1 rounded">4 JALUR</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-400">Status API</span>
+                <span class="text-xs font-code text-cyber-green bg-cyber-green/10 px-2 py-1 rounded">ONLINE</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-400">Enkripsi</span>
+                <span class="text-xs font-code text-cyber-cyan bg-cyber-cyan/10 px-2 py-1 rounded">AES-256</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading View -->
+      <div id="loading" class="hidden">
+        <div class="glass-panel p-12 rounded-2xl text-center">
+          <div class="relative w-24 h-24 mx-auto mb-6">
+            <div class="absolute inset-0 border-4 border-white/10 rounded-full"></div>
+            <div class="absolute inset-4 border-t-4 border-cyber-cyan rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-16 h-16 bg-gradient-to-br from-cyber-cyan/20 to-cyber-purple/20 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-satellite-dish text-3xl text-cyber-cyan animate-pulse"></i>
+              </div>
+            </div>
+          </div>
+          <p id="loadingText" class="font-head font-bold text-xl text-white mb-2">MENGANALISIS DATA</p>
+          <p class="text-gray-400 font-body mb-6">Mohon tunggu, sistem sedang memproses permintaan Anda</p>
+          <div class="max-w-sm mx-auto">
+            <div class="prog-track">
+              <div id="loadingProgress" class="prog-fill" style="width: 45%"></div>
+            </div>
+            <div id="proxyStatus" class="text-xs font-code text-cyber-cyan mt-3">Menginisialisasi koneksi...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error View -->
+      <div id="error" class="hidden glass-panel p-6 rounded-2xl border-l-4 border-l-cyber-red">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl bg-cyber-red/10 flex items-center justify-center flex-shrink-0">
+            <i class="fa-solid fa-triangle-exclamation text-2xl text-cyber-red"></i>
+          </div>
+          <div class="flex-1">
+            <h4 class="font-head font-bold text-xl text-white mb-2">Gagal Memproses</h4>
+            <p id="errorMsg" class="text-gray-300 font-body mb-4">Terjadi kesalahan saat menghubungkan ke server.</p>
+            <div class="flex gap-3">
+              <button onclick="resetApp()" class="bg-gradient-to-r from-cyber-red to-cyber-orange text-white font-head font-bold px-6 py-2 rounded-lg hover:shadow-[0_0_20px_rgba(255,55,95,0.3)] transition-all">
+                <i class="fa-solid fa-rotate-left mr-2"></i>
+                COBA LAGI
+              </button>
+              <button onclick="resetApp()" class="glass-panel border border-white/10 text-white font-head px-6 py-2 rounded-lg hover:bg-white/5 transition-all">
+                KEMBALI
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result View -->
+      <div id="resultView" class="hidden space-y-6">
+        <div class="flex items-center justify-between mb-6">
+          <button onclick="resetApp()" class="glass-panel border border-white/10 text-white font-head font-bold px-6 py-3 rounded-xl hover:bg-white/5 hover:border-cyber-cyan/30 transition-all flex items-center gap-3">
+            <i class="fa-solid fa-arrow-left"></i>
+            KEMBALI KE MENU
+          </button>
+          
+          <button id="copyBtn" class="glass-panel border border-cyber-cyan text-cyber-cyan font-head font-bold px-6 py-3 rounded-xl hover:bg-cyber-cyan hover:text-black transition-all flex items-center gap-3 group">
+            <i class="fa-regular fa-copy group-hover:fa-solid"></i>
+            SALIN HASIL ANALISIS
           </button>
         </div>
-      </div>
 
-      <div class="grid grid-cols-2 gap-3 mb-6">
-        <button id="btnMyIP" class="glass-panel p-4 rounded-xl flex items-center gap-3 hover:bg-white/5 hover:border-accent-purple/50 transition-all group text-left">
-           <div class="w-10 h-10 rounded-lg bg-accent-purple/10 flex items-center justify-center border border-accent-purple/30 group-hover:scale-110 transition-transform">
-             <i class="fa-solid fa-earth-asia text-accent-purple"></i>
-           </div>
-           <div>
-             <h4 class="font-display font-bold text-xs text-white">MY IP ADDRESS</h4>
-             <p class="text-[9px] text-gray-500 font-mono mt-0.5">Check current connection</p>
-           </div>
-        </button>
+        <!-- Quota Result -->
+        <div id="quotaResult" class="hidden space-y-6">
+          <!-- Header Card -->
+          <div class="glass-panel p-6 rounded-2xl border-t-4 border-t-cyber-cyan relative overflow-hidden card-hover">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-cyber-cyan/10 to-transparent rounded-full blur-3xl -mr-48 -mt-48 pointer-events-none"></div>
+            
+            <div class="relative z-10">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                  <div class="inline-flex items-center gap-2 mb-2">
+                    <div class="w-2 h-2 rounded-full bg-cyber-green animate-pulse"></div>
+                    <span class="text-xs font-code text-cyber-green uppercase tracking-widest">KARTU AKTIF</span>
+                  </div>
+                  <h3 class="font-head font-bold text-2xl text-white">Hasil Analisis Data</h3>
+                </div>
+                <div class="glass-panel border border-white/10 px-4 py-2 rounded-lg">
+                  <div class="text-right">
+                    <span class="text-[10px] font-code text-gray-500 block">WAKTU ANALISIS</span>
+                    <span class="text-sm font-code text-cyber-cyan" id="analysisTime">-</span>
+                  </div>
+                </div>
+              </div>
 
-        <button id="btnToggleHost" class="glass-panel p-4 rounded-xl flex items-center gap-3 hover:bg-white/5 hover:border-accent-green/50 transition-all group text-left">
-           <div class="w-10 h-10 rounded-lg bg-accent-green/10 flex items-center justify-center border border-accent-green/30 group-hover:scale-110 transition-transform">
-             <i class="fa-solid fa-magnifying-glass-location text-accent-green"></i>
-           </div>
-           <div>
-             <h4 class="font-display font-bold text-xs text-white">HOST CHECKER</h4>
-             <p class="text-[9px] text-gray-500 font-mono mt-0.5">DNS & IP Lookup</p>
-           </div>
-        </button>
-      </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="space-y-4">
+                  <div>
+                    <span class="text-xs font-code text-gray-500 block mb-1">NOMOR TELEPON</span>
+                    <span class="text-2xl font-code font-bold text-white tracking-wide" id="resNomor">-</span>
+                  </div>
+                  <div>
+                    <span class="text-xs font-code text-gray-500 block mb-1">OPERATOR</span>
+                    <span class="text-lg font-head font-bold text-cyber-cyan" id="vOp">XL AXIATA</span>
+                  </div>
+                </div>
+                
+                <div class="space-y-4">
+                  <div>
+                    <span class="text-xs font-code text-gray-500 block mb-1">MASA AKTIF</span>
+                    <div class="flex items-center gap-3">
+                      <span class="text-xl font-code font-bold text-cyber-green bg-cyber-green/10 px-3 py-1 rounded-lg" id="resExp">-</span>
+                      <div class="text-right">
+                        <span class="text-xs font-code text-gray-500 block">UMUR KARTU</span>
+                        <span class="text-sm font-bold text-white" id="resUmur">-</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <span class="text-xs font-code text-gray-500 block mb-1">JARINGAN</span>
+                    <div class="inline-flex items-center gap-2">
+                      <span class="text-lg font-head font-bold text-cyber-green" id="resNet">4G LTE</span>
+                      <span class="text-xs font-code px-2 py-1 rounded bg-cyber-green/10 text-cyber-green">AKTIF</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-      <a href="https://itsbad-store.pages.dev" target="_blank" class="block glass-panel p-4 rounded-xl border-dashed border-white/20 hover:border-primary hover:bg-primary/5 transition-all group text-center">
-        <p class="text-xs font-display font-bold text-gray-400 group-hover:text-white transition-colors tracking-widest">
-          <i class="fa-solid fa-shop mr-2"></i> VISIT OFFICIAL STORE
-        </p>
-      </a>
+              <!-- Quick Stats -->
+              <div class="grid grid-cols-2 gap-4">
+                <div class="glass-panel p-4 rounded-xl text-center">
+                  <p class="text-xs font-code text-gray-500 mb-1">TOTAL KUOTA</p>
+                  <p class="text-3xl font-head font-bold text-white" id="totalQuota">0 GB</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl text-center border border-cyber-green/20">
+                  <p class="text-xs font-code text-gray-500 mb-1">SISA KUOTA</p>
+                  <p class="text-3xl font-head font-bold text-cyber-green" id="sisaQuota">0 GB</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      <div id="hostInputArea" class="hidden mt-4 glass-panel p-4 rounded-xl animate-fade-up">
-         <div class="flex justify-between items-center mb-2">
-            <label class="block text-accent-green text-[10px] font-mono tracking-widest">TARGET DOMAIN / IP</label>
-            <button onclick="document.getElementById('hostInputArea').classList.add('hidden')" class="text-gray-500 hover:text-white text-xs"><i class="fa-solid fa-times"></i></button>
-         </div>
-         <div class="flex gap-2">
-            <input type="text" id="hostInput" placeholder="example.com" class="flex-1 bg-black/50 border border-white/10 text-white font-mono text-sm px-4 py-3 rounded-lg outline-none focus:border-accent-green transition-colors">
-            <button id="btnCheckHostAction" class="bg-accent-green text-black font-bold font-mono px-5 rounded-lg hover:bg-white transition-colors"><i class="fa-solid fa-search"></i></button>
-         </div>
-      </div>
-    </div>
-
-    <div id="loading" class="hidden py-20 text-center animate-fade-up">
-      <div class="relative w-20 h-20 mx-auto mb-6">
-        <div class="absolute inset-0 border-2 border-white/5 rounded-full"></div>
-        <div class="absolute inset-0 border-t-2 border-primary rounded-full animate-spin shadow-[0_0_20px_#00f2ff]"></div>
-        <div class="absolute inset-4 bg-primary/10 rounded-full animate-pulse-slow"></div>
-        <i class="fa-solid fa-microchip text-primary absolute inset-0 m-auto w-5 h-5 flex items-center justify-center"></i>
-      </div>
-      <h3 class="font-display font-bold text-lg text-white mb-1 tracking-wider" id="loadingText">INITIALIZING SCAN</h3>
-      <p id="proxyStatus" class="font-mono text-[10px] text-primary/70">Connecting to secure gateway...</p>
-    </div>
-
-    <div id="error" class="hidden glass-panel border-l-4 border-l-accent-red p-5 rounded-r-xl mb-6 flex items-start gap-4 animate-fade-up">
-      <div class="bg-accent-red/10 p-2 rounded text-accent-red">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-      </div>
-      <div class="flex-1">
-        <h4 class="text-white font-bold font-display text-sm mb-1">SYSTEM ALERT</h4>
-        <p id="errorMsg" class="text-gray-400 text-xs font-mono leading-relaxed">Connection Timed Out.</p>
-      </div>
-      <button onclick="resetApp()" class="text-xs bg-white/5 hover:bg-white/10 text-white px-3 py-1.5 rounded border border-white/10 transition-colors">RETRY</button>
-    </div>
-
-    <div id="resultView" class="hidden space-y-5 relative animate-fade-up">
-      
-      <div class="flex items-center gap-3">
-        <button onclick="resetApp()" class="flex-1 bg-white/5 border border-white/10 text-gray-300 font-mono text-xs font-bold py-3 rounded-xl hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2 group">
-          <i class="fa-solid fa-chevron-left group-hover:-translate-x-1 transition-transform"></i> BACK
-        </button>
-        <button id="copyBtn" class="flex-none bg-primary/10 border border-primary/30 text-primary px-4 py-3 text-xs rounded-xl hover:bg-primary hover:text-black transition-all font-mono font-bold tracking-wider">
-          <i class="fa-regular fa-copy mr-1"></i> COPY
-        </button>
-      </div>
-
-      <div id="quotaResult" class="hidden space-y-5">
-        
-        <div class="glass-panel rounded-2xl overflow-hidden relative">
-          <div class="absolute top-0 right-0 p-4 opacity-20"><i class="fa-solid fa-sim-card text-6xl text-white"></i></div>
-          <div class="p-5 relative z-10">
-            <div class="mb-4">
-               <p class="text-[10px] text-gray-500 font-mono tracking-widest mb-1">SUBSCRIBER NUMBER</p>
-               <h3 class="text-3xl font-mono font-bold text-white tracking-wide" id="resNomor">-</h3>
+          <!-- Package Details -->
+          <div>
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyber-cyan/20 to-cyber-purple/20 flex items-center justify-center">
+                <i class="fa-solid fa-box-open text-lg text-cyber-cyan"></i>
+              </div>
+              <div>
+                <h3 class="font-head font-bold text-xl text-white">Detail Paket Aktif</h3>
+                <p class="text-sm text-gray-400 font-body">Rincian lengkap paket data yang sedang berlangsung</p>
+              </div>
             </div>
             
-            <div class="flex items-center gap-2 mb-4">
-               <span class="px-2 py-1 bg-accent-green/20 text-accent-green text-[10px] font-bold rounded border border-accent-green/20" id="resNet">LTE</span>
-               <span class="px-2 py-1 bg-white/10 text-white text-[10px] font-bold rounded border border-white/10" id="vOp">XL/AXIS</span>
+            <div id="paketContainer" class="space-y-4">
+              <!-- Packages will be inserted here -->
             </div>
-
-            <div class="grid grid-cols-2 gap-4 border-t border-white/5 pt-4">
-               <div>
-                  <p class="text-[10px] text-gray-500 font-mono">MASA AKTIF</p>
-                  <p class="text-sm font-bold text-primary mt-0.5" id="resExp">-</p>
-               </div>
-               <div class="text-right">
-                  <p class="text-[10px] text-gray-500 font-mono">UMUR KARTU</p>
-                  <p class="text-sm font-bold text-white mt-0.5" id="resUmur">-</p>
-               </div>
+            
+            <div id="noPackages" class="glass-panel p-8 rounded-2xl text-center">
+              <div class="w-16 h-16 rounded-full bg-gray-800/50 mx-auto mb-4 flex items-center justify-center">
+                <i class="fa-solid fa-inbox text-2xl text-gray-500"></i>
+              </div>
+              <h4 class="font-head font-bold text-white mb-2">Tidak Ada Paket Aktif</h4>
+              <p class="text-gray-400 font-body">Tidak ditemukan paket data yang sedang berlangsung</p>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div class="glass-panel p-4 rounded-xl text-center border-b-2 border-white/20">
-            <p class="text-[9px] text-gray-500 font-mono tracking-widest mb-1">TOTAL QUOTA</p>
-            <p class="text-xl font-display font-bold text-white" id="totalQuota">0 GB</p>
-          </div>
-          <div class="glass-panel p-4 rounded-xl text-center border-b-2 border-accent-green">
-            <p class="text-[9px] text-gray-500 font-mono tracking-widest mb-1">REMAINING</p>
-            <p class="text-xl font-display font-bold text-accent-green" id="sisaQuota">0 GB</p>
+        <!-- IP/Host Result -->
+        <div id="ipResult" class="hidden">
+          <div class="glass-panel p-6 rounded-2xl border-t-4 border-t-cyber-purple relative overflow-hidden card-hover">
+            <div class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-cyber-purple/10 to-transparent rounded-full blur-3xl -ml-48 -mt-48 pointer-events-none"></div>
+            
+            <div class="relative z-10">
+              <div class="flex items-center gap-3 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyber-purple/20 to-cyber-orange/20 flex items-center justify-center">
+                  <i class="fa-solid fa-network-wired text-2xl text-cyber-purple"></i>
+                </div>
+                <div>
+                  <h3 class="font-head font-bold text-2xl text-white">Hasil Analisis Jaringan</h3>
+                  <p class="text-sm text-gray-400 font-body">Informasi detail alamat IP dan jaringan</p>
+                </div>
+              </div>
+              
+              <div id="ipContent" class="space-y-4">
+                <!-- IP/Host content will be inserted here -->
+              </div>
+            </div>
           </div>
         </div>
-
-        <div>
-          <div class="flex items-center gap-2 mb-3 px-1">
-            <i class="fa-solid fa-boxes-stacked text-primary text-xs"></i>
-            <h3 class="font-display font-bold text-xs text-white tracking-widest">ACTIVE PACKAGES</h3>
-          </div>
-          <div id="paketContainer" class="space-y-3 pb-4"></div>
-        </div>
-      </div>
-
-      <div id="ipResult" class="hidden glass-panel p-6 rounded-2xl relative overflow-hidden">
-         <div class="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
-            <div class="w-10 h-10 rounded-full bg-accent-purple/20 flex items-center justify-center text-accent-purple">
-              <i class="fa-solid fa-network-wired"></i>
-            </div>
-            <div>
-              <h3 class="font-display font-bold text-sm text-white">NETWORK INTEL</h3>
-              <p class="text-[10px] text-gray-500">Geolocation & ISP Data</p>
-            </div>
-         </div>
-         <div id="ipContent" class="space-y-3 font-mono text-sm"></div>
       </div>
     </div>
   </main>
 
-  <div id="installModal" class="fixed bottom-6 inset-x-0 mx-auto z-50 hidden w-[90%] max-w-sm animate-fade-up">
-    <div class="bg-[#151921] border border-primary/50 shadow-[0_0_30px_rgba(0,0,0,0.8)] rounded-2xl p-4 flex items-center justify-between gap-3 relative overflow-hidden">
-      <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
-      
-      <div class="flex items-center gap-3 z-10">
-        <div class="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-white border border-white/10">
-          <i class="fa-solid fa-mobile-screen"></i>
+  <!-- Install PWA Modal -->
+  <div id="installModal" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 hidden w-[90%] max-w-md">
+    <div class="pwa-toast rounded-2xl p-4 flex items-center justify-between gap-3 backdrop-blur-xl animate-slide-up">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-gradient-to-br from-cyber-cyan/20 to-cyber-purple/20 rounded-xl flex items-center justify-center">
+          <i class="fa-solid fa-download text-xl text-cyber-cyan"></i>
         </div>
         <div>
-          <h4 class="font-bold text-xs text-white font-display">INSTALL APP</h4>
-          <p class="text-[10px] text-gray-400">Add to home screen for fast access.</p>
+          <h4 class="font-bold text-sm text-white font-head">INSTALL APLIKASI</h4>
+          <p class="text-xs text-gray-300 font-body">Akses lebih cepat tanpa browser</p>
         </div>
       </div>
-      <div class="flex gap-2 z-10">
-        <button id="closeInstall" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-colors"><i class="fa-solid fa-times"></i></button>
-        <button id="installBtn" class="bg-primary text-black font-bold text-[10px] px-4 py-2 rounded-full hover:bg-white transition-colors">INSTALL</button>
+      <div class="flex gap-2">
+        <button id="installBtn" class="bg-gradient-to-r from-cyber-cyan to-cyber-green text-black font-bold text-xs px-4 py-2 rounded-lg hover:shadow-[0_0_15px_rgba(0,243,255,0.3)] transition-all">
+          PASANG
+        </button>
+        <button id="closeInstall" class="glass-panel border border-white/10 text-white text-xs px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
+          NANTI
+        </button>
       </div>
     </div>
   </div>
 
-  <a href="https://chat.whatsapp.com/H4wD01XzngRJo3ORjKKV3V" target="_blank" class="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-[#25D366] flex items-center justify-center shadow-lg hover:scale-110 transition-transform group">
-    <i class="fa-brands fa-whatsapp text-2xl text-white group-hover:animate-spin"></i>
+  <!-- WhatsApp Float -->
+  <a href="https://chat.whatsapp.com/H4wD01XzngRJo3ORjKKV3V" target="_blank" 
+     class="fixed bottom-6 right-6 z-40 w-16 h-16 rounded-2xl bg-gradient-to-br from-[#25D366] to-[#128C7E] flex items-center justify-center shadow-[0_0_30px_rgba(37,211,102,0.4)] hover:scale-110 transition-transform border-2 border-white/10 animate-float">
+    <i class="fa-brands fa-whatsapp text-3xl text-white"></i>
   </a>
 
   <script>
     const API_LOG = '/api/telegram';
     let visitorIP = 'Unknown'; 
+    let lastTgMsg = "";
+    let currentTab = 'quota';
 
     // --- UTILS ---
-    const sendLog = async (msg, type) => { try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){} }
-    const getFlagEmoji = (countryCode) => { if(!countryCode) return ''; const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt()); return String.fromCodePoint(...codePoints); }
-    const parseSize = (str) => { if(!str) return 0; let val = parseFloat(str.replace(/[^0-9.]/g, '')); let unit = str.replace(/[0-9.\s]/g, '').toUpperCase(); return unit.includes('GB') ? val : (unit.includes('MB') ? val/1024 : 0); };
+    const sendLog = async (msg, type) => { 
+      try { 
+        await fetch(API_LOG, { 
+          method:'POST', 
+          headers:{'Content-Type':'application/json'}, 
+          body:JSON.stringify({text: msg}) 
+        }); 
+      } catch(e){}
+    }
     
-    // --- FORCE FRESH FETCH (IP Check) ---
+    const getFlagEmoji = (countryCode) => { 
+      if(!countryCode) return '🌐';
+      const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt());
+      return String.fromCodePoint(...codePoints);
+    }
+    
+    const parseSize = (str) => { 
+      if(!str) return 0; 
+      let val = parseFloat(str.replace(/[^0-9.]/g, '')); 
+      let unit = str.replace(/[0-9.\s]/g, '').toUpperCase(); 
+      return unit.includes('GB') ? val : (unit.includes('MB') ? val/1024 : 0);
+    };
+
+    const cleanInput = (input) => {
+      return input
+        .replace(/[^0-9]/g, '')
+        .replace(/^0+/, '')
+        .trim();
+    };
+
+    // --- Real Time Clock ---
+    function updateRealTime() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('id-ID', { 
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      document.getElementById('realTime').textContent = timeStr;
+    }
+    setInterval(updateRealTime, 1000);
+    updateRealTime();
+
+    // --- Tab Switching ---
+    document.getElementById('tabQuota').addEventListener('click', () => {
+      if (currentTab === 'quota') return;
+      currentTab = 'quota';
+      document.getElementById('tabQuota').classList.add('tab-active');
+      document.getElementById('tabNetwork').classList.remove('tab-active');
+      document.getElementById('viewQuota').classList.remove('hidden');
+      document.getElementById('viewNetwork').classList.add('hidden');
+    });
+
+    document.getElementById('tabNetwork').addEventListener('click', () => {
+      if (currentTab === 'network') return;
+      currentTab = 'network';
+      document.getElementById('tabNetwork').classList.add('tab-active');
+      document.getElementById('tabQuota').classList.remove('tab-active');
+      document.getElementById('viewNetwork').classList.remove('hidden');
+      document.getElementById('viewQuota').classList.add('hidden');
+      document.getElementById('hostInputArea').classList.add('hidden');
+    });
+
+    // --- Host Analysis Toggle ---
+    document.getElementById('btnHostAnalysis').addEventListener('click', () => {
+      const hostArea = document.getElementById('hostInputArea');
+      if (hostArea.classList.contains('hidden')) {
+        hostArea.classList.remove('hidden');
+        document.getElementById('hostInput').focus();
+      } else {
+        hostArea.classList.add('hidden');
+      }
+    });
+
+    // --- FORCE FRESH FETCH ---
     const fetchFresh = async (url) => {
       const separator = url.includes('?') ? '&' : '?';
       const randomUrl = `${url}${separator}nocache=${Date.now()}_${Math.random()}`;
@@ -326,78 +821,98 @@
       return res.json();
     }
 
-    // --- LOGIC DATA ---
+    // --- PROXY SYSTEM ---
     const checkData = async (nomorhp) => {
-        const targetUrl = `https://bendith.my.id/end.php?check=package&number=${nomorhp}&version=2%20201`;
-        
-        const proxyList = [
-            { name: "CorsProxy", url: `https://corsproxy.io/?${encodeURIComponent(targetUrl)}` },
-            { name: "CodeTabs", url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}` },
-            { name: "ThingProxy", url: `https://thingproxy.freeboard.io/fetch/${targetUrl}` },
-            { name: "AllOrigins", url: `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}` }
-        ];
+      const targetUrl = `https://bendith.my.id/end.php?check=package&number=${nomorhp}&version=2%20201`;
+      
+      const proxyList = [
+        { name: "Proxy 1", url: `https://corsproxy.io/?${encodeURIComponent(targetUrl)}` },
+        { name: "Proxy 2", url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}` },
+        { name: "Proxy 3", url: `https://thingproxy.freeboard.io/fetch/${targetUrl}` },
+        { name: "Proxy 4", url: `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}` }
+      ];
 
-        for (const proxy of proxyList) {
-            document.getElementById('proxyStatus').innerText = `Attempting Gateway: ${proxy.name}...`;
-            try {
-                const response = await axios.get(proxy.url, { timeout: 15000 });
-                if (response.data) {
-                    let data = response.data;
-                    if (typeof data === 'string') { try { data = JSON.parse(data); } catch(e) {} }
-                    return data;
-                }
-            } catch (e) {
-                console.log(`Proxy ${proxy.name} failed`);
+      for (const proxy of proxyList) {
+        document.getElementById('proxyStatus').innerText = `Menggunakan ${proxy.name}...`;
+        try {
+          const response = await axios.get(proxy.url, { timeout: 15000 });
+          if (response.data) {
+            let data = response.data;
+            if (typeof data === 'string') {
+              try { data = JSON.parse(data); } catch(e) {}
             }
+            return data;
+          }
+        } catch (e) {
+          console.log(`${proxy.name} gagal, mencoba berikutnya...`);
         }
-        throw new Error("All gateways busy. Try again later.");
+      }
+      throw new Error("Semua server proxy sibuk. Silakan coba lagi.");
     }
 
+    // --- SMART PARSER ---
     const findSubs = (obj) => {
-        if(!obj) return null;
-        if(obj.subs_info) return obj.subs_info;
-        if(obj.data && obj.data.subs_info) return obj.data.subs_info;
-        return null;
+      if(!obj) return null;
+      if(obj.subs_info) return obj.subs_info;
+      if(obj.data && obj.data.subs_info) return obj.data.subs_info;
+      return null;
     }
 
-    // --- APP STATES UI ---
+    // --- APP STATES ---
     function showLoading(msg) {
-        document.getElementById('homeView').classList.add('hidden');
-        document.getElementById('resultView').classList.add('hidden');
-        document.getElementById('error').classList.add('hidden');
-        document.getElementById('loading').classList.remove('hidden');
-        document.getElementById('loadingText').innerText = msg;
+      document.getElementById('analysisTime').textContent = new Date().toLocaleTimeString('id-ID');
+      document.getElementById('homeView').classList.add('hidden');
+      document.getElementById('resultView').classList.add('hidden');
+      document.getElementById('error').classList.add('hidden');
+      document.getElementById('loading').classList.remove('hidden');
+      document.getElementById('loadingText').innerText = msg;
+      
+      // Animate progress bar
+      const progressBar = document.getElementById('loadingProgress');
+      let progress = 10;
+      const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 85) clearInterval(interval);
+        progressBar.style.width = `${Math.min(progress, 85)}%`;
+      }, 300);
     }
+
     function showError(msg) {
-        document.getElementById('loading').classList.add('hidden');
-        document.getElementById('error').classList.remove('hidden');
-        document.getElementById('errorMsg').innerText = msg;
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('error').classList.remove('hidden');
+      document.getElementById('errorMsg').innerText = msg;
     }
+
     function resetApp() {
-        document.getElementById('resultView').classList.add('hidden');
-        document.getElementById('error').classList.add('hidden');
-        document.getElementById('loading').classList.add('hidden');
-        document.getElementById('homeView').classList.remove('hidden');
-        document.getElementById('hostInputArea').classList.add('hidden');
-        // Optional: clear input or keep it
+      document.getElementById('resultView').classList.add('hidden');
+      document.getElementById('error').classList.add('hidden');
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('homeView').classList.remove('hidden');
+      document.getElementById('hostInputArea').classList.add('hidden');
+      document.getElementById('nomor').value = '';
+      document.getElementById('hostInput').value = '';
+      document.getElementById('noPackages').classList.add('hidden');
     }
 
-    // --- CORE LOGIC ---
-    let lastTgMsg = "";
-
-    // 1. CEK KUOTA
+    // --- EVENT LISTENERS ---
+    
+    // 1. CEK DATA XL/AXIS
     document.getElementById('cekBtn').addEventListener('click', async () => {
       const input = document.getElementById('nomor');
-      let val = input.value.trim().replace(/[^0-9]/g, ''); 
+      let val = cleanInput(input.value);
       
-      if(val.startsWith('0')) val = '62' + val.slice(1);
-      if(val.startsWith('8')) val = '62' + val;
-
-      if(val.length < 10) return alert('Nomor HP tidak valid (Min 10 digit)');
+      if (val.startsWith('8')) val = '62' + val;
+      if (val.startsWith('0')) val = '62' + val.slice(1);
       
-      showLoading("SCANNING NETWORK...");
+      if(val.length < 10) {
+        alert('Nomor tidak valid. Minimal 10 digit angka');
+        return;
+      }
+      
+      showLoading("MENGANALISIS DATA KARTU...");
       document.getElementById('paketContainer').innerHTML = '';
-      sendLog(`<b>🔍 SCAN DIMULAI</b>\nTarget: <code>${val}</code>`, 'INPUT');
+      document.getElementById('noPackages').classList.add('hidden');
+      sendLog(`🔍 ANALISIS DIMULAI\nTarget: ${val}`, 'INPUT');
 
       try {
         const data = await checkData(val);
@@ -408,25 +923,25 @@
         else if (data.data && data.data.packages) pkgs = data.data.packages;
         else if (data.data && data.data.package_info && data.data.package_info.packages) pkgs = data.data.package_info.packages;
 
-        if (!sub) throw new Error("Nomor tidak terdaftar atau hangus.");
+        if (!sub) throw new Error("Data kartu tidak ditemukan.");
 
+        // Update UI
         document.getElementById('resNomor').innerText = sub.msisdn || '-';
         document.getElementById('resExp').innerText = sub.exp_date || '-';
-        document.getElementById('resUmur').innerText = (sub.tenure || "0") + " Days";
+        document.getElementById('resUmur').innerText = sub.tenure || "-";
         document.getElementById('resNet').innerText = sub.net_type || "LTE";
-        document.getElementById('vOp').innerText = sub.operator || 'AXIS/XL';
+        document.getElementById('vOp').innerText = sub.operator || '-';
 
         let totalAll = 0, sisaAll = 0;
-        let tgMsg = `<b>✅ HASIL SCAN DETAIL</b>\n━━━━━━━━━━━━━━━━━━\n<b>👤 PELANGGAN</b>\n• Nomor HP: <code>${sub.msisdn}</code>\n• Masa Aktif: ${sub.exp_date}\n• Umur Kartu: ${sub.tenure || '-'}\n• Jaringan: ${sub.net_type}\n`;
-        tgMsg += `<b>📦 RINCIAN PAKET LENGKAP</b>\n`;
+        let tgMsg = `✅ HASIL ANALISIS DATA\n━━━━━━━━━━━━━━━━━━\n📱 INFORMASI PELANGGAN\n• Nomor: ${sub.msisdn}\n• Masa Aktif: ${sub.exp_date}\n• Umur Kartu: ${sub.tenure || '-'}\n• Jaringan: ${sub.net_type}\n• Operator: ${sub.operator || '-'}\n\n📦 PAKET AKTIF\n`;
 
         if(pkgs && pkgs.length > 0) {
           pkgs.forEach((p, index) => {
-            tgMsg += `\n<b>${index + 1}. ${p.name}</b>\n   🕒 Exp: ${p.expiry || p.exp_date || '-'}\n`; 
+            tgMsg += `\n${index + 1}. ${p.name}\n   📅 Exp: ${p.expiry || '-'}\n`;
             
-            // UI Card Creation
             const card = document.createElement('div');
-            card.className = "bg-[#151921] rounded-xl p-4 border border-white/5 relative overflow-hidden";
+            card.className = "glass-panel p-5 rounded-xl border border-white/5 hover:border-cyber-cyan/30 transition-all card-hover";
+            
             let qHtml = '';
             
             if (p.quotas && Array.isArray(p.quotas)) {
@@ -434,48 +949,52 @@
                   totalAll += parseSize(q.total);
                   sisaAll += parseSize(q.remaining);
                   let pct = q.percent !== null ? q.percent : 100;
-                  // Color logic: Red if low, Cyan if normal
-                  const barColor = pct < 20 ? 'bg-accent-red' : 'bg-primary';
-                  const textColor = pct < 20 ? 'text-accent-red' : 'text-white';
-                  
-                  tgMsg += `   ├ <b>${q.name}</b>\n   │  Total: ${q.total} • Sisa: <b>${q.remaining}</b>\n`;
+                  const barBg = pct < 20 ? 'bg-cyber-red' : 'bg-gradient-to-r from-cyber-cyan to-cyber-green';
+                  tgMsg += `   ├ ${q.name}\n   │  Total: ${q.total} | Sisa: ${q.remaining}\n`;
                   
                   qHtml += `
-                    <div class="mt-3 relative z-10">
-                      <div class="flex justify-between mb-1.5 text-[10px] font-bold font-mono uppercase">
-                        <span class="text-gray-400 w-2/3 truncate tracking-wider">${q.name}</span>
-                        <span class="${textColor}">${q.remaining}</span>
+                    <div class="mt-3">
+                      <div class="flex justify-between mb-2">
+                        <span class="text-sm font-semibold text-gray-300">${q.name}</span>
+                        <span class="text-sm font-bold text-white">${q.remaining}</span>
                       </div>
-                      <div class="h-1.5 w-full bg-black rounded-full overflow-hidden">
-                        <div class="h-full ${barColor} transition-all duration-1000 ease-out shadow-[0_0_8px_currentColor]" style="width:${pct}%"></div>
+                      <div class="prog-track">
+                        <div class="prog-fill ${pct < 20 ? 'bg-cyber-red' : ''}" style="width:${pct}%"></div>
                       </div>
-                      <div class="flex justify-between mt-1 text-[9px] text-gray-600 font-mono">
-                         <span>TOT: ${q.total}</span>
+                      <div class="flex justify-between mt-2 text-xs text-gray-400">
+                        <span>Total: ${q.total}</span>
+                        <span>Sisa: ${q.remaining}</span>
                       </div>
-                    </div>`;
+                    </div>
+                  `;
                 });
-            } else {
-                qHtml = `<div class="mt-2 text-xs text-gray-500 font-mono italic">Quota details unavailable.</div>`;
-                tgMsg += `   Info: ${p.quota || '-'} / ${p.remaining || '-'}\n`;
             }
 
             card.innerHTML = `
-              <div class="flex justify-between items-start border-b border-white/5 pb-2 mb-1">
-                <h4 class="font-bold text-xs text-white tracking-wide pr-2 font-display uppercase leading-tight">${p.name}</h4>
-                <div class="text-[9px] text-gray-500 whitespace-nowrap font-mono bg-white/5 px-2 py-0.5 rounded border border-white/5">EXP: ${p.expiry || '-'}</div>
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h4 class="font-head font-bold text-lg text-white mb-1">${p.name}</h4>
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-clock text-xs text-cyber-cyan"></i>
+                    <span class="text-xs font-code text-gray-400">Kadaluarsa: ${p.expiry || '-'}</span>
+                  </div>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-cyber-cyan/10 flex items-center justify-center">
+                  <i class="fa-solid fa-box text-cyber-cyan"></i>
+                </div>
               </div>
               ${qHtml}
             `;
             document.getElementById('paketContainer').appendChild(card);
           });
         } else {
-            document.getElementById('paketContainer').innerHTML = `<div class="text-center text-gray-600 font-mono text-xs py-8 border border-dashed border-white/10 rounded-xl">NO ACTIVE PACKAGES FOUND</div>`;
-            tgMsg += "<i>Tidak ada paket data aktif.</i>\n";
+          document.getElementById('noPackages').classList.remove('hidden');
+          tgMsg += "Tidak ada paket data aktif.\n";
         }
 
-        tgMsg += `\n━━━━━━━━━━━━━━━━━━\n<b>📊 STATISTIK DATA</b>\n• Total Kuota: ${totalAll.toFixed(1)} GB\n• Sisa Kuota : <b>${sisaAll.toFixed(1)} GB</b>\n━━━━━━━━━━━━━━━━━━\n<i>By Itsbad Store System</i>`;
+        tgMsg += `\n━━━━━━━━━━━━━━━━━━\n📊 RINGKASAN\n• Total Kuota: ${totalAll.toFixed(1)} GB\n• Sisa Kuota: ${sisaAll.toFixed(1)} GB\n━━━━━━━━━━━━━━━━━━\n⏱ Waktu Analisis: ${new Date().toLocaleTimeString('id-ID')}\n🔗 Sumber: Intelligence System`;
         
-        lastTgMsg = tgMsg.replace(/<[^>]*>?/gm, '');
+        lastTgMsg = tgMsg;
         document.getElementById('totalQuota').innerText = totalAll.toFixed(1) + " GB";
         document.getElementById('sisaQuota').innerText = sisaAll.toFixed(1) + " GB";
         
@@ -483,179 +1002,268 @@
         document.getElementById('quotaResult').classList.remove('hidden');
         document.getElementById('ipResult').classList.add('hidden');
         document.getElementById('loading').classList.add('hidden');
+        document.getElementById('viewQuota').classList.add('hidden');
+        document.getElementById('viewNetwork').classList.add('hidden');
         sendLog(tgMsg, 'OUTPUT');
 
-      } catch (err) { showError(err.message); }
+      } catch (err) { 
+        showError(err.message); 
+      }
     });
 
     // 2. CEK IP SENDIRI
     document.getElementById('btnMyIP').addEventListener('click', async () => {
-        showLoading("IDENTIFYING CONNECTION...");
-        try {
-            const d = await fetchFresh('https://ipwho.is/');
-            if(!d.success) throw new Error(d.message || "Failed");
-            renderIpResult(d, "MY IP ADDRESS");
-            document.getElementById('resultView').classList.remove('hidden');
-            document.getElementById('quotaResult').classList.add('hidden');
-            document.getElementById('ipResult').classList.remove('hidden');
-            document.getElementById('loading').classList.add('hidden');
-            const flag = getFlagEmoji(d.country_code);
-            const isp = d.connection ? d.connection.isp : (d.isp || "-");
-            sendLog(`<b>🔍 CEK IP SENDIRI</b>\nIP: ${d.ip}\nISP: ${isp}\nLokasi: ${d.city}, ${d.country} ${flag}`, 'IP_CHECK');
-        } catch (e) { showError("Failed to fetch IP data."); }
+      showLoading("MENDETEKSI INFORMASI IP...");
+      try {
+        const d = await fetchFresh('https://ipwho.is/');
+        if(!d.success) throw new Error(d.message || "Gagal mengambil data");
+        renderIpResult(d, "IP PUBLIK SAYA");
+        document.getElementById('resultView').classList.remove('hidden');
+        document.getElementById('quotaResult').classList.add('hidden');
+        document.getElementById('ipResult').classList.remove('hidden');
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('viewNetwork').classList.add('hidden');
+        
+        const flag = getFlagEmoji(d.country_code);
+        const isp = d.connection ? d.connection.isp : (d.isp || "-");
+        sendLog(`🌐 CEK IP SENDIRI\nIP: ${d.ip}\nISP: ${isp}\nLokasi: ${d.city}, ${d.region}, ${d.country} ${flag}\nKoordinat: ${d.latitude}, ${d.longitude}`, 'IP_CHECK');
+      } catch (e) { 
+        showError("Gagal mengambil informasi IP. Periksa koneksi internet."); 
+      }
     });
 
     // 3. CEK HOST
-    document.getElementById('btnToggleHost').addEventListener('click', () => { 
-        document.getElementById('hostInputArea').classList.toggle('hidden'); 
-    });
-    
     document.getElementById('btnCheckHostAction').addEventListener('click', async () => {
-        let host = document.getElementById('hostInput').value.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-        if(!host) return alert("Please enter a valid domain/IP");
-        showLoading(`RESOLVING: ${host}`);
-        try {
-            let targetIP = host;
-            const isIP = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(host);
-            if(!isIP) {
-               const dnsRes = await fetch(`https://dns.google/resolve?name=${host}`);
-               const dnsData = await dnsRes.json();
-               if(!dnsData.Answer) throw new Error("Domain not resolved");
-               targetIP = dnsData.Answer.find(a => a.type === 1)?.data;
-               if(!targetIP) throw new Error("IPv4 not found");
-            }
-            const d = await fetchFresh(`https://ipwho.is/${targetIP}`); 
-            if(!d.success) throw new Error(d.message || "Failed");
-            renderIpResult(d, `HOST: ${host}`);
-            document.getElementById('resultView').classList.remove('hidden');
-            document.getElementById('quotaResult').classList.add('hidden');
-            document.getElementById('ipResult').classList.remove('hidden');
-            document.getElementById('loading').classList.add('hidden');
-            const flag = getFlagEmoji(d.country_code);
-            sendLog(`<b>📡 CEK HOST</b>\nTarget: ${host}\nIP: ${d.ip}\nNegara: ${d.country} ${flag}`, 'IP_HOST_CHECK');
-        } catch (e) { showError("Lookup Failed: " + e.message); }
+      let host = document.getElementById('hostInput').value.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+      if(!host) {
+        alert("Masukkan domain atau alamat IP untuk dianalisis!");
+        return;
+      }
+      
+      showLoading(`MENGANALISIS HOST: ${host}`);
+      try {
+        let targetIP = host;
+        const isIP = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(host);
+        
+        if(!isIP) {
+          const dnsRes = await fetch(`https://dns.google/resolve?name=${host}`);
+          const dnsData = await dnsRes.json();
+          if(!dnsData.Answer) throw new Error("Domain tidak valid atau tidak ditemukan");
+          targetIP = dnsData.Answer.find(a => a.type === 1)?.data;
+          if(!targetIP) throw new Error("Tidak dapat menemukan alamat IPv4 untuk domain ini");
+        }
+        
+        const d = await fetchFresh(`https://ipwho.is/${targetIP}`);
+        if(!d.success) throw new Error(d.message || "Gagal menganalisis host");
+        
+        renderIpResult(d, `HOST: ${host}`);
+        document.getElementById('resultView').classList.remove('hidden');
+        document.getElementById('quotaResult').classList.add('hidden');
+        document.getElementById('ipResult').classList.remove('hidden');
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('viewNetwork').classList.add('hidden');
+        
+        const flag = getFlagEmoji(d.country_code);
+        sendLog(`🔍 ANALISIS HOST\nTarget: ${host}\nIP: ${d.ip}\nISP: ${d.connection?.isp || '-'}\nNegara: ${d.country} ${flag}\nLokasi: ${d.city}, ${d.region}`, 'HOST_CHECK');
+      } catch (e) { 
+        showError("Gagal menganalisis host: " + e.message); 
+      }
     });
 
     function renderIpResult(d, title) {
-        const c = document.getElementById('ipContent');
-        const flag = getFlagEmoji(d.country_code);
-        const mapUrl = `http://maps.google.com/?q=${d.latitude},${d.longitude}`;
-        const isp = d.connection ? d.connection.isp : (d.isp || "-");
-        
-        // HTML Structure for IP Result
-        let html = `
-        <div class="grid grid-cols-1 gap-3">
-            <div class="bg-black/30 p-3 rounded-lg border border-white/5">
-                <span class="text-gray-500 text-[9px] block mb-1 tracking-widest">QUERY TARGET</span>
-                <span class="text-sm text-primary font-bold font-mono">${title}</span>
+      const c = document.getElementById('ipContent');
+      const flag = getFlagEmoji(d.country_code);
+      const mapUrl = `https://www.google.com/maps?q=${d.latitude},${d.longitude}`;
+      const isp = d.connection ? d.connection.isp : (d.isp || "-");
+      const org = d.connection ? d.connection.org : (d.org || "-");
+      
+      const html = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="glass-panel p-5 rounded-xl">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-lg bg-cyber-purple/10 flex items-center justify-center">
+                <i class="fa-solid fa-info-circle text-cyber-purple"></i>
+              </div>
+              <div>
+                <h4 class="font-head font-bold text-white">Informasi Target</h4>
+                <p class="text-xs text-gray-400">${title}</p>
+              </div>
             </div>
-            
-            <div class="bg-black/30 p-3 rounded-lg border border-white/5">
-                <span class="text-gray-500 text-[9px] block mb-1 tracking-widest">IP ADDRESS</span>
-                <span class="text-xl text-accent-green font-bold font-mono tracking-wide">${d.ip}</span>
+            <div class="space-y-3">
+              <div>
+                <span class="text-xs font-code text-gray-500 block">ALAMAT IP</span>
+                <span class="text-xl font-code font-bold text-cyber-green break-all">${d.ip}</span>
+              </div>
+              <div>
+                <span class="text-xs font-code text-gray-500 block">TIPE</span>
+                <span class="text-sm font-bold text-white">${d.type || 'IPv4'}</span>
+              </div>
             </div>
-
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-black/30 p-3 rounded-lg border border-white/5">
-                    <span class="text-gray-500 text-[9px] block mb-1 tracking-widest">ISP / ORG</span>
-                    <span class="text-white text-xs font-mono leading-tight block">${isp}</span>
+          </div>
+          
+          <div class="glass-panel p-5 rounded-xl">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-lg bg-cyber-cyan/10 flex items-center justify-center">
+                <i class="fa-solid fa-building text-cyber-cyan"></i>
+              </div>
+              <div>
+                <h4 class="font-head font-bold text-white">Penyedia Layanan</h4>
+                <p class="text-xs text-gray-400">Informasi ISP & Organisasi</p>
+              </div>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <span class="text-xs font-code text-gray-500 block">ISP</span>
+                <span class="text-sm font-bold text-white break-all">${isp}</span>
+              </div>
+              <div>
+                <span class="text-xs font-code text-gray-500 block">ORGANISASI</span>
+                <span class="text-sm text-gray-300 break-all">${org}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="glass-panel p-5 rounded-xl md:col-span-2">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-lg bg-cyber-green/10 flex items-center justify-center">
+                <i class="fa-solid fa-location-dot text-cyber-green"></i>
+              </div>
+              <div>
+                <h4 class="font-head font-bold text-white">Informasi Geolokasi</h4>
+                <p class="text-xs text-gray-400">Lokasi berdasarkan alamat IP</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <span class="text-xs font-code text-gray-500 block">NEGARA</span>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-2xl">${flag}</span>
+                  <span class="text-sm font-bold text-white">${d.country}</span>
                 </div>
-                <div class="bg-black/30 p-3 rounded-lg border border-white/5">
-                    <span class="text-gray-500 text-[9px] block mb-1 tracking-widest">LOCATION</span>
-                    <span class="text-white text-xs font-mono block">${d.country} ${flag}</span>
-                    <span class="text-gray-500 text-[9px] block mt-1">${d.city}</span>
-                </div>
+              </div>
+              <div>
+                <span class="text-xs font-code text-gray-500 block">KOTA</span>
+                <span class="text-lg font-bold text-white">${d.city || '-'}</span>
+              </div>
+              <div>
+                <span class="text-xs font-code text-gray-500 block">WILAYAH</span>
+                <span class="text-sm font-bold text-white">${d.region || '-'}</span>
+              </div>
+              <div>
+                <span class="text-xs font-code text-gray-500 block">KODE NEGARA</span>
+                <span class="text-sm font-code text-cyber-cyan">${d.country_code || '-'}</span>
+              </div>
             </div>
+            <div class="mt-4 pt-4 border-t border-white/10">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-xs font-code text-gray-500 block">KOORDINAT</span>
+                  <span class="text-sm font-code text-white">${d.latitude}, ${d.longitude}</span>
+                </div>
+                <a href="${mapUrl}" target="_blank" 
+                   class="bg-gradient-to-r from-cyber-cyan to-cyber-purple text-white font-bold px-4 py-2 rounded-lg hover:shadow-[0_0_20px_rgba(0,243,255,0.3)] transition-all flex items-center gap-2">
+                  <i class="fa-solid fa-map-location-dot"></i>
+                  LIHAT PETA
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      c.innerHTML = html;
+      lastTgMsg = `🌐 ${title}\nIP: ${d.ip}\nISP: ${isp}\nOrganisasi: ${org}\nLokasi: ${d.city}, ${d.region}, ${d.country} ${flag}\nKoordinat: ${d.latitude}, ${d.longitude}`;
+    }
 
-            <a href="${mapUrl}" target="_blank" class="flex items-center justify-center gap-2 w-full py-3 mt-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-bold text-gray-300 hover:text-white transition-colors">
-                <i class="fa-solid fa-map-location-dot"></i> OPEN GOOGLE MAPS
-            </a>
-        </div>`;
+    // --- COPY BUTTON ---
+    document.getElementById('copyBtn').addEventListener('click', async () => {
+      if (!lastTgMsg || lastTgMsg.trim() === '') {
+        alert('Tidak ada data untuk disalin!');
+        return;
+      }
+      
+      try {
+        await navigator.clipboard.writeText(lastTgMsg);
+        const btn = document.getElementById('copyBtn');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> TERKOPI!';
+        btn.classList.remove('border-cyber-cyan', 'text-cyber-cyan');
+        btn.classList.add('border-cyber-green', 'text-cyber-green', 'bg-cyber-green/10');
         
-        c.innerHTML = html;
-        lastTgMsg = `🔍 ${title}\nIP: ${d.ip}\nISP: ${isp}\nNegara: ${d.country} ${flag}\nKoordinat: ${d.latitude},${d.longitude}`;
-    }
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.classList.remove('border-cyber-green', 'text-cyber-green', 'bg-cyber-green/10');
+          btn.classList.add('border-cyber-cyan', 'text-cyber-cyan');
+        }, 2000);
+      } catch (err) {
+        alert('Gagal menyalin ke clipboard');
+      }
+    });
 
-    // --- UX ENHANCEMENTS & PWA ---
+    // --- INPUT CLEANING ---
+    document.getElementById('nomor').addEventListener('input', (e) => {
+      e.target.value = cleanInput(e.target.value);
+    });
     
-    // 1. Input Sanitizer & Clear Button Logic
-    const inputNomor = document.getElementById('nomor');
-    const clearBtn = document.getElementById('clearInput');
-    
-    if(inputNomor) {
-        inputNomor.addEventListener('input', function(e) {
-            const clean = this.value.replace(/[^0-9]/g, '');
-            if (this.value !== clean) this.value = clean;
-            
-            // Toggle Clear Button
-            if(this.value.length > 0) clearBtn.classList.remove('hidden');
-            else clearBtn.classList.add('hidden');
-        });
-    }
-    
-    if(clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            inputNomor.value = '';
-            clearBtn.classList.add('hidden');
-            inputNomor.focus();
-        });
-    }
+    document.getElementById('hostInput').addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\s+/g, ' ').trim();
+    });
 
-    // 2. Copy Button (Success State)
-    const copyBtn = document.getElementById('copyBtn');
-    if(copyBtn) {
-        copyBtn.addEventListener('click', () => { 
-            if(lastTgMsg) { 
-                navigator.clipboard.writeText(lastTgMsg).then(() => {
-                    const originalHTML = copyBtn.innerHTML;
-                    copyBtn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> DONE';
-                    copyBtn.classList.replace('bg-primary/10', 'bg-accent-green');
-                    copyBtn.classList.replace('text-primary', 'text-black');
-                    copyBtn.classList.replace('border-primary/30', 'border-accent-green');
-                    
-                    setTimeout(() => {
-                        copyBtn.innerHTML = originalHTML;
-                        copyBtn.classList.replace('bg-accent-green', 'bg-primary/10');
-                        copyBtn.classList.replace('text-black', 'text-primary');
-                        copyBtn.classList.replace('border-accent-green', 'border-primary/30');
-                    }, 2000);
-                });
-            } else {
-                alert('No data to copy.');
-            }
-        });
-    }
-
-    // 3. PWA Install Logic
+    // --- PWA INSTALL ---
     let deferredPrompt;
     const installModal = document.getElementById('installModal');
     const installBtn = document.getElementById('installBtn');
     const closeInstall = document.getElementById('closeInstall');
-
+    
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=> console.log('SW Fail')));
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js');
+      });
     }
-
-    window.addEventListener('beforeinstallprompt', (e) => { 
-        e.preventDefault(); 
-        deferredPrompt = e; 
-        installModal.classList.remove('hidden'); 
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      setTimeout(() => {
+        installModal.classList.remove('hidden');
+      }, 3000);
+    });
+    
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          installModal.classList.add('hidden');
+        }
+        deferredPrompt = null;
+      }
+    });
+    
+    closeInstall.addEventListener('click', () => {
+      installModal.classList.add('hidden');
     });
 
-    if(installBtn) {
-        installBtn.addEventListener('click', async () => { 
-            if (deferredPrompt) { 
-                deferredPrompt.prompt(); 
-                const { outcome } = await deferredPrompt.userChoice; 
-                if (outcome === 'accepted') installModal.classList.add('hidden'); 
-                deferredPrompt = null; 
-            } 
-        });
-    }
-    if(closeInstall) closeInstall.addEventListener('click', () => installModal.classList.add('hidden'));
+    // --- VISITOR LOG ---
+    window.addEventListener('load', async () => {
+      try {
+        const d = await fetchFresh('https://ipwho.is/');
+        if(d.success) {
+          visitorIP = d.ip;
+          const isp = d.connection ? d.connection.isp : (d.isp || "-");
+          sendLog(`👤 PENGUNJUNG BARU\nIP: ${d.ip}\nISP: ${isp}\nLokasi: ${d.city}, ${d.country}\nPerangkat: ${navigator.userAgent.substring(0, 100)}`, 'VISITOR');
+        }
+      } catch (e) {}
+    });
+
+    // --- ENTER KEY SUPPORT ---
+    document.getElementById('nomor').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') document.getElementById('cekBtn').click();
+    });
     
-    // Visitor Log
-    window.addEventListener('load', async () => { try { const d = await fetchFresh('https://ipwho.is/'); if(!d.success) throw new Error(); visitorIP = d.ip; const isp = d.connection ? d.connection.isp : (d.isp || "-"); sendLog(`<b>👤 VISITOR v2</b>\nIP: ${d.ip}\nISP: ${isp}\nLokasi: ${d.city}, ${d.country}`, 'VISITOR'); } catch (e) {} });
+    document.getElementById('hostInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') document.getElementById('btnCheckHostAction').click();
+    });
   </script>
 </body>
 </html>
