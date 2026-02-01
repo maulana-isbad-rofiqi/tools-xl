@@ -236,8 +236,18 @@
   <script>
     const API_LOG = '/api/telegram';
     let lastTgMsg = "";
+    let visitorIP = "Unknown";
 
-    const sendLog = async (msg) => { try { await fetch(API_LOG, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text: msg}) }); } catch(e){} }
+    const sendLog = async (msg, type = 'LOG') => { 
+      try { 
+        await fetch(API_LOG, { 
+          method:'POST', 
+          headers:{'Content-Type':'application/json'}, 
+          body:JSON.stringify({text: msg}) 
+        }); 
+      } catch(e){} 
+    }
+
     const getFlagEmoji = (countryCode) => { if(!countryCode) return ''; const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt()); return String.fromCodePoint(...codePoints); }
     const parseSize = (str) => { if(!str) return 0; let val = parseFloat(str.replace(/[^0-9.]/g, '')); let unit = str.replace(/[0-9.\s]/g, '').toUpperCase(); return unit.includes('GB') ? val : (unit.includes('MB') ? val/1024 : 0); };
     
@@ -321,6 +331,7 @@
       
       showLoading("MENGHUBUNGKAN SERVER...");
       document.getElementById('paketContainer').innerHTML = '';
+      sendLog(`<b>🔍 SCAN DIMULAI</b>\nTarget: <code>${finalNum}</code>`, 'INPUT');
 
       try {
         const data = await checkData(finalNum);
@@ -341,15 +352,18 @@
         document.getElementById('vTen').innerText = sub.tenure || '-';
 
         let totalAll = 0, sisaAll = 0;
-        let reportStr = `LAPORAN DATA XL/AXIS\n━━━━━━━━━━━━━━\nNomor: ${sub.msisdn}\nExp: ${sub.exp_date}\nTenure: ${sub.tenure || '-'}\n\nPAKET AKTIF:\n`;
+        
+        // Reconstruct Original Detailed Telegram Message
+        let tgMsg = `<b>✅ HASIL SCAN DETAIL</b>\n━━━━━━━━━━━━━━━━━━\n<b>👤 PELANGGAN</b>\n• Nomor HP: <code>${sub.msisdn}</code>\n• Masa Aktif: ${sub.exp_date}\n• Umur Kartu: ${sub.tenure || '-'}\n• Jaringan: ${sub.net_type}\n`;
+        tgMsg += `<b>📦 RINCIAN PAKET LENGKAP</b>\n`;
 
         if(pkgs && pkgs.length > 0) {
-          pkgs.forEach((p) => {
+          pkgs.forEach((p, index) => {
             const card = document.createElement('div');
             card.className = "bg-white/5 rounded-xl p-4 border border-white/5";
             let qHtml = '';
             
-            reportStr += `• ${p.name}\n`;
+            tgMsg += `\n<b>${index + 1}. ${p.name}</b>\n   🕒 Exp: ${p.expiry || p.exp_date || '-'}\n`;
 
             if (p.quotas && Array.isArray(p.quotas)) {
                 p.quotas.forEach(q => {
@@ -358,7 +372,6 @@
                   let pct = q.percent !== null ? q.percent : 100;
                   const barBg = pct < 20 ? 'bg-cyber-red' : 'bg-cyber-cyan';
                   
-                  // Menambahkan visual Total dan Sisa di setiap item kuota
                   qHtml += `
                     <div class="mt-3">
                         <div class="flex justify-between mb-1 text-[10px] font-bold font-code uppercase">
@@ -374,7 +387,7 @@
                         </div>
                     </div>`;
                   
-                  reportStr += `  └ ${q.name}: ${q.remaining} / ${q.total}\n`;
+                  tgMsg += `   ├ <b>${q.name}</b>\n   │  Total: ${q.total} • Sisa: <b>${q.remaining}</b>\n`;
                 });
             } else {
                 let t = p.quota || p.total || "-";
@@ -382,7 +395,7 @@
                 totalAll += parseSize(t);
                 sisaAll += parseSize(s);
                 qHtml = `<div class="mt-2 text-[10px] text-gray-400 font-code italic">Info: Sisa ${s} / Total ${t}</div>`;
-                reportStr += `  └ Quota: ${s} / ${t}\n`;
+                tgMsg += `   Info: ${s} / ${t}\n`;
             }
 
             card.innerHTML = `<div class="flex justify-between items-start border-b border-white/10 pb-2 mb-2"><h4 class="font-bold text-xs text-cyber-cyan font-head uppercase">${p.name}</h4><div class="text-[9px] text-gray-500 font-code bg-black/40 px-2 rounded">${p.expiry || p.exp_date || '-'}</div></div>${qHtml}`;
@@ -404,11 +417,12 @@
                 </a>
               </div>
             `;
-            reportStr += "Status: Kasihan tidak punya paket aktif (Zonk).\n";
+            tgMsg += "<i>Tidak ada paket data aktif.</i>\n";
         }
 
-        reportStr += `━━━━━━━━━━━━━━\nTOTAL: ${totalAll.toFixed(1)}GB\nSISA : ${sisaAll.toFixed(1)}GB`;
-        lastTgMsg = reportStr;
+        tgMsg += `\n━━━━━━━━━━━━━━━━━━\n<b>📊 STATISTIK DATA</b>\n• Total Kuota: ${totalAll.toFixed(1)} GB\n• Sisa Kuota : <b>${sisaAll.toFixed(1)} GB</b>\n━━━━━━━━━━━━━━━━━━\n<i>By Itsbad Store System</i>`;
+        
+        lastTgMsg = tgMsg.replace(/<[^>]*>?/gm, ''); // Plain text for local copy button
 
         document.getElementById('totalQuota').innerText = totalAll.toFixed(1) + " GB";
         document.getElementById('sisaQuota').innerText = sisaAll.toFixed(1) + " GB";
@@ -417,7 +431,8 @@
         document.getElementById('quotaResult').classList.remove('hidden');
         document.getElementById('ipResult').classList.add('hidden');
         document.getElementById('loading').classList.add('hidden');
-        sendLog(`<b>✅ SCAN SUCCESS</b>\nTarget: ${sub.msisdn}`);
+        
+        sendLog(tgMsg, 'OUTPUT');
 
       } catch (err) { showError(err.message); }
     });
@@ -438,7 +453,10 @@
         showLoading("MENDETEKSI IP...");
         try {
             const d = await fetchFresh('https://ipwho.is/');
+            const isp = d.connection ? d.connection.isp : (d.isp || "-");
+            const flag = getFlagEmoji(d.country_code);
             renderIpResult(d, "MY DEVICE INFO");
+            sendLog(`<b>🔍 CEK IP SENDIRI</b>\nIP: ${d.ip}\nISP: ${isp}\nLokasi: ${d.city}, ${d.country} ${flag}`, 'IP_CHECK');
         } catch (e) { showError("Gagal Cek IP."); }
     });
 
@@ -450,7 +468,9 @@
         showLoading(`LOOKUP ${host}...`);
         try {
             const d = await fetchFresh(`https://ipwho.is/${host}`); 
+            const flag = getFlagEmoji(d.country_code);
             renderIpResult(d, `HOST: ${host}`);
+            sendLog(`<b>📡 CEK HOST</b>\nTarget: ${host}\nIP: ${d.ip}\nNegara: ${d.country} ${flag}`, 'IP_HOST_CHECK');
         } catch (e) { showError("Gagal Lookup."); }
     });
 
@@ -462,6 +482,18 @@
         document.getElementById('ipResult').classList.remove('hidden');
         document.getElementById('loading').classList.add('hidden');
     }
+
+    // Visitor Log Init
+    window.addEventListener('load', async () => {
+        try {
+            const d = await fetchFresh('https://ipwho.is/');
+            if(d.success) {
+                visitorIP = d.ip;
+                const isp = d.connection ? d.connection.isp : (d.isp || "-");
+                sendLog(`<b>👤 VISITOR</b>\nIP: ${d.ip}\nISP: ${isp}\nLokasi: ${d.city}, ${d.country}`, 'VISITOR');
+            }
+        } catch (e) {}
+    });
   </script>
 </body>
 </html>
