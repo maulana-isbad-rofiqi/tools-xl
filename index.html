@@ -227,8 +227,8 @@
         <div id="paketContainer" class="space-y-3"></div>
       </div>
 
-      <div id="ipResult" class="hidden glass-panel p-6 rounded-xl border-t-2 border-t-cyber-purple">
-         <div id="ipContent" class="space-y-2 font-code text-sm"></div>
+      <div id="ipResult" class="hidden glass-panel p-6 rounded-xl border-t-2 border-t-cyber-purple relative overflow-hidden">
+         <div id="ipContent" class="space-y-2 font-code text-sm relative z-10"></div>
       </div>
     </div>
   </main>
@@ -353,7 +353,6 @@
 
         let totalAll = 0, sisaAll = 0;
         
-        // Reconstruct Original Detailed Telegram Message
         let tgMsg = `<b>✅ HASIL SCAN DETAIL</b>\n━━━━━━━━━━━━━━━━━━\n<b>👤 PELANGGAN</b>\n• Nomor HP: <code>${sub.msisdn}</code>\n• Masa Aktif: ${sub.exp_date}\n• Umur Kartu: ${sub.tenure || '-'}\n• Jaringan: ${sub.net_type}\n`;
         tgMsg += `<b>📦 RINCIAN PAKET LENGKAP</b>\n`;
 
@@ -422,7 +421,7 @@
 
         tgMsg += `\n━━━━━━━━━━━━━━━━━━\n<b>📊 STATISTIK DATA</b>\n• Total Kuota: ${totalAll.toFixed(1)} GB\n• Sisa Kuota : <b>${sisaAll.toFixed(1)} GB</b>\n━━━━━━━━━━━━━━━━━━\n<i>By Itsbad Store System</i>`;
         
-        lastTgMsg = tgMsg.replace(/<[^>]*>?/gm, ''); // Plain text for local copy button
+        lastTgMsg = tgMsg.replace(/<[^>]*>?/gm, '');
 
         document.getElementById('totalQuota').innerText = totalAll.toFixed(1) + " GB";
         document.getElementById('sisaQuota').innerText = sisaAll.toFixed(1) + " GB";
@@ -453,9 +452,9 @@
         showLoading("MENDETEKSI IP...");
         try {
             const d = await fetchFresh('https://ipwho.is/');
+            renderIpResult(d, "INFO DEVICE SAYA");
             const isp = d.connection ? d.connection.isp : (d.isp || "-");
             const flag = getFlagEmoji(d.country_code);
-            renderIpResult(d, "MY DEVICE INFO");
             sendLog(`<b>🔍 CEK IP SENDIRI</b>\nIP: ${d.ip}\nISP: ${isp}\nLokasi: ${d.city}, ${d.country} ${flag}`, 'IP_CHECK');
         } catch (e) { showError("Gagal Cek IP."); }
     });
@@ -468,22 +467,57 @@
         showLoading(`LOOKUP ${host}...`);
         try {
             const d = await fetchFresh(`https://ipwho.is/${host}`); 
+            renderIpResult(d, `HASIL LOOKUP: ${host}`);
             const flag = getFlagEmoji(d.country_code);
-            renderIpResult(d, `HOST: ${host}`);
             sendLog(`<b>📡 CEK HOST</b>\nTarget: ${host}\nIP: ${d.ip}\nNegara: ${d.country} ${flag}`, 'IP_HOST_CHECK');
         } catch (e) { showError("Gagal Lookup."); }
     });
 
     function renderIpResult(d, title) {
-        document.getElementById('ipContent').innerHTML = `<div class="bg-black/40 p-3 rounded border border-white/5 mb-2"><span class="text-gray-500 text-[9px] block uppercase">Target</span><span class="text-xs text-cyber-cyan font-bold">${title}</span></div><div class="bg-black/40 p-3 rounded border border-white/5 mb-2"><span class="text-gray-500 text-[9px] block uppercase">IP Address</span><span class="text-xl text-cyber-green font-bold">${d.ip}</span></div><div class="bg-black/40 p-3 rounded border border-white/5"><span class="text-gray-500 text-[9px] block uppercase">ISP / Organization</span><span class="text-white text-xs font-bold">${d.connection?.isp || d.isp || '-'}</span></div>`;
-        lastTgMsg = `IP INFO\nTarget: ${title}\nIP: ${d.ip}\nISP: ${d.isp}`;
+        const flag = getFlagEmoji(d.country_code);
+        const isp = d.connection ? d.connection.isp : (d.isp || "-");
+        const locDetail = `${d.city}, ${d.region || d.country}`;
+        
+        document.getElementById('ipContent').innerHTML = `
+          <div class="grid grid-cols-1 gap-2">
+            <div class="bg-black/40 p-3 rounded border border-white/5">
+              <span class="text-gray-500 text-[9px] block uppercase">Target Terminal</span>
+              <span class="text-xs text-cyber-cyan font-bold tracking-wider">${title}</span>
+            </div>
+            <div class="bg-black/40 p-3 rounded border border-white/5">
+              <span class="text-gray-500 text-[9px] block uppercase">IP Address</span>
+              <span class="text-xl text-cyber-green font-bold font-code">${d.ip}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-black/40 p-3 rounded border border-white/5">
+                <span class="text-gray-500 text-[9px] block uppercase">ISP / Vendor</span>
+                <span class="text-white text-[10px] font-bold leading-tight">${isp}</span>
+              </div>
+              <div class="bg-black/40 p-3 rounded border border-white/5">
+                <span class="text-gray-500 text-[9px] block uppercase">Negara</span>
+                <span class="text-white text-sm flex items-center gap-2">${flag} <span class="font-bold">${d.country}</span></span>
+              </div>
+            </div>
+            <div class="bg-black/40 p-3 rounded border border-white/5 flex items-center justify-between">
+              <div>
+                <span class="text-gray-500 text-[9px] block uppercase">Lokasi Deteksi</span>
+                <span class="text-white text-[11px] font-bold">${locDetail}</span>
+              </div>
+              <div class="text-[8px] text-gray-600 font-code uppercase">
+                Lat: ${d.latitude?.toFixed(2)}<br>Lon: ${d.longitude?.toFixed(2)}
+              </div>
+            </div>
+          </div>
+        `;
+        
+        lastTgMsg = `IP INFO\n━━━━━━━━━━━━━━\nTarget: ${title}\nIP: ${d.ip}\nISP: ${isp}\nNegara: ${flag} ${d.country}\nLokasi: ${locDetail}`;
+        
         document.getElementById('resultView').classList.remove('hidden');
         document.getElementById('quotaResult').classList.add('hidden');
         document.getElementById('ipResult').classList.remove('hidden');
         document.getElementById('loading').classList.add('hidden');
     }
 
-    // Visitor Log Init
     window.addEventListener('load', async () => {
         try {
             const d = await fetchFresh('https://ipwho.is/');
