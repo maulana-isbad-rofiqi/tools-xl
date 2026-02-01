@@ -357,23 +357,38 @@
                   sisaAll += parseSize(q.remaining);
                   let pct = q.percent !== null ? q.percent : 100;
                   const barBg = pct < 20 ? 'bg-cyber-red' : 'bg-cyber-cyan';
-                  qHtml += `<div class="mt-3"><div class="flex justify-between mb-1 text-[10px] font-bold font-code uppercase"><span class="text-gray-400 truncate">${q.name}</span><span class="text-white">${q.remaining}</span></div><div class="prog-track"><div class="prog-fill ${barBg}" style="width:${pct}%"></div></div></div>`;
-                  reportStr += `  └ ${q.name}: ${q.remaining}\n`;
+                  
+                  // Menambahkan visual Total dan Sisa di setiap item kuota
+                  qHtml += `
+                    <div class="mt-3">
+                        <div class="flex justify-between mb-1 text-[10px] font-bold font-code uppercase">
+                            <span class="text-gray-400 truncate w-2/3">${q.name}</span>
+                            <span class="text-white">${q.remaining}</span>
+                        </div>
+                        <div class="prog-track">
+                            <div class="prog-fill ${barBg}" style="width:${pct}%"></div>
+                        </div>
+                        <div class="flex justify-between mt-1 text-[8px] text-gray-500 font-code uppercase tracking-tighter">
+                            <span>Total: ${q.total}</span>
+                            <span>Sisa: ${q.remaining}</span>
+                        </div>
+                    </div>`;
+                  
+                  reportStr += `  └ ${q.name}: ${q.remaining} / ${q.total}\n`;
                 });
             } else {
                 let t = p.quota || p.total || "-";
                 let s = p.remaining || p.sisa || "-";
                 totalAll += parseSize(t);
                 sisaAll += parseSize(s);
-                qHtml = `<div class="mt-2 text-[10px] text-gray-400 font-code italic">Info: ${s} / ${t}</div>`;
-                reportStr += `  └ Quota: ${s}\n`;
+                qHtml = `<div class="mt-2 text-[10px] text-gray-400 font-code italic">Info: Sisa ${s} / Total ${t}</div>`;
+                reportStr += `  └ Quota: ${s} / ${t}\n`;
             }
 
             card.innerHTML = `<div class="flex justify-between items-start border-b border-white/10 pb-2 mb-2"><h4 class="font-bold text-xs text-cyber-cyan font-head uppercase">${p.name}</h4><div class="text-[9px] text-gray-500 font-code bg-black/40 px-2 rounded">${p.expiry || p.exp_date || '-'}</div></div>${qHtml}`;
             document.getElementById('paketContainer').appendChild(card);
           });
         } else {
-            // Tampilan jika tidak ada paket
             document.getElementById('paketContainer').innerHTML = `
               <div class="glass-panel p-8 rounded-2xl border border-cyber-red/30 bg-cyber-red/5 text-center flex flex-col items-center gap-5 animate-[fadeIn_0.5s_ease-out]">
                 <div class="w-16 h-16 rounded-full bg-cyber-red/20 flex items-center justify-center border border-cyber-red shadow-[0_0_20px_rgba(255,0,60,0.3)]">
